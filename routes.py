@@ -125,8 +125,14 @@ def training():
     per_page = 20
     page = request.args.get('page') or 1
     page = max([1, int(page)])
-    trainings = Training.query.order_by(
-        Training.date.desc()).paginate(page, per_page)
+    trainings = Training.query
+    keywords = request.args.get('keyword')
+    if keywords is not None:
+        for keyword in keywords.split(','):
+            keyword = keyword.replace(' ', '')
+            keyword = keyword.replace('　', '')
+            trainings = trainings.filter(Training.comment.match(keyword))
+    trainings = trainings.order_by( Training.date.desc()).paginate(page, per_page)
     return render_template('training.html', pagination=trainings)
 
 
@@ -206,7 +212,15 @@ def after():
     per_page = 40
     page = request.args.get('page') or 1
     page = max([1, int(page)])
-    afters = After.query.order_by(After.date.desc()).paginate(page, per_page)
+    afters = After.query
+    keywords = request.args.get('keyword')
+    if keywords is not None:
+        for keyword in keywords.split(','):
+            keyword = keyword.replace(' ', '')
+            keyword = keyword.replace('　', '')
+            afters = afters.filter(After.comment.match(keyword))
+
+    afters = afters.order_by(After.date.desc()).paginate(page, per_page)
     return render_template('after.html', pagination=afters)
 
 
@@ -478,3 +492,8 @@ def ranking():
              ]
 
     return render_template('ranking.html', items=items, years=range(current_school_year, 1990, -1))
+
+
+@app.route('/search/')
+def search():
+    return render_template('search.html')
