@@ -497,3 +497,11 @@ def ranking():
 @app.route('/search/')
 def search():
     return render_template('search.html')
+
+
+@app.route('/race-type/')
+@login_required
+def race_type():
+    race_types = RaceType.query.order_by(RaceType.race_type, RaceType.duration)
+    return render_template('race_type.html', race_types=race_types)
+
