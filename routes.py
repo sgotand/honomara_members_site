@@ -478,3 +478,9 @@ def ranking():
              ]
 
     return render_template('ranking.html', items=items, years=range(current_school_year, 1990, -1))
+
+@app.route('/race-type/')
+@login_required
+def race_type():
+    race_types = RaceType.query.all()
+    return render_template('race_type.html', race_types=race_types)
