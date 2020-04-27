@@ -124,7 +124,7 @@ class After(db.Model):
 
     def __repr__(self):
         return "<After(id:{}, {:%Y-%m-%d}, title:'{}')>".\
-            format(self.after_id, self.date, self.title)
+            format(self.id, self.date, self.title)
 
 
 class RaceBase(db.Model):

@@ -1,0 +1,17 @@
+{% extends "template.html" %}
+{% block content %}
+<div class="container">
+<h2> 練習録キーワード検索</h2>
+<form action="{{url_for('training')}}" class="form" method="get" role="form">
+<div class="form-group  required"><label class="control-label" for="keyword">キーワード:</label><input class="form-control" id="keyword" name="keyword" required type="text" value=""></div>
+<input class="btn btn-default" id="submit" name="submit" type="submit" value="検索">
+</form>
+<p>※検索したいキーワードをカンマ(',')区切りで入力してください。</p>
+<h2> アフター録キーワード検索</h2>
+<form action="{{url_for('after')}}" class="form" method="get" role="form">
+<div class="form-group  required"><label class="control-label" for="keyword">キーワード:</label><input class="form-control" id="keyword" name="keyword" required type="text" value=""></div>
+<input class="btn btn-default" id="submit" name="submit" type="submit" value="検索">
+</form>
+<p>※検索したいキーワードをカンマ(',')区切りで入力してください。</p>
+</div>
+{% endblock %}
