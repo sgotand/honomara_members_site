@@ -1,0 +1,49 @@
+{% extends "template.html"%}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="page-header">
+                <h1 id="tables">大会一覧
+                </h1>
+            </div>
+            <div class="bs-component">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>大会</th>
+                            <th>場所</th>
+                            <th>備考</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for race_base in race_bases %}
+                        <tr>
+                            <td>{{race_base.race_name}}</td>
+                            <td>{{race_base.prefecture}}</td>
+                            <td>{{race_base.comment}}</td>
+                            {% if current_user.is_authenticated %}
+                            <td>
+                                <form method="get" action="{{url_for('race_base_edit')}}">
+                                    <input type="hidden" name="method" value="PUT">
+                                    <input type="hidden" name="race_name" value="{{race_base.race_name}}">
+                                    <input type="submit" value="編集" class="btn btn-sm btn-warning">
+                                </form>
+                            </td>
+                            <td>
+                                <form method="post" action="{{url_for('race_base_confirm')}}">
+                                    <input type="hidden" name="method" value="DELETE">
+                                    <input type="hidden" name="race_name" value="{{race_base.race_name}}">
+                                    <input type="submit" value="削除" class="btn btn-sm btn-danger">
+                                </form>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
