@@ -1,0 +1,17 @@
+{% extends "template.html" %}
+{% block content %}
+<div class="container">
+種目登録ページ
+
+<form action="{{url_for('race_type_edit')}}" class="form" method="post" role="form">
+    {{ form.hidden_tag() }}
+    <div class="form-group  required">{{ form.race_type.label(class="control-label") }} {{form.race_type(class="form-control")}}</div>      
+    <div class="form-group  required">{{ form.show_name.label(class="control-label") }} {{form.show_name(class="form-control")}}</div>      
+    <div class="form-group  required">{{ form.ranking.label(class="control-label") }} {{form.ranking(class="form-control")}}</div>    
+    <div class="form-group  required">{{ form.duration.label(class="control-label") }} {{form.duration(class="form-control")}}</div>      
+    <div class="form-group  required">{{ form.duration_h.label(class="control-label") }} {{form.duration_h(class="form-control")}}</div>
+    <div class="form-group  required">{{ form.comment.label(class="control-label") }} {{form.comment(class="form-control")}}</div>      
+    <input class="btn btn-default" id="submit" name="submit" type="submit" value="確定">
+</form>
+</div>
+{% endblock %}

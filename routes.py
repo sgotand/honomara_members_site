@@ -5,7 +5,7 @@ from honomara_members_site.login import login_check
 from honomara_members_site.model import Member, Training, After, Restaurant, Race, RaceBase, RaceType, Result
 from honomara_members_site.model import TrainingParticipant
 from sqlalchemy import func
-from honomara_members_site.form import MemberForm, TrainingForm, AfterForm, RaceBaseForm, RaceForm, ResultForm
+from honomara_members_site.form import MemberForm, TrainingForm, AfterForm, RaceBaseForm, RaceForm, ResultForm, RaceTypeForm
 from flask_login import login_required, login_user, logout_user
 from honomara_members_site.util import current_school_year
 
@@ -503,3 +503,59 @@ def race_type():
     race_types = RaceType.query.order_by(RaceType.race_type, RaceType.duration)
     return render_template('race_type.html', race_types=race_types)
 
+@app.route('/race-type/edit', methods=['GET', 'POST'])
+@login_required
+def race_type_edit():
+    form = RaceTypeForm(formdata=request.form)
+    if form.validate_on_submit():
+        return redirect(url_for('race_type_confirm'), code=307)
+
+    if request.args.get('method') == 'PUT':
+        id = int(request.args.get('id'))
+        race_type = RaceType.query.get(id)
+        form = RaceTypeForm(obj=race_type)
+        form.duration_h.data = form.duration.data // 3600
+        form.duration.data = None
+        form.method.data = 'PUT'
+    else:
+        form.method.data = 'POST'
+    return render_template('race_type_edit.html', form=form)
+
+@app.route('/race-type/confirm', methods=['POST'])
+@login_required
+def race_type_confirm():
+    form = RaceTypeForm(formdata=request.form)
+    if request.form.get('submit') == 'キャンセル':
+        return redirect(url_for('user'))
+    
+    if request.form.get('method') in ['PUT', 'POST'] and form.duration.data == None:
+            form.duration.data = form.duration_h.data * 3600
+
+    if form.validate_on_submit() and request.form.get('confirmed'):
+        if request.form.get('method') == 'DELETE':
+            race_type = RaceType.query.get(form.id.data)
+            db.session.delete(race_type)
+            db.session.commit()
+            flash('種目："{} {}"の削除が完了しました'.format(
+                race_type.race_type, race_type.show_name), 'danger')
+        elif request.form.get('method') == 'PUT':
+            race_type = RaceType.query.get(form.id.data)
+            form.populate_obj(race_type)
+            db.session.commit()
+            flash('種目："{} {}"の更新が完了しました'.format(
+                race_type.race_type, race_type.show_name), 'warning')
+        elif request.form.get('method') == 'POST':
+            race_type = RaceType()
+            form.populate_obj(race_type)
+            race_type.id = None
+            db.session.add(race_type)
+            db.session.commit()
+            flash('種目："{} {}"の登録が完了しました'.format(
+                race_type.race_type, race_type.show_name), 'info')
+
+        return redirect(url_for('race_type'))
+    else:
+        if request.form.get('method') == 'DELETE':
+            race_type = RaceType.query.get(form.id.data)
+            form = RaceTypeForm(obj=race_type)
+        return render_template('race_type_confirm.html', form=form)
