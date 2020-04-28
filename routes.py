@@ -132,7 +132,8 @@ def training():
             keyword = keyword.replace(' ', '')
             keyword = keyword.replace('　', '')
             trainings = trainings.filter(Training.comment.match(keyword))
-    trainings = trainings.order_by( Training.date.desc()).paginate(page, per_page)
+    trainings = trainings.order_by(
+        Training.date.desc()).paginate(page, per_page)
     return render_template('training.html', pagination=trainings)
 
 
@@ -505,10 +506,12 @@ def race_type():
     race_types = RaceType.query.order_by(RaceType.race_type, RaceType.duration)
     return render_template('race_type.html', race_types=race_types)
 
+
 @app.route('/race-base/')
 def race_base():
     race_bases = RaceBase.query.order_by(RaceBase.race_name)
     return render_template('race_base.html', race_bases=race_bases)
+
 
 @app.route('/race-base/edit/', methods=['GET', 'POST'])
 @login_required
@@ -516,6 +519,11 @@ def race_base_edit():
     form = RaceBaseForm(formdata=request.form)
 
     if form.validate_on_submit():
+        if form.method.data == "POST":
+            if RaceBase.query.get(form.race_name.data):
+                flash('大会："{}"はすでに登録されています'.format(
+                    form.race_name.data), 'warning')
+                return redirect(url_for('race_base'))
         return redirect(url_for('race_base_confirm'), code=307)
 
     if request.args.get('method') == 'PUT':
@@ -555,7 +563,7 @@ def race_base_confirm():
             db.session.add(race_base)
             db.session.commit()
             flash('大会："{}"の更新が完了しました'.format(
-                race_base.race.name), 'info')
+                race_base.race_name), 'info')
 
         return redirect(url_for('race_base'))
     else:

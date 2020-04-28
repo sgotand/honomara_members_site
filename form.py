@@ -93,9 +93,7 @@ class RaceForm(FlaskForm):
 
 
 class RaceBaseForm(FlaskForm):
-    race_name = SelectField('大会名:', coerce=str, validators=[Optional()],
-                            choices=race_base_list_for_form)
-    race_name_option = StringField('大会名（選択肢にない場合）:', validators=[Optional()])
+    race_name = StringField('大会名:', validators=[Optional()])
     prefecture = SelectField('開催都道府県:', validators=[InputRequired()],
                              choices=[('北海道', '北海道'), ('青森県', '青森県'), ('岩手県', '岩手県'),
                                       ('宮城県', '宮城県'), ('秋田県', '秋田県'),
@@ -119,7 +117,7 @@ class RaceBaseForm(FlaskForm):
                                                        '熊本県'), ('大分県', '大分県'),
                                       ('宮崎県', '宮崎県'), ('鹿児島県', '鹿児島県'),
                                       ('沖縄県', '沖縄県')])
-    comment = TextAreaField('コメント:', validators=[Optional()])
+    comment = TextAreaField('備考:', validators=[Optional()])
     confirmed = HiddenField(validators=[Optional()])
     method = HiddenField(validators=[Optional()])
     submit = SubmitField('確定', validators=[Optional()])
