@@ -132,7 +132,8 @@ def training():
             keyword = keyword.replace(' ', '')
             keyword = keyword.replace('　', '')
             trainings = trainings.filter(Training.comment.match(keyword))
-    trainings = trainings.order_by( Training.date.desc()).paginate(page, per_page)
+    trainings = trainings.order_by(
+        Training.date.desc()).paginate(page, per_page)
     return render_template('training.html', pagination=trainings)
 
 
@@ -493,15 +494,18 @@ def ranking():
 
     return render_template('ranking.html', items=items, years=range(current_school_year, 1990, -1))
 
+
 @app.route('/search/')
 def search():
     return render_template('search.html')
+
 
 @app.route('/race-type/')
 @login_required
 def race_type():
     race_types = RaceType.query.order_by(RaceType.race_type, RaceType.duration)
     return render_template('race_type.html', race_types=race_types)
+
 
 @app.route('/race-type/edit', methods=['GET', 'POST'])
 @login_required
@@ -521,15 +525,16 @@ def race_type_edit():
         form.method.data = 'POST'
     return render_template('race_type_edit.html', form=form)
 
+
 @app.route('/race-type/confirm', methods=['POST'])
 @login_required
 def race_type_confirm():
     form = RaceTypeForm(formdata=request.form)
     if request.form.get('submit') == 'キャンセル':
         return redirect(url_for('user'))
-    
+
     if request.form.get('method') in ['PUT', 'POST'] and form.duration.data == None:
-            form.duration.data = form.duration_h.data * 3600
+        form.duration.data = form.duration_h.data * 3600
 
     if form.validate_on_submit() and request.form.get('confirmed'):
         if request.form.get('method') == 'DELETE':

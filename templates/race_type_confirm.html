@@ -1,52 +1,52 @@
 {% extends "template.html" %}
 {% block content %}
 <div class="container">
-種目確認ページ
-<div class="row">
-    <div class="bs-component">
-        <div class="panel panel-default">
-            {% if form.method.data == 'POST' %}
+    種目確認ページ
+    <div class="row">
+        <div class="bs-component">
+            <div class="panel panel-default">
+                {% if form.method.data == 'POST' %}
                 <div class="panel-heading">以下の種目を新規に登録します。</div>
-            {% elif form.method.data == 'PUT' %}
-            <div class="panel-heading">以下の様に種目情報を更新します。</div>
-            {% elif form.method.data == 'DELETE' %}
+                {% elif form.method.data == 'PUT' %}
+                <div class="panel-heading">以下の様に種目情報を更新します。</div>
+                {% elif form.method.data == 'DELETE' %}
                 <div class="panel-heading">以下の種目情報を削除します。</div>
-            {% endif %}
+                {% endif %}
 
-            <div class="panel-body">
+                <div class="panel-body">
                     <div class="bs-component">
-                            <table class="table table-striped table-hover ">
-                                <thead>
-                                    <tr>
-                                        <th>種類</th>
-                                        <th>表示名</th>
-                                        <th>ランク</th>
-                                        <th>距離(または制限時間)</th>
-                                        <th>備考</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                            <th>{{ form.race_type.data }}</th>
-                                            <th>{{ form.show_name.data }}</th>
-                                            <th>{{ form.ranking.data }}</th>
-                                            {% if int(form.duration.data) < 1000 %}
-                                            <td>{{form.duration.data}}km</td>
-                                            {% else %}
-                                            <td>
-                                            {{int(form.duration.data)//3600}}時間
-                                            </td>
-                                            {% endif %}
-                                            <th>{{ form.comment.data }}</th>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <table class="table table-striped table-hover ">
+                            <thead>
+                                <tr>
+                                    <th>種類</th>
+                                    <th>表示名</th>
+                                    <th>ランク</th>
+                                    <th>距離(または制限時間)</th>
+                                    <th>備考</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th>{{ form.race_type.data }}</th>
+                                    <th>{{ form.show_name.data }}</th>
+                                    <th>{{ form.ranking.data }}</th>
+                                    {% if int(form.duration.data) < 1000 %}
+                                    <td>{{form.duration.data}}km</td>
+                                    {% else %}
+                                    <td>
+                                        {{int(form.duration.data)//3600}}時間
+                                    </td>
+                                    {% endif %}
+                                    <th>{{ form.comment.data }}</th>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<form id="form-id" action="{{url_for('race_type_confirm')}}" method="post">
+    <form id="form-id" action="{{url_for('race_type_confirm')}}" method="post">
         {{ form.csrf_token }}
         {{ form.id }}
         {{ form.method }}
@@ -58,16 +58,16 @@
         <input type="hidden" name="comment" value="{{ form.comment.data }}">
         <input type="hidden" name="confirmed" value="True">
         {% if form.method.data == 'POST' %}
-            <input type="submit" value="登録"  class="btn btn-primary">
+        <input type="submit" value="登録" class="btn btn-primary">
         {% elif form.method.data == 'PUT' %}
-            <input type="hidden" name="id" value="{{ form.id.data }}">
-            <input type="submit" value="更新"  class="btn btn-warning">
+        <input type="hidden" name="id" value="{{ form.id.data }}">
+        <input type="submit" value="更新" class="btn btn-warning">
         {% elif form.method.data == 'DELETE' %}
-            <input type="hidden" name="id" value="{{ form.id.data }}">
-            <input type="submit" value="削除"  class="btn btn-danger">
+        <input type="hidden" name="id" value="{{ form.id.data }}">
+        <input type="submit" value="削除" class="btn btn-danger">
         {% endif %}
         <a href="{{url_for('race_type')}}" class="btn btn-default">キャンセル</a>
-</form>
+    </form>
 
 
 </div>
