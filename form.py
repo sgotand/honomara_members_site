@@ -143,14 +143,16 @@ class ResultForm(FlaskForm):
     method = HiddenField(validators=[Optional()])
     submit = SubmitField('確定', validators=[Optional()])
 
+
 class RaceTypeForm(FlaskForm):
     id = HiddenField(validators=[Optional()])
     race_type = SelectField('種類:', coerce=str, validators=[InputRequired()],
-                                choices=[('road', 'road'), ('trail', 'trail'), ('track', 'track'), ('time', 'time'), ('other', 'other')])
+                            choices=[('road', 'road'), ('trail', 'trail'), ('track', 'track'), ('time', 'time'), ('other', 'other')])
     show_name = StringField('表示名:', validators=[InputRequired()])
     ranking = IntegerField('ランク:', validators=[Optional()], default=100)
     duration = FloatField('距離(時間走などの場合は空欄。単位：km):', validators=[Optional()])
-    duration_h = FloatField('制限時間(時間走などの場合。単位：時間)', validators=[Optional()], default=0)
+    duration_h = FloatField('制限時間(時間走などの場合。単位：時間)',
+                            validators=[Optional()], default=0)
     comment = TextAreaField('備考:', validators=[Optional()])
     confirmed = HiddenField(validators=[Optional()])
     method = HiddenField(validators=[Optional()])

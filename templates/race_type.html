@@ -10,47 +10,50 @@
                 </h1>
             </div>
             <div class="bs-component">
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>タイプ</th>
-                            <th>表示名</th>
-                            <th>距離または時間</th>
-                            <th>ランク</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for race_type in race_types %}
-                        <tr>
-                            <td>{{race_type.race_type}}</td>
-                            <td>{{race_type.show_name}}</td>
-                            {% if int(race_type.duration) < 1000 %}
-                            <td>{{race_type.duration}}km</td>
-                            {% else %}
-                            <td>
-                                {{int(race_type.duration)//3600}}時間
-                            </td>
-                            {% endif %}
-                            <td>{{race_type.ranking}}</td>
-                            <td>
-                                <form method="get" action="{{url_for('race_type_edit')}}">
-                                    <input type="hidden" name="method" value="PUT">
-                                    <input type="hidden" name="id" value="{{race_type.id}}">
-                                    <input type="submit" value="編集" class="btn btn-sm btn-warning">
-                                </form>
-                            </td>
-                            <td>
-                                <form method="post" action="{{url_for('race_type_confirm')}}">
-                                    <input type="hidden" name="method" value="DELETE">
-                                    <input type="hidden" name="id" value="{{race_type.id}}">
-                                    <input type="submit" value="削除" class="btn btn-sm btn-danger">
-                                </form>
-                            </td>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>タイプ</th>
+                                <th>表示名</th>
+                                <th>距離または時間</th>
+                                <th>ランク</th>
+                                <th>備考</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for race_type in race_types %}
+                            <tr>
+                                <td>{{race_type.race_type}}</td>
+                                <td>{{race_type.show_name}}</td>
+                                {% if int(race_type.duration) < 1000 %}
+                                <td>{{race_type.duration}}km</td>
+                                {% else %}
+                                <td>
+                                    {{int(race_type.duration)//3600}}時間
+                                </td>
+                                {% endif %}
+                                <td>{{race_type.ranking}}</td>
+                                <td>{{race_type.comment}}</td>
+                                <td style="display: flex;">
+                                    <form method="get" action="{{url_for('race_type_edit')}}" style="margin: 0 3px;">
+                                        <input type="hidden" name="method" value="PUT">
+                                        <input type="hidden" name="id" value="{{race_type.id}}">
+                                        <input type="submit" value="編集" class="btn btn-sm btn-warning">
+                                    </form>
+                                    <form method="post" action="{{url_for('race_type_confirm')}}"
+                                        style="margin: 0 3px;">
+                                        <input type="hidden" name="method" value="DELETE">
+                                        <input type="hidden" name="id" value="{{race_type.id}}">
+                                        <input type="submit" value="削除" class="btn btn-sm btn-danger">
+                                    </form>
+                                </td>
 
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
