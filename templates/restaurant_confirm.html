@@ -1,0 +1,53 @@
+{% extends "template.html" %}
+{% block content %}
+<div class="container">
+レストラン確認ページ
+<div class="row">
+    <div class="bs-component">
+        <div class="panel panel-default">
+                {% if form.method.data == 'POST' %}
+                <div class="panel-heading">以下のレストランを新規に登録します。</div>
+                {% elif form.method.data == 'PUT' %}
+                <div class="panel-heading">以下の様にレストランを更新します。</div>
+                {% elif form.method.data == 'DELETE' %}
+                    <div class="panel-heading">以下のレストランを削除します。</div>
+                {% endif %}
+                <div class="panel-body">
+                <div class="bs-component">
+                    <dl>
+                        <dt>店名</dt>
+                        <dd>{{form.name.data}}</dd>
+                        <dt>場所</dt>
+                        <dd>{{form.place.data}}</dd>
+                        <dt>コメント</dt>
+                        <dd>{{form.comment.data}}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row bs_component">
+    <form id="form-id" action="{{url_for('restaurant_confirm')}}" method="post">
+            {{ form.csrf_token }}
+            {{ form.id }}
+            {{ form.method }}
+            <input type="hidden" name="name" value="{{ form.name.data }}">
+            <input type="hidden" name="place" value="{{ form.place.data }}">
+            <input type="hidden" name="comment" value="{{ form.comment.data }}">
+            <input type="hidden" name="method" value="{{ form.method.data }}">
+            <input type="hidden" name="confirmed" value="True">
+            {% if form.method.data == 'POST' %}
+                <input type="submit" value="登録"  class="btn btn-primary">
+            {% elif form.method.data == 'PUT' %}
+                <input type="hidden" name="id" value="{{ form.id.data }}">
+                <input type="submit" value="更新"  class="btn btn-warning">
+            {% elif form.method.data == 'DELETE' %}
+                <input type="hidden" name="id" value="{{ form.id.data }}">
+                <input type="submit" value="削除"  class="btn btn-danger">
+            {% endif %}
+        <a href="{{url_for('restaurant')}}" class="btn btn-default">キャンセル</a>
+</form>
+</div>
+</div>
+{% endblock %}

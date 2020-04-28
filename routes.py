@@ -5,7 +5,7 @@ from honomara_members_site.login import login_check
 from honomara_members_site.model import Member, Training, After, Restaurant, Race, RaceBase, RaceType, Result
 from honomara_members_site.model import TrainingParticipant
 from sqlalchemy import func
-from honomara_members_site.form import MemberForm, TrainingForm, AfterForm, RaceBaseForm, RaceForm, ResultForm
+from honomara_members_site.form import MemberForm, TrainingForm, AfterForm, RaceBaseForm, RaceForm, ResultForm, RestaurantForm
 from flask_login import login_required, login_user, logout_user
 from honomara_members_site.util import current_school_year
 
@@ -505,3 +505,76 @@ def race_type():
     race_types = RaceType.query.order_by(RaceType.race_type, RaceType.duration)
     return render_template('race_type.html', race_types=race_types)
 
+
+@app.route('/restaurant/')
+@login_required
+def restaurant():
+    restaurants = Restaurant.query.order_by(Restaurant.place)
+    return render_template('restaurant.html', restaurants=restaurants, groupby=groupby, key=(lambda x: x.place))
+
+
+@app.route('/restaurant/edit', methods=['GET', 'POST'])
+@login_required
+def restaurant_edit():
+    form = RestaurantForm(formdata=request.form)
+
+    if form.validate_on_submit():
+        return redirect(url_for('restaurant_confirm'), code=307)
+
+    if request.args.get('method') == 'PUT':
+        id = int(request.args.get('id'))
+        restaurant = Restaurant.query.get(id)
+        form = RestaurantForm(obj=restaurant)
+        form.name.data = restaurant.name
+        form.place.data = restaurant.place
+        form.comment.data = restaurant.comment
+        form.method.data = 'PUT'
+    else:
+        form.method.data = 'POST'
+
+    return render_template('restaurant_edit.html', form=form)
+
+
+@app.route('/restaurant/confirm', methods=['POST'])
+@login_required
+def restaurant_confirm():
+    form = RestaurantForm(formdata=request.form)
+
+    if request.form.get('submit') == 'キャンセル':
+        return redirect(url_for('restaurant'))
+
+    if form.validate_on_submit() and request.form.get('confirmed'):
+        if request.form.get('method') == 'DELETE':
+            restaurant = Restaurant.query.get(form.id.data)
+            db.session.delete(restaurant)
+            db.session.commit()
+            flash('レストラン: "{}" の削除が完了しました'.format(restaurant.name), 'danger')
+
+        elif request.form.get('method') == 'PUT':
+            restaurant = Restaurant.query.get(form.id.data)
+            restaurant.name = restaurant.name.encode(
+                'euc-jp', errors='xmlcharrefreplace').decode('euc-jp')
+            restaurant.comment = restaurant.comment.encode(
+                'euc-jp', errors='xmlcharrefreplace').decode('euc-jp')
+            form.populate_obj(restaurant)
+            db.session.commit()
+            flash('レストラン: "{}" の更新が完了しました'.format(restaurant.name), 'warning')
+
+        elif request.form.get('method') == 'POST':
+            restaurant = Restaurant()
+            form.populate_obj(restaurant)
+            restaurant.name = restaurant.name.encode(
+                'euc-jp', errors='xmlcharrefreplace').decode('euc-jp')
+            restaurant.comment = restaurant.comment.encode(
+                'euc-jp', errors='xmlcharrefreplace').decode('euc-jp')
+            restaurant.id = None
+            db.session.add(restaurant)
+            db.session.commit()
+            flash('レストラン: "{}" の登録が完了しました'.format(restaurant.name), 'info')
+
+        return redirect(url_for('restaurant'))
+    else:
+        if request.form.get('method') == 'DELETE':
+            restaurant = Restaurant.query.get(form.id.data)
+            form = RestaurantForm(obj=restaurant)
+        return render_template('restaurant_confirm.html', form=form)

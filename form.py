@@ -142,3 +142,13 @@ class ResultForm(FlaskForm):
     confirmed = HiddenField(validators=[Optional()])
     method = HiddenField(validators=[Optional()])
     submit = SubmitField('確定', validators=[Optional()])
+
+
+class RestaurantForm(FlaskForm):
+    id = HiddenField(validators=[Optional()])
+    name = StringField('店名:', validators=[InputRequired()])
+    place = StringField('場所:', validators=[InputRequired()])
+    comment = TextAreaField('コメント:', validators=[Optional()])
+    confirmed = HiddenField(validators=[Optional()])
+    method = HiddenField(validators=[Optional()])
+    submit = SubmitField('確定', validators=[Optional()])
