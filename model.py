@@ -15,7 +15,11 @@ class Member(db.Model):
     sex = db.Column(db.Integer, nullable=False)
     visible = db.Column(db.Boolean, nullable=False)
 
-    results = db.relationship('Result')
+    results = db.relationship(
+        'Result',
+        backref='member',
+        order_by='Result.record'
+    )
 
     def __init__(self, form=None, **args):
         return super().__init__(**args)
@@ -63,7 +67,7 @@ class Training(db.Model):
     participants = db.relationship(
         'Member',
         secondary=TrainingParticipant.__tablename__,
-        order_by='Member.year, Member.family_kana, Member.first_kana' 
+        order_by='Member.year, Member.family_kana, Member.first_kana'
     )
 
     def __init__(self, form=None, **args):
@@ -92,7 +96,7 @@ class Restaurant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60), nullable=False)
     place = db.Column(db.String(20))
-    score = db.Column(db.Float, server_default=db.text('0') )
+    score = db.Column(db.Float, server_default=db.text('0'))
     comment = db.Column(db.Text)
 
     def __repr__(self):
@@ -127,85 +131,89 @@ class After(db.Model):
             format(self.id, self.date, self.title)
 
 
-class RaceBase(db.Model):
-    __tablename__ = 'race_base'
-
-    race_name = db.Column(db.String(100), primary_key=True)
-    prefecture = db.Column(db.String(100))
-    comment = db.Column(db.Text)
-    # races = db.relationship("Race")
-
-    def __init__(self, form=None, **args):
-        return super().__init__(**args)
-
-    def __repr__(self):
-        return "<RaceBase(race_name:{}, prefecture:{}, comment:'{}')>".\
-            format(self.race_name, self.prefecture, self.comment)
-
-
-class Race(db.Model):
-    __tablename__ = 'race'
+class Competition(db.Model):
+    __tablename__ = 'competitions'
 
     id = db.Column(db.Integer, primary_key=True)
-    # , db.ForeignKey('race_bases.race_name')
-    race_name = db.Column(db.String(100))
-    date = db.Column(db.Date, nullable=False)
-
-    results = db.relationship('Result',
-                              backref="race",
-                              order_by='Result.result'
-                              )
+    name = db.Column(db.String(100), nullable=False)
+    name_kana = db.Column(db.String(100))
+    show_name = db.Column(db.String(100))
+    place = db.Column(db.String(100))
+    url = db.Column(db.Text)
     comment = db.Column(db.Text)
+
+    race_types = db.relationship(
+        'RaceType',
+        backref="competition",
+        order_by='RaceType.distance'
+    )
+
+    results = db.relationship(
+        'Result',
+        backref="competition",
+        order_by='Result.date, Result.race_type_id, Result.record'
+    )
 
     def __init__(self, form=None, **args):
         return super().__init__(**args)
 
     def __repr__(self):
-        return "<Race(id:{},race_name:{},date {:%Y-%m-%d}, results:{}, comment:'{}')>".\
-            format(self.id, self.race_name, self.date,
-                   len(self.results), self.comment)
+        return "<competition(id:{}, name:{}, name_kana:{}, show_name:{}, place:{}, url:{}, comment:{}, results:{}, race_types:{})>".\
+            format(self.id, self.name, self.name_kana, self.show_name, self.place,
+                   self.url, self.comment, len(self.results), len(self.race_types))
 
 
 class RaceType(db.Model):
-    __tablename__ = 'race_type'
+    __tablename__ = 'race_types'
 
     id = db.Column(db.Integer, primary_key=True)
-    race_type = db.Column(db.String(30))
+    competition_id = db.Column(db.Integer, db.ForeignKey('competitions.id'),
+                               nullable=False)
+    # competition by backref
     show_name = db.Column(db.String(30))
-    ranking = db.Column(db.Integer)
-    duration = db.Column(db.Float)
+    type = db.Column(db.Integer)
     distance = db.Column(db.Float)
+    dulation = db.Column(db.Float)
+    cumulative_elevation = db.Column(db.Float)
     comment = db.Column(db.Text)
-    results = db.relationship('Result')
+
+    results = db.relationship(
+        'Result',
+        backref='race_type',
+        order_by='Result.record'
+    )
 
     def __init__(self, form=None, **args):
         return super().__init__(**args)
 
     def __repr__(self):
-        return "<RaceType(id:{}, race_type:{}, show_name:{}, ranking:{}, duration:{}, distance:{}, comment:'{}')>".\
-            format(self.id, self.race_type, self.show_name,
-                   self.ranking, self.duration, self.distance, self.comment)
+        return "<RaceType(id:{}, competition_id:{}, name:{}, type:{}, distance:{}, dulation:{}, cumulative_elevation:{}, comment:{}, rases:{})>".\
+            format(self.id, self.competition_id, self.name, self.type, self.distance,
+                   self.dulation, self.cumulative_elevation, self.comment, len(self.rases))
 
 
 class Result(db.Model):
-    __tablename__ = 'result'
+    __tablename__ = 'results'
 
-    member_id = db.Column(db.Integer, db.ForeignKey(
-        'member.id'), primary_key=True)
-    member = db.relationship('Member')
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.Date, nullable=False)
+    member_id = db.Column(
+        db.Integer, db.ForeignKey('member.id'))
+    # member by backref
+    competition_id = db.Column(
+        db.Integer, db.ForeignKey('competitions.id'))
+    # competition by backref
+    race_type_id = db.Column(
+        db.Integer, db.ForeignKey('race_types.id'))
+    # race_type by backref
 
-    race_id = db.Column(db.Integer, db.ForeignKey(
-        'race.id'), primary_key=True)
-    # race by backref
-
-    race_type_id = db.Column(db.Integer, db.ForeignKey(
-        'race_type.id'), primary_key=True)
-    race_type = db.relationship('RaceType')
-
-    result = db.Column(db.Integer, nullable=False)
+    record = db.Column(db.Integer, nullable=False)
     comment = db.Column(db.Text)
 
+    def __init__(self, form=None, **args):
+        return super().__init__(**args)
+
     def __repr__(self):
-        return "<Result(race:{}({:%Y-%m-%d}), race_type:{}, member:{}, result:{}, comment:{})>".\
-            format(self.race.race_name, self.race.date, self.race_type.race_type,
-                   self.member.show_name, self.result, self.comment)
+        return "<Result(id:{}, member_id:{}, race_id:{}, record:{}, comment:{})>".\
+            format(self.id, self.member_id, self.race_id,
+                   self.record, self.comment)

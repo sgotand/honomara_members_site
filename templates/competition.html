@@ -1,0 +1,27 @@
+{% extends "template.html" %}
+{% block content %}
+<h2>大会一覧</h2>
+<div class="table-responsive">
+    <table class="table">
+        <tr>
+            <th>大会名</th>
+            <th>大会名（カナ）</th>
+            <th>大会名（表示名）</th>
+            <th>開催地</th>
+            <th>大会サイト</th>
+            <th>備考</th>
+        </tr>
+        {% for competition in competitions %}
+        <tr>
+            <td>{{competition.name}}</td>
+            <td>{{competition.name_kana}}</td>
+            <td>{{competition.name_show}}</td>
+            <td>{{competition.place}}</td>
+            <td>{{competition.url}}</td>
+            <td>{{competition.comment}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</div>
+{% endblock %}
