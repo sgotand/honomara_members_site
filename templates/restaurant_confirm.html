@@ -19,6 +19,8 @@
                         <dd>{{form.name.data}}</dd>
                         <dt>場所</dt>
                         <dd>{{form.place.data}}</dd>
+                        <dt>スコア</dt>
+                        <dd>{{form.score.data}}</dd>
                         <dt>コメント</dt>
                         <dd>{{form.comment.data}}</dd>
                     </dl>
@@ -35,6 +37,7 @@
             <input type="hidden" name="name" value="{{ form.name.data }}">
             <input type="hidden" name="place" value="{{ form.place.data }}">
             <input type="hidden" name="comment" value="{{ form.comment.data }}">
+            <input type="hidden" name="score" value="{{ form.score.data }}">
             <input type="hidden" name="method" value="{{ form.method.data }}">
             <input type="hidden" name="confirmed" value="True">
             {% if form.method.data == 'POST' %}

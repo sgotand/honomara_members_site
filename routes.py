@@ -5,6 +5,7 @@ from honomara_members_site.login import login_check
 from honomara_members_site.model import Member, Training, After, Restaurant, Race, RaceBase, RaceType, Result
 from honomara_members_site.model import TrainingParticipant
 from sqlalchemy import func
+from sqlalchemy.sql import text
 from honomara_members_site.form import MemberForm, TrainingForm, AfterForm, RaceBaseForm, RaceForm, ResultForm, RestaurantForm
 from flask_login import login_required, login_user, logout_user
 from honomara_members_site.util import current_school_year
@@ -509,8 +510,15 @@ def race_type():
 @app.route('/restaurant/')
 @login_required
 def restaurant():
-    restaurants = Restaurant.query.order_by(Restaurant.place)
-    return render_template('restaurant.html', restaurants=restaurants, groupby=groupby, key=(lambda x: x.place))
+    restaurants = Restaurant.query
+    per_page = 40
+    page = request.args.get('page') or 1
+    page = max([1, int(page)])
+    #t = text("SELECT R.*, COUNT(A.restaurant_id) AS cnt FROM restaurant AS R LEFT JOIN after AS A ON R.id = A.restaurant_id GROUP BY R.id ORDER BY cnt DESC")
+    #restaurants = db.session.execute(t)
+    restaurants = db.session.query(Restaurant, func.count(After.restaurant_id).label('cnt')).\
+        outerjoin(After, Restaurant.id == After.restaurant_id).group_by(Restaurant.id).order_by(db.text('cnt DESC')).paginate(page, per_page)
+    return render_template('restaurant.html', pagination=restaurants)
 
 
 @app.route('/restaurant/edit', methods=['GET', 'POST'])
@@ -527,6 +535,7 @@ def restaurant_edit():
         form = RestaurantForm(obj=restaurant)
         form.name.data = restaurant.name
         form.place.data = restaurant.place
+        form.score.data = restaurant.score
         form.comment.data = restaurant.comment
         form.method.data = 'PUT'
     else:
