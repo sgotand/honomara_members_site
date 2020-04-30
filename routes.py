@@ -573,8 +573,14 @@ def restaurant_confirm():
             flash('レストラン: "{}" の登録が完了しました'.format(restaurant.name), 'info')
 
         return redirect(url_for('restaurant'))
+
     else:
         if request.form.get('method') == 'DELETE':
+            after = After.query.filter(After.restaurant_id==form.id.data).all()
             restaurant = Restaurant.query.get(form.id.data)
             form = RestaurantForm(obj=restaurant)
+            if len(after) != 0:
+                flash('レストラン: "{}" はアフター録で使用されているため削除することができません'.format(restaurant.name), 'danger')
+                return redirect(url_for('restaurant'))
+       
         return render_template('restaurant_confirm.html', form=form)
