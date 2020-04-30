@@ -44,6 +44,7 @@
                                     <input type="submit" value="編集" class="btn btn-sm btn-warning">
                                 </form>
                             </th>
+                            {% if restaurant[0].id not in afters %}
                             <th>
                                 <form method="post" action="{{url_for('restaurant_confirm')}}">
                                     <input type="hidden" name="method" value="DELETE">
@@ -51,6 +52,7 @@
                                     <input type="submit" value="削除" class="btn btn-sm btn-danger">
                                 </form>
                             </th>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </tbody>
