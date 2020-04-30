@@ -2,8 +2,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, RadioField, FloatField, IntegerField
 from wtforms import HiddenField, TextAreaField, DateField, SelectMultipleField, SelectField
 from wtforms.validators import Optional, InputRequired
-from honomara_members_site.model import Member, Restaurant
-from honomara_members_site.util import current_school_year, choice
+from honomara_members_site.model import Member, Restaurant, Competition, Race
+from honomara_members_site.util import current_school_year, data_collection
 
 
 visible_member_list_for_form = [(m.id, m.show_name)
@@ -19,7 +19,8 @@ weather_list = [('晴れ', '晴れ'), ('曇り', '曇り'), ('雨', '雨'),
 restaurants_choices = [(r.id, "{}({})".format(
     r.name, r.place)) for r in Restaurant.query.order_by(Restaurant.score.desc()).all()]
 
-
+competition_list_for_form = [(c.id, c.show_name) for c in Competition.query.all()]
+race_list_for_form = [(r.id, r.show_name) for r in Race.query.all()]
 
 class MemberForm(FlaskForm):
     id = HiddenField(validators=[Optional()])
@@ -77,8 +78,8 @@ class CompetitionForm(FlaskForm):
     name = StringField('大会名(正式名称):', validators=[InputRequired()])
     name_kana = StringField('大会名(カナ):', validators=[InputRequired()])
     show_name = StringField('大会名(表示名):', validators=[InputRequired()])
-    place = SelectField('開催地:',coerce=int, validators=[InputRequired()],
-                            choice=choice['place'])
+    place = SelectField('開催地:', coerce=int, validators=[InputRequired()],
+                        choices=data_collection['place'])
     url = TextAreaField('URL:', validators=[Optional()])
     comment = TextAreaField('備考:', validators=[Optional()])
     confirmed = HiddenField(validators=[Optional()])
@@ -91,11 +92,31 @@ class RaceForm(FlaskForm):
     competition_id = HiddenField(validators=[Optional()])
     show_name = StringField('表示名:', validators=[InputRequired()])
     type = SelectField('分類:', coerce=int, validators=[InputRequired()],
-                            choice=choice['type'])
+                       choices=data_collection['type'])
     distance = FloatField('距離:', validators=[Optional()], default=0)
     dulation = FloatField('制限時間:', validators=[Optional()], default=0)
-    cumulative_elevation = FloatField('獲得標高:', validators=[Optional()], default=0)
+    cumulative_elevation = FloatField(
+        '獲得標高:', validators=[Optional()], default=0)
     comment = TextAreaField('コメント:', validators=[Optional()])
+    confirmed = HiddenField(validators=[Optional()])
+    method = HiddenField(validators=[Optional()])
+    submit = SubmitField('確定', validators=[Optional()])
+
+
+class ResultForm(FlaskForm):
+    id = HiddenField(validators=[Optional()])
+    date = DateField('日付:', validators=[InputRequired()])
+    member_id = SelectField('参加者:', coerce=int, validators=[InputRequired()],
+                            choices=visible_member_list_for_form)
+    competition_id = SelectField('大会:', coerce=int, validators=[InputRequired()],
+                            choices=competition_list_for_form)
+    race_id = SelectField('種目:', coerce=int, validators=[InputRequired()],
+                          choices=race_list_for_form)
+    record = HiddenField('記録', validators=[Optional()])
+    record_h = IntegerField('記録(時間)', validators=[InputRequired()], default=0)
+    record_m = IntegerField('記録(分)', validators=[InputRequired()], default=0)
+    record_s = IntegerField('記録(秒)', validators=[InputRequired()], default=0)
+    comment = TextAreaField('備考:', validators=[Optional()])
     confirmed = HiddenField(validators=[Optional()])
     method = HiddenField(validators=[Optional()])
     submit = SubmitField('確定', validators=[Optional()])

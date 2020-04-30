@@ -1,13 +1,29 @@
 {% extends "template.html" %}
 {% block content %}
 <h2>大会結果</h2>
+{% if current_user.is_authenticated %}
+<a href="{{url_for('result_edit')}}">新規登録</a><br>
+{% endif %}
 {% for results_by_date in groupby(results, key=key['date']) %}
 {% for results_by_competition in groupby(results_by_date[1], key=key['competition']) %}
 {{results_by_competition[0].show_name}}({{results_by_date[0]}}) <br>
 {% for results_by_race in groupby(results_by_competition[1], key=key['race']) %}
 {{results_by_race[0].show_name}} <br>
 {% for result in  results_by_race[1] %}
-{{result.member.show_name}} {{result.record}} <br>
+{{result.member.show_name}} {{result.record}}
+{% if current_user.is_authenticated %}
+<form method="get" action="{{url_for('result_edit')}}">
+    <input type="hidden" name="method" value="PUT">
+    <input type="hidden" name="id" value="{{result.id}}">
+    <input type="submit" value="編集" class="btn btn-warning">
+</form>
+<form method="post" action="{{url_for('result_confirm')}}">
+    <input type="hidden" name="method" value="DELETE">
+    <input type="hidden" name="id" value="{{result.id}}">
+    <input type="submit" value="削除" class="btn btn-danger">
+</form>
+{% endif %}
+<br>
 {% endfor %}
 {% endfor %}
 {% endfor %}

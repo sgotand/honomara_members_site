@@ -41,6 +41,6 @@ place = [(1, '北海道'), (2, '青森県'), (3, '岩手県'), (4, '宮城県'),
             (40, '福岡県'), (41, '佐賀県'), (42, '長崎県'), (43, '熊本県'), (44, '大分県'), (45, '宮崎県'), (46, '鹿児島県'), (47, '沖縄県'),
             (48, '国外'), (-1, 'その他')]
 
-type = [(0, 'Road'), (1, 'Trail'), (2, 'Track'), (3, 'Time', (-1, 'Others'))]
+type = [(0, 'Road'), (1, 'Trail'), (2, 'Track'), (3, 'Time'), (-1, 'Others')]
 
-choice = {'place': place, 'type': type}
+data_collection = {'place': place, 'type': type}

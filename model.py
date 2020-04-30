@@ -142,7 +142,7 @@ class Competition(db.Model):
     url = db.Column(db.Text)
     comment = db.Column(db.Text)
 
-    race_types = db.relationship(
+    races = db.relationship(
         'Race',
         backref="competition",
         order_by='Race.distance'

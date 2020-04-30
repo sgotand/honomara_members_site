@@ -1,0 +1,34 @@
+{% extends "edit_template.html" %}
+{% block content %}
+<div class="container">
+    <div class="col-lg-8 col-lg-offset-2 col-sm-12">
+    大会記録登録ページ
+    <form action="{{url_for('result_edit')}}" class="form" method="post" role="form">
+        {{ form.hidden_tag() }}
+        <div class="form-group  required">{{ form.date.label(class="control-label") }}
+            {{form.date(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.competition_id.label(class="control-label") }}
+            {{form.competition_id(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.race_id.label(class="control-label") }}
+            {{form.race_id(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.member_id.label(class="control-label") }}
+            {{form.member_id(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.record.label(class="control-label") }}
+            {{form.record(class="form-control")}}</div>
+        <div class="row">
+            <div class="form-group  required col-sm-4">{{ form.record_h.label(class="control-label") }}
+                {{form.record_h(class="form-control")}}</div>
+            <div class="form-group  required col-sm-4">{{ form.record_m.label(class="control-label") }}
+                {{form.record_m(class="form-control")}}</div>
+            <div class="form-group  required col-sm-4">{{ form.record_s.label(class="control-label") }}
+                {{form.record_s(class="form-control")}}</div>
+        </div>
+        <div class="form-group  required">{{ form.comment.label(class="control-label") }}
+            {{form.comment(class="form-control")}}</div>
+        <input class="btn btn-default" id="submit" name="submit" type="submit" value="確定">
+
+
+    </form>
+    </div>
+</div>
+{% endblock %}
