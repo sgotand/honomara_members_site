@@ -435,18 +435,96 @@ def race_confirm():
 def result():
     list_type = request.args.get('list_type') or 'latest'
     year = request.args.get('year') or current_school_year
-    results = Result.query.order_by(
-        Result.date.desc(), Result.competition_id, Result.race_id, Result.record).filter(Result.date > (date.today() - timedelta(days=400)))
+    type = request.args.get('type') or 'road'
+    if list_type == 'latest':
+        results = Result.query.order_by(
+            Result.date.desc(), Result.competition_id, Result.race_id, Result.record).filter(Result.date > (date.today() - timedelta(days=400)))
+    elif list_type == 'year':
+        year = int(year)
+        results = Result.query.order_by(
+            Result.date, Result.competition_id, Result.race_id, Result.record).filter(Result.date >= date(year, 4, 1)).filter(Result.date < date(year+1, 4, 1))
+    elif list_type == 'type':
+        results = Result.query.order_by(
+            Result.date.desc(), Result.competition_id, Result.race_id, Result.record)
+        if type == 'fullbreak3':
+            r = []
+            for result in results:
+                if result.race.distance == 42.195 and result.record < 10800 and result.race.type == 0:
+                    r.append(result)
+            results = r
+        elif type == 'halfbreak80':
+            r = []
+            for result in results:
+                if result.race.distance != None:
+                    if result.race.distance > 21 and result.race.distance < 21.5 and result.record < 4800 and result.race.type == 0:
+                        r.append(result)
+            results = r
+        elif type == 'road100':
+            r = []
+            for result in results:
+                if result.race.distance == 100 and result.race.type == 0:
+                    r.append(result)
+            results = r
+        elif type == 'roadover100':
+            r = []
+            for result in results:
+                if result.race.distance != None:
+                    if result.race.distance > 100 and result.race.type == 0:
+                        r.append(result)
+            results = r
+        elif type == 'roadoverfull':
+            r = []
+            for result in results:
+                if result.race.distance != None:
+                    if result.race.distance > 42.195 and result.race.distance < 100 and result.race.type == 0:
+                        r.append(result)
+            results = r
+        elif type == 'roadunderfull':
+            r = []
+            for result in results:
+                if result.race.distance != None:
+                    if result.race.distance > 21.0975 and result.race.distance < 42.195 and result.race.type == 0:
+                        r.append(result)
+            results = r
+        elif type == 'roadunderhalf':
+            r = []
+            for result in results:
+                if result.race.distance != None:
+                    if result.race.distance < 21.0975 and result.race.distance > 10 and result.race.type == 0:
+                        r.append(result)
+            results = r
+        elif type == 'road10':
+            r = []
+            for result in results:
+                if result.race.distance == 10 and result.race.type == 0:
+                    r.append(result)
+            results = r
+        elif type == 'roadunder10':
+            r = []
+            for result in results:
+                if result.race.distance != None:
+                    if result.race.distance < 10 and result.race.type == 0:
+                        r.append(result)
+            results = r
+        elif type == 'track':
+            r = []
+            for result in results:
+                if result.race.type == 2:
+                    r.append(result)
+            results = r
+        elif type == 'time':
+            r = []
+            for result in results:
+                if result.race.type == 3:
+                    r.append(result)
+            results = r
+        else:
+            results = None
     key = {}
     key['date'] = (lambda x: x.date)
     key['competition'] = (lambda x: x.competition)
     key['race'] = (lambda x: x.race)
-    if list_type == 'year':
-        year = int(year)
-        results_by_year = Result.query.order_by(
-            Result.date, Result.competition_id, Result.race_id, Result.record).filter(Result.date >= date(year, 4, 1)).filter(Result.date < date(year+1, 4, 1))
-        results = results_by_year
-    return render_template('result.html', results=results, groupby=groupby, key=key, list_type=list_type, current_school_year=current_school_year, year=year)
+    return render_template('result.html', results=results, groupby=groupby, key=key, list_type=list_type, current_school_year=current_school_year, year=year, type=type)
 
 
 @app.route('/result/edit', methods=['GET', 'POST'])

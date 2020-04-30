@@ -12,26 +12,46 @@
 <div class="container">
     <div class="row">
         <div class="col-xs-12 col-sm-3">
-            <a class="btn btn-default" href="{{url_for('result', list_type='latest')}}" role="button"
-                style="margin-bottom: 20px;">最新結果</a>
             <div class="panel panel-default">
                 <div class="panel-heading collapse-heading" data-toggle="collapse" data-target="#collapse-year">
                     <h3 class="panel-title">
-                        各年度の結果
+                        選択
                         <span class="glyphicon glyphicon-chevron-down pull-right"></span>
                     </h3>
                 </div>
                 <div id="collapse-year" class="panel-body panel-collapse collapse">
-                    <div class="table-responsive">
-                        <table class="table table-default table-condensed small">
+                    <a class="btn btn-link btn-block" href="{{url_for('result', list_type='latest')}}" role="button"
+                        style="color:black;">最新</a>
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
+                            年度
+                            <span class="glyphicon glyphicon-chevron-down"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
                             {% for i in range(current_school_year-1998) %}
-                            <tr>
-                                <td><a style="color:black;"
-                                        href="{{url_for('result', list_type='year', year=current_school_year-i)}}">{{current_school_year-i}}年度</a>
-                                </td>
-                            </tr>
+                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='year', year=current_school_year-i)}}">{{current_school_year-i}}年度</a></li>
                             {% endfor %}
-                        </table>
+                        </ul>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
+                            種類
+                            <span class="glyphicon glyphicon-chevron-down"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='fullbreak3')}}">フル・サブ3</a></li>
+                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='halfbreak80')}}">ハーフ・70分台</a></li>
+                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='road100')}}">ロード・100キロ</a></li>
+                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='roadover100')}}">ロード・100キロ超</a></li>
+                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='roadoverfull')}}">ロード・フル以上100キロ未満</a></li>
+                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='roadunderfull')}}">ロード・ハーフ超フル未満</a></li>
+                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='roadunderhalf')}}">ロード・10キロ超ハーフ未満</a></li>
+                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='road10')}}">ロード・10キロ</a></li>
+                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='roadunder10')}}">ロード・10キロ未満</a></li>
+                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='track')}}">トラック競技</a></li>
+                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='time')}}">時間走</a></li>
+
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -74,7 +94,7 @@
                         {% endif %}
                     </small>
                 </h3>
- 
+
                 {% for results_by_date in groupby(results, key=key['date']) %}
                 {% for results_by_competition in groupby(results_by_date[1], key=key['competition']) %}
                 <div class="competitions" id="competition{{results_by_competition[0].id}}">
