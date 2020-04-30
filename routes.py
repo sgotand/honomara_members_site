@@ -442,9 +442,16 @@ def result_edit():
     form = ResultForm(formdata=request.form)
     form.record.data = form.record_h.data * 3600 + \
         form.record_m.data * 60 + form.record_s.data
+    app.logger.info(request.form)
+    if form.submit.data:
+        if request.form['step'] == 'step1':
+            step = "step2"
+            form.race_id.choices = [(r.id, "{}({})".format(r.show_name, r.competition.show_name)) for r in Race.query.filter(Race.competition_id==form.competition_id.data)]
+            return render_template('result_edit.html', form=form, step=step)
+        elif request.form['step'] == 'step2':
+            if form.validate_on_submit():
+                return redirect(url_for('result_confirm'), code=307)
 
-    if form.validate_on_submit():
-        return redirect(url_for('result_confirm'), code=307)
 
     if request.args.get('method') == 'PUT':
         id = request.args.get('id')
@@ -454,9 +461,11 @@ def result_edit():
         form.record_m.data = (int(result.record) % 3600)//60
         form.record_s.data = int(result.record) % 60
         form.method.data = 'PUT'
+        step = "step2"
     else:
         form.method.data = 'POST'
-    return render_template('result_edit.html', form=form)
+        step = "step1"
+    return render_template('result_edit.html', form=form, step=step)
 
 @app.route('/result/confirm', methods=['POST'])
 @login_required

@@ -20,7 +20,7 @@ restaurants_choices = [(r.id, "{}({})".format(
     r.name, r.place)) for r in Restaurant.query.order_by(Restaurant.score.desc()).all()]
 
 competition_list_for_form = [(c.id, c.show_name) for c in Competition.query.all()]
-race_list_for_form = [(r.id, r.show_name) for r in Race.query.all()]
+race_list_for_form = [(r.id, "{}({})".format(r.show_name, r.competition.show_name)) for r in Race.query.all()]
 
 class MemberForm(FlaskForm):
     id = HiddenField(validators=[Optional()])
