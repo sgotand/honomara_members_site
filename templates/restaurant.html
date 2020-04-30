@@ -19,7 +19,7 @@
                 <table class="table table-striped table-hover ">
                     <thead>
                         <tr>
-                            <th>店名 @場所</th>
+                            <th>店名(場所)</th>
                             <th>コメント</th>
                             <th>スコア</th>
                             <th></th>
@@ -29,7 +29,7 @@
                         {% for restaurant in pagination.items %}
                         <tr>
                             <th>
-                                {{ restaurant[0].name }} @{{ restaurant[0].place }} <!--joinしている関係で[0]が必要-->
+                                {{ restaurant[0].name }}({{ restaurant[0].place }}) <!--joinしている関係で[0]が必要-->
                             </th>
                             <th>
                                 {{ restaurant[0].comment }}
@@ -44,6 +44,7 @@
                                     <input type="submit" value="編集" class="btn btn-sm btn-warning">
                                 </form>
                             </th>
+                            {% if restaurant[0].id not in afters %}
                             <th>
                                 <form method="post" action="{{url_for('restaurant_confirm')}}">
                                     <input type="hidden" name="method" value="DELETE">
@@ -51,6 +52,7 @@
                                     <input type="submit" value="削除" class="btn btn-sm btn-danger">
                                 </form>
                             </th>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </tbody>

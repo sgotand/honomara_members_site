@@ -1,4 +1,5 @@
 from itertools import groupby
+import itertools
 from flask import render_template, request, abort, redirect, url_for, flash
 from honomara_members_site import app, db
 from honomara_members_site.login import login_check
@@ -510,7 +511,7 @@ def race_type():
 @app.route('/restaurant/')
 @login_required
 def restaurant():
-    restaurants = Restaurant.query
+    afters = list(set(list(itertools.chain.from_iterable(db.session.query(After.restaurant_id).all()))))
     per_page = 40
     page = request.args.get('page') or 1
     page = max([1, int(page)])
@@ -518,7 +519,7 @@ def restaurant():
     #restaurants = db.session.execute(t)
     restaurants = db.session.query(Restaurant, func.count(After.restaurant_id).label('cnt')).\
         outerjoin(After, Restaurant.id == After.restaurant_id).group_by(Restaurant.id).order_by(db.text('cnt DESC')).paginate(page, per_page)
-    return render_template('restaurant.html', pagination=restaurants)
+    return render_template('restaurant.html', pagination=restaurants, afters=afters)
 
 
 @app.route('/restaurant/edit', methods=['GET', 'POST'])
@@ -585,11 +586,6 @@ def restaurant_confirm():
 
     else:
         if request.form.get('method') == 'DELETE':
-            after = After.query.filter(After.restaurant_id==form.id.data).all()
             restaurant = Restaurant.query.get(form.id.data)
             form = RestaurantForm(obj=restaurant)
-            if len(after) != 0:
-                flash('レストラン: "{}" はアフター録で使用されているため削除することができません'.format(restaurant.name), 'danger')
-                return redirect(url_for('restaurant'))
-       
         return render_template('restaurant_confirm.html', form=form)
