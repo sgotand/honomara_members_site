@@ -7,6 +7,7 @@ from sqlalchemy import func
 from honomara_members_site.form import MemberForm, TrainingForm, AfterForm, CompetitionForm, RaceForm, ResultForm
 from flask_login import login_required, login_user, logout_user
 from honomara_members_site.util import current_school_year, data_collection
+from datetime import date, timedelta
 
 
 @app.route('/')
@@ -368,6 +369,7 @@ def competition_confirm():
             form = CompetitionForm(obj=competition)
         return render_template('competition_confirm.html', form=form, places=data_collection['place'])
 
+
 @app.route('/race/edit/', methods=['GET', 'POST'])
 @login_required
 def race_edit():
@@ -382,18 +384,20 @@ def race_edit():
         form = RaceForm(obj=race)
         form.method.data = 'PUT'
     else:
-        form.competition_id.data = request.args.get('competition_id') #新規登録の場合もcompetiton_idは前もって受け取る。
+        form.competition_id.data = request.args.get(
+            'competition_id')  # 新規登録の場合もcompetiton_idは前もって受け取る。
         competition = Competition.query.get(form.competition_id.data)
         competition_name = competition.show_name
         form.method.data = 'POST'
     return render_template('race_edit.html', form=form, competition_name=competition_name)
+
 
 @app.route('/race/confirm', methods=['POST'])
 @login_required
 def race_confirm():
     app.logger.info(request.form)
     form = RaceForm(formdata=request.form)
-    if request.form.get('submit') =='キャンセル':
+    if request.form.get('submit') == 'キャンセル':
         return redirect(url_for('user'))
     if form.validate_on_submit() and request.form.get('confirmed'):
         if request.form.get('method') == 'DELETE':
@@ -417,7 +421,7 @@ def race_confirm():
             db.session.commit()
             flash('レース:"{}"・"{}" の登録が完了しました'.format(
                 race.competition.name, race.show_name), 'info')
-        return redirect(url_for('competition_individual', id=form.competition_id.data ))
+        return redirect(url_for('competition_individual', id=form.competition_id.data))
     else:
         if request.form.get('method') == 'DELETE':
             race = Race.query.get(form.id.data)
@@ -426,15 +430,24 @@ def race_confirm():
         competition_name = competition.show_name
         return render_template('race_confirm.html', form=form, competition_name=competition_name)
 
+
 @app.route('/result/')
 def result():
+    list_type = request.args.get('list_type') or 'latest'
+    year = request.args.get('year') or current_school_year
     results = Result.query.order_by(
-        Result.date.desc(), Result.competition_id, Result.race_id, Result.record)[:200]
+        Result.date.desc(), Result.competition_id, Result.race_id, Result.record).filter(Result.date > (date.today() - timedelta(days=400)))
     key = {}
     key['date'] = (lambda x: x.date)
     key['competition'] = (lambda x: x.competition)
     key['race'] = (lambda x: x.race)
-    return render_template('result.html', results=results, groupby=groupby, key=key)
+    if list_type == 'year':
+        year = int(year)
+        results_by_year = Result.query.order_by(
+            Result.date, Result.competition_id, Result.race_id, Result.record).filter(Result.date >= date(year, 4, 1)).filter(Result.date < date(year+1, 4, 1))
+        results = results_by_year
+    return render_template('result.html', results=results, groupby=groupby, key=key, list_type=list_type, current_school_year=current_school_year, year=year)
+
 
 @app.route('/result/edit', methods=['GET', 'POST'])
 @login_required
@@ -446,12 +459,12 @@ def result_edit():
     if form.submit.data:
         if request.form['step'] == 'step1':
             step = "step2"
-            form.race_id.choices = [(r.id, "{}({})".format(r.show_name, r.competition.show_name)) for r in Race.query.filter(Race.competition_id==form.competition_id.data)]
+            form.race_id.choices = [(r.id, "{}({})".format(r.show_name, r.competition.show_name))
+                                    for r in Race.query.filter(Race.competition_id == form.competition_id.data)]
             return render_template('result_edit.html', form=form, step=step)
         elif request.form['step'] == 'step2':
             if form.validate_on_submit():
                 return redirect(url_for('result_confirm'), code=307)
-
 
     if request.args.get('method') == 'PUT':
         id = request.args.get('id')
@@ -466,6 +479,7 @@ def result_edit():
         form.method.data = 'POST'
         step = "step1"
     return render_template('result_edit.html', form=form, step=step)
+
 
 @app.route('/result/confirm', methods=['POST'])
 @login_required
@@ -486,7 +500,7 @@ def result_confirm():
             db.session.delete(result)
             db.session.commit()
             flash('{}さんの{}の結果の削除が完了しました'.format(
-                member_name, competition_name) , 'danger')
+                member_name, competition_name), 'danger')
 
         elif request.form.get('method') == 'PUT':
             result = Result.query.get(form.id.data)
@@ -516,6 +530,7 @@ def result_confirm():
         member = Member.query.get(form.member_id.data)
         member_name = member.show_name
         return render_template('result_confirm.html', form=form, competition_name=competition_name, race_name=race_name, member_name=member_name)
+
 
 @app.route('/ranking')
 def ranking():
