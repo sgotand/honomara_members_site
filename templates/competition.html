@@ -1,24 +1,41 @@
 {% extends "template.html" %}
 {% block content %}
 <h2>大会一覧</h2>
-<div class="table-responsive">
-    <table class="table">
+<br>
+{% if current_user.is_authenticated %}
+<a href="{{url_for('competition_edit')}}">新規登録</a>
+{% endif %}
+<div>
+    <table>
         <tr>
-            <th>大会名</th>
-            <th>大会名（カナ）</th>
-            <th>大会名（表示名）</th>
+            <th>大会</th>
             <th>開催地</th>
-            <th>大会サイト</th>
-            <th>備考</th>
         </tr>
         {% for competition in competitions %}
         <tr>
-            <td>{{competition.name}}</td>
-            <td>{{competition.name_kana}}</td>
-            <td>{{competition.name_show}}</td>
-            <td>{{competition.place}}</td>
-            <td>{{competition.url}}</td>
-            <td>{{competition.comment}}</td>
+            <td><a href="{{url_for('competition_individual', id=competition.id)}}">{{competition.show_name}}</a></td>
+            <td>
+                {% if competition.place %}
+                {{places[int(competition.place)-1][1]}}
+                {% endif %}
+
+            </td>
+            <td>
+                {% if current_user.is_authenticated %}
+                <form method="get" action="{{url_for('competition_edit')}}">
+                    <input type="hidden" name="method" value="PUT">
+                    <input type="hidden" name="id" value="{{competition.id}}">
+                    <input type="submit" value="編集">
+                </form>
+            </td>
+            <td>
+                <form method="post" action="{{url_for('competition_confirm')}}">
+                    <input type="hidden" name="method" value="DELETE">
+                    <input type="hidden" name="id" value="{{competition.id}}">
+                    <input type="submit" value="削除">
+                </form>
+                {% endif %}
+            </td>
         </tr>
         {% endfor %}
     </table>
