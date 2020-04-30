@@ -143,15 +143,15 @@ class Competition(db.Model):
     comment = db.Column(db.Text)
 
     race_types = db.relationship(
-        'RaceType',
+        'Race',
         backref="competition",
-        order_by='RaceType.distance'
+        order_by='Race.distance'
     )
 
     results = db.relationship(
         'Result',
         backref="competition",
-        order_by='Result.date, Result.race_type_id, Result.record'
+        order_by='Result.date, Result.race_id, Result.record'
     )
 
     def __init__(self, form=None, **args):
@@ -163,8 +163,8 @@ class Competition(db.Model):
                    self.url, self.comment, len(self.results), len(self.race_types))
 
 
-class RaceType(db.Model):
-    __tablename__ = 'race_types'
+class Race(db.Model):
+    __tablename__ = 'races'
 
     id = db.Column(db.Integer, primary_key=True)
     competition_id = db.Column(db.Integer, db.ForeignKey('competitions.id'),
@@ -179,7 +179,7 @@ class RaceType(db.Model):
 
     results = db.relationship(
         'Result',
-        backref='race_type',
+        backref='race',
         order_by='Result.record'
     )
 
@@ -203,9 +203,9 @@ class Result(db.Model):
     competition_id = db.Column(
         db.Integer, db.ForeignKey('competitions.id'))
     # competition by backref
-    race_type_id = db.Column(
-        db.Integer, db.ForeignKey('race_types.id'))
-    # race_type by backref
+    race_id = db.Column(
+        db.Integer, db.ForeignKey('races.id'))
+    # race by backref
 
     record = db.Column(db.Integer, nullable=False)
     comment = db.Column(db.Text)

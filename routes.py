@@ -2,11 +2,11 @@ from itertools import groupby
 from flask import render_template, request, abort, redirect, url_for, flash
 from honomara_members_site import app, db
 from honomara_members_site.login import login_check
-from honomara_members_site.model import Member, Training, TrainingParticipant, After, Restaurant, Competition, RaceType, Result
+from honomara_members_site.model import Member, Training, TrainingParticipant, After, Restaurant, Competition, Race, Result
 from sqlalchemy import func
-from honomara_members_site.form import MemberForm, TrainingForm, AfterForm
+from honomara_members_site.form import MemberForm, TrainingForm, AfterForm, CompetitionForm, RaceForm
 from flask_login import login_required, login_user, logout_user
-from honomara_members_site.util import current_school_year
+from honomara_members_site.util import current_school_year, choice
 
 
 @app.route('/')
@@ -301,19 +301,104 @@ def after_confirm():
 
 
 @app.route('/competition/')
-def competiton():
+def competition():
     competitions = Competition.query
-    return render_template('competition.html', competitions=competitions)
+    return render_template('competition.html', competitions=competitions, places=choice['place'])
+
+
+@app.route('/competition/<int:id>')
+def competition_individual(id):
+    competition = Competition.query.get(id)
+    if competition is None:
+        return abort(404)
+    return render_template('competition_individual.html', competition=competition)
+
+
+@app.route('/competition/edit', methods=['GET', 'POST'])
+@login_required
+def competition_edit():
+    form = CompetitionForm(formdata=request.form)
+
+    if form.validate_on_submit():
+        return redirect(url_for('competition_confirm'), code=307)
+
+    if request.args.get('method') == 'PUT':
+        id = int(request.args.get('id'))
+        competition = Competition.query.get(id)
+        form = CompetitionForm(obj=competition)
+        form.method.data = 'PUT'
+    else:
+        form.method.data = 'POST'
+    return render_template('competition_edit.html', form=form)
+
+
+@app.route('/competition/confirm', methods=['POST'])
+@login_required
+def competition_confirm():
+    form = CompetitionForm(formdata=request.form)
+    if request.form.get('submit') == 'キャンセル':
+        return redirect(url_for('user'))
+
+    if form.validate_on_submit() and request.form.get('confirmed'):
+        if request.form.get('method') == 'DELETE':
+            competition = Competition.query.get(form.id.data)
+            db.session.delete(competition)
+            db.session.commit()
+            flash('大会："{}"の削除が完了しました'.format(
+                competition.show_name), 'danger')
+        elif request.form.get('method') == 'PUT':
+            competition = Competition.query.get(form.id.data)
+            form.populate_obj(competition)
+            db.session.commit()
+            flash('大会："{}"の更新が完了しました'.format(
+                competition.show_name), 'warning')
+        elif request.form.get('method') == 'POST':
+            competition = Competition()
+            form.populate_obj(competition)
+            competition.id = None
+            db.session.add(competition)
+            db.session.commit()
+            flash('大会："{}"の更新が完了しました'.format(
+                competition.show_name), 'info')
+
+        return redirect(url_for('competition'))
+    else:
+        if request.form.get('method') == 'DELETE':
+            competition = Competition.query.get(form.id.data)
+            form = CompetitionForm(obj=competition)
+        return render_template('competition_confirm.html', form=form, places=choice['place'])
+
+@app.route('/race/edit/', methods=['GET', 'POST'])
+@login_required
+def race_edit():
+    app.logger.info(request.form)
+    form = RaceForm(formdata=request.form)
+    if form.validate_on_submit():
+        return redirect(url_for('race_confirm'), code=307)
+    if request.args.get('method') == 'PUT':
+        id = int(request.args.get('id'))
+        race = Race.query.get(id)
+        form = RaceForm(obj=race)
+        form.competition = Competition.query.get(race.competition_id)
+        form.method.data = 'PUT'
+    else:
+        race = Race()
+        competition_id = int(request.args.get('competition_id'))
+        race.competition_id = competition_id
+        form = RaceForm(obj=race)
+        form.competition = Competition.query.get(competition_id)
+        form.method.data = 'POST'
+    return render_template('race_edit.html', form=form)
 
 
 @app.route('/result/')
 def result():
     results = Result.query.order_by(
-        Result.date.desc(), Result.competition_id, Result.race_type_id, Result.record)[:200]
+        Result.date.desc(), Result.competition_id, Result.race_id, Result.record)[:200]
     key = {}
     key['date'] = (lambda x: x.date)
     key['competition'] = (lambda x: x.competition)
-    key['race_type'] = (lambda x: x.race_type)
+    key['race'] = (lambda x: x.race)
     return render_template('result.html', results=results, groupby=groupby, key=key)
 
 
@@ -340,4 +425,3 @@ def ranking():
 @app.route('/search/')
 def search():
     return render_template('search.html')
-

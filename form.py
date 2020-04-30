@@ -3,7 +3,7 @@ from wtforms import StringField, SubmitField, RadioField, FloatField, IntegerFie
 from wtforms import HiddenField, TextAreaField, DateField, SelectMultipleField, SelectField
 from wtforms.validators import Optional, InputRequired
 from honomara_members_site.model import Member, Restaurant
-from honomara_members_site.util import current_school_year
+from honomara_members_site.util import current_school_year, choice
 
 
 visible_member_list_for_form = [(m.id, m.show_name)
@@ -71,3 +71,31 @@ class AfterForm(FlaskForm):
     method = HiddenField(validators=[Optional()])
     submit = SubmitField('確定', validators=[Optional()])
 
+
+class CompetitionForm(FlaskForm):
+    id = HiddenField(validators=[Optional()])
+    name = StringField('大会名(正式名称):', validators=[InputRequired()])
+    name_kana = StringField('大会名(カナ):', validators=[InputRequired()])
+    show_name = StringField('大会名(表示名):', validators=[InputRequired()])
+    place = SelectField('開催地:',coerce=int, validators=[InputRequired()],
+                            choice=choice['place'])
+    url = TextAreaField('URL:', validators=[Optional()])
+    comment = TextAreaField('備考:', validators=[Optional()])
+    confirmed = HiddenField(validators=[Optional()])
+    method = HiddenField(validators=[Optional()])
+    submit = SubmitField('確定', validators=[Optional()])
+
+
+class RaceForm(FlaskForm):
+    id = HiddenField(validators=[Optional()])
+    competition_id = HiddenField(validators=[Optional()])
+    show_name = StringField('表示名:', validators=[InputRequired()])
+    type = SelectField('分類:', coerce=int, validators=[InputRequired()],
+                            choice=choice['type'])
+    distance = FloatField('距離:', validators=[Optional()], default=0)
+    dulation = FloatField('制限時間:', validators=[Optional()], default=0)
+    cumulative_elevation = FloatField('獲得標高:', validators=[Optional()], default=0)
+    comment = TextAreaField('コメント:', validators=[Optional()])
+    confirmed = HiddenField(validators=[Optional()])
+    method = HiddenField(validators=[Optional()])
+    submit = SubmitField('確定', validators=[Optional()])

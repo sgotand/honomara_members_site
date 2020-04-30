@@ -1,12 +1,12 @@
 {% extends "template.html" %}
 {% block content %}
 <h2>大会結果</h2>
-{% for results_by_date in groupby(results, key=key['date']) %} 
+{% for results_by_date in groupby(results, key=key['date']) %}
 {% for results_by_competition in groupby(results_by_date[1], key=key['competition']) %}
 {{results_by_competition[0].show_name}}({{results_by_date[0]}}) <br>
-{% for results_by_race_type in groupby(results_by_competition[1], key=key['race_type']) %}
-{{results_by_race_type[0].show_name}} <br>
-{% for result in  results_by_race_type[1] %}
+{% for results_by_race in groupby(results_by_competition[1], key=key['race']) %}
+{{results_by_race[0].show_name}} <br>
+{% for result in  results_by_race[1] %}
 {{result.member.show_name}} {{result.record}} <br>
 {% endfor %}
 {% endfor %}
