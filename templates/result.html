@@ -9,13 +9,11 @@
 </style>
 {% endblock %}
 {% block content %}
-{% if current_user.is_authenticated %}
-<a href="{{url_for('result_edit')}}">新規登録</a><br>
-{% endif %}
 <div class="container">
     <div class="row">
         <div class="col-xs-12 col-sm-3">
-            <a class="btn btn-default" href="{{url_for('result', list_type='latest')}}" role="button" style="margin-bottom: 20px;">最新結果</a>
+            <a class="btn btn-default" href="{{url_for('result', list_type='latest')}}" role="button"
+                style="margin-bottom: 20px;">最新結果</a>
             <div class="panel panel-default">
                 <div class="panel-heading collapse-heading" data-toggle="collapse" data-target="#collapse-year">
                     <h3 class="panel-title">
@@ -71,8 +69,12 @@
                         {% elif list_type == 'year'%}
                         {{year}}年度
                         {% endif %}
+                        {% if current_user.is_authenticated %}
+                        <a class="btn btn-default btn-xs" href="{{url_for('result_edit')}}">新規登録</a>
+                        {% endif %}
                     </small>
                 </h3>
+ 
                 {% for results_by_date in groupby(results, key=key['date']) %}
                 {% for results_by_competition in groupby(results_by_date[1], key=key['competition']) %}
                 <div class="competitions" id="competition{{results_by_competition[0].id}}">
@@ -101,17 +103,19 @@
                                                 {{result.comment}}
                                                 {% endif %}
                                             </td>
-                                            <td>
+                                            <td style="display: flex;">
                                                 {% if current_user.is_authenticated %}
-                                                <form method="get" action="{{url_for('result_edit')}}">
+                                                <form method="get" action="{{url_for('result_edit')}}"
+                                                    style="margin: 0 3px;">
                                                     <input type="hidden" name="method" value="PUT">
                                                     <input type="hidden" name="id" value="{{result.id}}">
-                                                    <input type="submit" value="編集" class="btn btn-warning">
+                                                    <input type="submit" value="編集" class="btn btn-default btn-xs">
                                                 </form>
-                                                <form method="post" action="{{url_for('result_confirm')}}">
+                                                <form method="post" action="{{url_for('result_confirm')}}"
+                                                    style="margin: 0 3px;">
                                                     <input type="hidden" name="method" value="DELETE">
                                                     <input type="hidden" name="id" value="{{result.id}}">
-                                                    <input type="submit" value="削除" class="btn btn-danger">
+                                                    <input type="submit" value="削除" class="btn btn-default btn-xs">
                                                 </form>
                                                 {% endif %}
                                             </td>
