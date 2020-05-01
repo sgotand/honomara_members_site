@@ -6,12 +6,17 @@
 <div class="col-lg-8 col-lg-offset-2 col-sm-12">
 <form action="{{url_for('training_edit')}}" class="form" method="post" role="form">
         {{ form.hidden_tag() }}
-        <div class="form-group  required">{{ form.date.label(class="control-label") }} {{form.date(class="form-control")}}</div>      
-        <div class="form-group  required">{{ form.weather.label(class="control-label") }} {{form.weather(class="form-control")}}</div>      
-        <div class="form-group  required">{{ form.place.label(class="control-label") }} {{form.place(class="form-control")}}</div>      
-        <div class="form-group  required">{{ form.participants.label(class="control-label") }} {{form.participants(class="form-control")}}</div>             
-        <div class="form-group  required">{{ form.title.label(class="control-label") }} {{form.title(class="form-control")}}</div>      
-        <div class="form-group  required">{{ form.comment.label(class="control-label") }} {{form.comment(class="form-control")}}</div>      
+        <div class="form-group  required">{{ form.date.label(class="control-label") }} {{form.date(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.weather.label(class="control-label") }} {{form.weather(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.place.label(class="control-label") }} {{form.place(class="form-control")}}</div>
+        <strong>参加者:</strong><br>
+        <div class="form-group  required">{{ form.participants1.label(class="control-label") }} {{form.participants1(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.participants2.label(class="control-label") }} {{form.participants2(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.participants3.label(class="control-label") }} {{form.participants3(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.participants4.label(class="control-label") }} {{form.participants4(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.participants.label(class="control-label") }} {{form.participants(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.title.label(class="control-label") }} {{form.title(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.comment.label(class="control-label") }} {{form.comment(class="form-control", rows="5")}}</div>
         <input class="btn btn-default" id="submit" name="submit" type="submit" value="確定">
 </form>
 </div>

@@ -152,6 +152,10 @@ def training_edit():
         training = Training.query.get(id)
         form = TrainingForm(obj=training)
         form.method.data = 'PUT'
+        form.participants1.data = [m.id for m in training.participants]
+        form.participants2.data = [m.id for m in training.participants]
+        form.participants3.data = [m.id for m in training.participants]
+        form.participants4.data = [m.id for m in training.participants]
         form.participants.data = [m.id for m in training.participants]
     else:
         form.method.data = 'POST'
@@ -168,6 +172,12 @@ def training_confirm():
 
     if request.form.get('submit') == 'キャンセル':
         return redirect(url_for('training'))
+
+    form.participants.data = form.participants1.data +\
+                        form.participants2.data +\
+                        form.participants3.data +\
+                        form.participants4.data +\
+                        form.participants.data
 
     if form.participants.data:
         form.participants.data = [Member.query.get(
@@ -239,6 +249,10 @@ def after_edit():
         id = int(request.args.get('id'))
         after = After.query.get(id)
         form = AfterForm(obj=after)
+        form.participants1.data = [m.id for m in after.participants]
+        form.participants2.data = [m.id for m in after.participants]
+        form.participants3.data = [m.id for m in after.participants]
+        form.participants4.data = [m.id for m in after.participants]
         form.participants.data = [m.id for m in after.participants]
         form.restaurant.data = after.restaurant.id
         form.method.data = 'PUT'
@@ -255,6 +269,12 @@ def after_confirm():
     app.logger.info(request.form)
     if request.form.get('submit') == 'キャンセル':
         return redirect(url_for('after'))
+
+    form.participants.data = form.participants1.data +\
+                        form.participants2.data +\
+                        form.participants3.data +\
+                        form.participants4.data +\
+                        form.participants.data
 
     if form.participants.data:
         form.participants.data = [Member.query.get(
@@ -298,6 +318,10 @@ def after_confirm():
         if request.form.get('method') == 'DELETE':
             after = After.query.get(form.id.data)
             form = AfterForm(obj=after)
+            form.participants1.data = after.participants
+            form.participants2.data = after.participants
+            form.participants3.data = after.participants
+            form.participants4.data = after.participants
             form.participants.data = after.participants
             form.restaurant.data = after.restaurant
         return render_template('after_confirm.html', form=form)
