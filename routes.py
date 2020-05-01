@@ -515,8 +515,6 @@ def restaurant():
     per_page = 40
     page = request.args.get('page') or 1
     page = max([1, int(page)])
-    #t = text("SELECT R.*, COUNT(A.restaurant_id) AS cnt FROM restaurant AS R LEFT JOIN after AS A ON R.id = A.restaurant_id GROUP BY R.id ORDER BY cnt DESC")
-    #restaurants = db.session.execute(t)
     restaurants = db.session.query(Restaurant, func.count(After.restaurant_id).label('cnt')).\
         outerjoin(After, Restaurant.id == After.restaurant_id).group_by(Restaurant.id).order_by(db.text('cnt DESC')).paginate(page, per_page)
     return render_template('restaurant.html', pagination=restaurants, afters=afters)
