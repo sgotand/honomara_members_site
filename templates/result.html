@@ -29,7 +29,9 @@
                         </button>
                         <ul class="dropdown-menu" role="menu">
                             {% for i in range(current_school_year-1998) %}
-                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='year', year=current_school_year-i)}}">{{current_school_year-i}}年度</a></li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='year', year=current_school_year-i)}}">{{current_school_year-i}}年度</a>
+                            </li>
                             {% endfor %}
                         </ul>
                     </div>
@@ -39,17 +41,33 @@
                             <span class="glyphicon glyphicon-chevron-down"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
-                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='fullbreak3')}}">フル・サブ3</a></li>
-                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='halfbreak80')}}">ハーフ・70分台</a></li>
-                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='road100')}}">ロード・100キロ</a></li>
-                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='roadover100')}}">ロード・100キロ超</a></li>
-                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='roadoverfull')}}">ロード・フル以上100キロ未満</a></li>
-                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='roadunderfull')}}">ロード・ハーフ超フル未満</a></li>
-                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='roadunderhalf')}}">ロード・10キロ超ハーフ未満</a></li>
-                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='road10')}}">ロード・10キロ</a></li>
-                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='roadunder10')}}">ロード・10キロ未満</a></li>
-                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='track')}}">トラック競技</a></li>
-                            <li class="small" role="presentation"><a href="{{url_for('result', list_type='type', type='time')}}">時間走</a></li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='fullbreak3')}}">フル・サブ3</a></li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='halfbreak80')}}">ハーフ・70分台</a></li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='road100')}}">ロード・100キロ</a></li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='roadover100')}}">ロード・100キロ超</a>
+                            </li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='roadoverfull')}}">ロード・フル以上100キロ未満</a>
+                            </li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='roadunderfull')}}">ロード・ハーフ超フル未満</a>
+                            </li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='roadunderhalf')}}">ロード・10キロ超ハーフ未満</a>
+                            </li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='road10')}}">ロード・10キロ</a></li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='roadunder10')}}">ロード・10キロ未満</a>
+                            </li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='track')}}">トラック競技</a></li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='time')}}">時間走</a></li>
 
                         </ul>
                     </div>
@@ -62,22 +80,20 @@
                         <span class="glyphicon glyphicon-chevron-down pull-right"></span>
                     </h3>
                 </div>
-                <div id="collapse-listing" class="panel-body panel-collapse collapse">
-                    <div class="table-responsive">
-                        <table class="table table-default table-condensed small">
+                <div id="collapse-listing" class="panel-body panel-collapse collapse table-responsive">
+                    <table class="table table-default table-condensed small">
 
-                            {% for results_by_date in groupby(results, key=key['date']) %}
-                            {% for results_by_competition in groupby(results_by_date[1], key=key['competition']) %}
-                            <tr>
-                                <td><a href="#competition{{results_by_competition[0].id}}" style="color:black;">
-                                        {{results_by_competition[0].show_name}}({{results_by_date[0]}})
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            {% endfor %}
-                        </table>
-                    </div>
+                        {% for results_by_date in groupby(results, key=key['date']) %}
+                        {% for results_by_competition in groupby(results_by_date[1], key=key['competition']) %}
+                        <tr>
+                            <td><a href="#competition{{results_by_competition[0].id}}" style="color:black;">
+                                    {{results_by_competition[0].show_name}}({{results_by_date[0]}})
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% endfor %}
+                    </table>
                 </div>
             </div>
         </div>
@@ -89,12 +105,12 @@
                         {% elif list_type == 'year'%}
                         {{year}}年度
                         {% endif %}
-                        {% if current_user.is_authenticated %}
-                        <a class="btn btn-default btn-xs" href="{{url_for('result_edit')}}">新規登録</a>
-                        {% endif %}
+
                     </small>
                 </h3>
-
+                {% if current_user.is_authenticated %}
+                <a class="btn btn-default btn-xs" style="margin:5px 3px;" href="{{url_for('result_edit')}}">新規登録</a>
+                {% endif %}
                 {% for results_by_date in groupby(results, key=key['date']) %}
                 {% for results_by_competition in groupby(results_by_date[1], key=key['competition']) %}
                 <div class="competitions" id="competition{{results_by_competition[0].id}}">
@@ -105,45 +121,43 @@
                                 </small>
                             </h4>
                         </div>
-                        <div class="panel-body" style="padding-bottom:0;">
+                        <div class="panel-body table-responsive" style="padding-bottom:0;">
                             {% for results_by_race in groupby(results_by_competition[1], key=key['race']) %}
                             <h5 style="margin:0;"><small>{{results_by_race[0].show_name}}</small></h5>
-                            <div class="table-responsive">
-                                <table class="table table-default table-condensed small" 　style="table-layout:fixed;">
-                                    <tbody>
-                                        {% for result in  results_by_race[1] %}
-                                        <tr>
-                                            <td style="width:100px;">
-                                                {{result.member.show_name}}</td>
-                                            <td style="width:100px;">
-                                                {{"{:02}:{:02}:{:02}".format(int(result.record)//3600,(int(result.record)%3600)//60,int(result.record)%60)}}
-                                            </td>
-                                            <td style="width:200px;">
-                                                {% if not result.comment == None %}
-                                                {{result.comment}}
-                                                {% endif %}
-                                            </td>
-                                            <td style="display: flex;">
-                                                {% if current_user.is_authenticated %}
-                                                <form method="get" action="{{url_for('result_edit')}}"
-                                                    style="margin: 0 3px;">
-                                                    <input type="hidden" name="method" value="PUT">
-                                                    <input type="hidden" name="id" value="{{result.id}}">
-                                                    <input type="submit" value="編集" class="btn btn-default btn-xs">
-                                                </form>
-                                                <form method="post" action="{{url_for('result_confirm')}}"
-                                                    style="margin: 0 3px;">
-                                                    <input type="hidden" name="method" value="DELETE">
-                                                    <input type="hidden" name="id" value="{{result.id}}">
-                                                    <input type="submit" value="削除" class="btn btn-default btn-xs">
-                                                </form>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
+                            <table class="table table-default table-condensed small" 　style="table-layout:fixed;">
+                                <tbody>
+                                    {% for result in  results_by_race[1] %}
+                                    <tr>
+                                        <td style="display: flex;">
+                                            {% if current_user.is_authenticated %}
+                                            <form method="get" action="{{url_for('result_edit')}}"
+                                                style="margin: 0 3px;">
+                                                <input type="hidden" name="method" value="PUT">
+                                                <input type="hidden" name="id" value="{{result.id}}">
+                                                <input type="submit" value="編集" class="btn btn-default btn-xs">
+                                            </form>
+                                            <form method="post" action="{{url_for('result_confirm')}}"
+                                                style="margin: 0 3px;">
+                                                <input type="hidden" name="method" value="DELETE">
+                                                <input type="hidden" name="id" value="{{result.id}}">
+                                                <input type="submit" value="削除" class="btn btn-default btn-xs">
+                                            </form>
+                                            {% endif %}
+                                        </td>
+                                        <td style="width:100px;">
+                                            {{result.member.show_name}}</td>
+                                        <td style="width:100px;">
+                                            {{"{:02}:{:02}:{:02}".format(int(result.record)//3600,(int(result.record)%3600)//60,int(result.record)%60)}}
+                                        </td>
+                                        <td style="width:200px;">
+                                            {% if not result.comment == None %}
+                                            {{result.comment}}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                             {% endfor %}
                         </div>
                     </div>

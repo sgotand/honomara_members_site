@@ -93,10 +93,10 @@ class RaceForm(FlaskForm):
     show_name = StringField('表示名:', validators=[InputRequired()])
     type = SelectField('分類:', coerce=int, validators=[InputRequired()],
                        choices=data_collection['type'])
-    distance = FloatField('距離:', validators=[Optional()], default=0)
-    dulation = FloatField('制限時間:', validators=[Optional()], default=0)
+    distance = FloatField('距離(km):', validators=[Optional()], default=0)
+    dulation = FloatField('制限時間(h):', validators=[Optional()], default=0)
     cumulative_elevation = FloatField(
-        '獲得標高:', validators=[Optional()], default=0)
+        '累積標高(m):', validators=[Optional()], default=0)
     comment = TextAreaField('コメント:', validators=[Optional()])
     confirmed = HiddenField(validators=[Optional()])
     method = HiddenField(validators=[Optional()])
