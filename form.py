@@ -19,8 +19,11 @@ weather_list = [('晴れ', '晴れ'), ('曇り', '曇り'), ('雨', '雨'),
 restaurants_choices = [(r.id, "{}({})".format(
     r.name, r.place)) for r in Restaurant.query.order_by(Restaurant.score.desc()).all()]
 
-competition_list_for_form = [(c.id, c.show_name) for c in Competition.query.all()]
-race_list_for_form = [(r.id, "{}({})".format(r.show_name, r.competition.show_name)) for r in Race.query.all()]
+competition_list_for_form = [(c.id, c.show_name)
+                             for c in Competition.query.all()]
+race_list_for_form = [(r.id, "{}({})".format(
+    r.show_name, r.competition.show_name)) for r in Race.query.all()]
+
 
 class MemberForm(FlaskForm):
     id = HiddenField(validators=[Optional()])
@@ -109,7 +112,7 @@ class ResultForm(FlaskForm):
     member_id = SelectField('参加者:', coerce=int, validators=[InputRequired()],
                             choices=visible_member_list_for_form)
     competition_id = SelectField('大会:', coerce=int, validators=[InputRequired()],
-                            choices=competition_list_for_form)
+                                 choices=competition_list_for_form)
     race_id = SelectField('種目:', coerce=int, validators=[InputRequired()],
                           choices=race_list_for_form)
     record = HiddenField('記録', validators=[Optional()])
