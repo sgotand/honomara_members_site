@@ -312,7 +312,43 @@ def competition_individual(id):
     competition = Competition.query.get(id)
     if competition is None:
         return abort(404)
-    return render_template('competition_individual.html', competition=competition)
+    sum_mem = 0
+    sum_ind = []
+    dates = []
+    for result in competition.results:
+        sum_mem += 1
+        if len(sum_ind) == 0:
+            sum_ind.append([result.member, 1])
+        else:
+            Done = False
+            for i in range(len(sum_ind)):
+                if result.member == sum_ind[i][0]:
+                    sum_ind[i][1] += 1
+                    Done = True
+                    break
+            if not Done:
+                sum_ind.append([result.member, 1])
+        if len(dates) == 0:
+            dates.append(result.date)
+        if not result.date == dates[len(dates)-1]:
+            dates.append(result.date)
+    sum_ind.sort(key=lambda x: x[1], reverse=True)
+    sum_ind_top5 = sum_ind[:5]
+    for x in sum_ind[5:]:
+        if sum_ind_top5[len(sum_ind_top5)-1][1] == x[1]:
+            sum_ind_top5.append(x)
+        else:
+            break
+    season = []
+    for date in dates:
+        if len(season) == 0:
+            season.append(date.month)
+        if not date.month in season:
+            season.append(date.month)
+    key = {}
+    key['date'] = (lambda x: x.date)
+    key['race'] = (lambda x: x.race)
+    return render_template('competition_individual.html', competition=competition, key=key, groupby=groupby, places=data_collection['place'], types=data_collection['type'], sum_mem=sum_mem, dates=dates, season=season, sum_ind_top5=sum_ind_top5)
 
 
 @app.route('/competition/edit', methods=['GET', 'POST'])
@@ -519,7 +555,7 @@ def result():
                     r.append(result)
             results = r
         else:
-            results = None
+            abort(404)
     key = {}
     key['date'] = (lambda x: x.date)
     key['competition'] = (lambda x: x.competition)
