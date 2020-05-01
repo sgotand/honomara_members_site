@@ -398,7 +398,7 @@ def competition_confirm():
             flash('大会："{}"の更新が完了しました'.format(
                 competition.show_name), 'info')
 
-        return redirect(url_for('competition'))
+        return redirect(url_for('result'))
     else:
         if request.form.get('method') == 'DELETE':
             competition = Competition.query.get(form.id.data)
@@ -560,7 +560,25 @@ def result():
     key['date'] = (lambda x: x.date)
     key['competition'] = (lambda x: x.competition)
     key['race'] = (lambda x: x.race)
-    return render_template('result.html', results=results, groupby=groupby, key=key, list_type=list_type, current_school_year=current_school_year, year=year, type=type)
+    competitions = Competition.query
+    competitions_with_data = []
+    for competition in competitions:
+        sum_mem = 0
+        dates = []
+        for result in competition.results:
+            sum_mem += 1
+            if len(dates) == 0:
+                dates.append(result.date)
+            if not result.date == dates[len(dates)-1]:
+                dates.append(result.date)
+        if len(dates) == 0:
+            last_year = None
+        else:
+            last_year = dates[len(dates)-1].year
+        competitions_with_data.append(
+            [competition, len(dates), sum_mem, last_year])
+    competitions_with_data.sort(key=lambda x: x[2], reverse=True)
+    return render_template('result.html', results=results, competitions_with_data=competitions_with_data, places=data_collection['place'], groupby=groupby, key=key, list_type=list_type, current_school_year=current_school_year, year=year, type=type)
 
 
 @app.route('/result/edit', methods=['GET', 'POST'])
