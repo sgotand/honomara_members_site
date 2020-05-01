@@ -174,10 +174,10 @@ def training_confirm():
         return redirect(url_for('training'))
 
     form.participants.data = form.participants1.data +\
-                        form.participants2.data +\
-                        form.participants3.data +\
-                        form.participants4.data +\
-                        form.participants.data
+        form.participants2.data +\
+        form.participants3.data +\
+        form.participants4.data +\
+        form.participants.data
 
     if form.participants.data:
         form.participants.data = [Member.query.get(
@@ -271,10 +271,10 @@ def after_confirm():
         return redirect(url_for('after'))
 
     form.participants.data = form.participants1.data +\
-                        form.participants2.data +\
-                        form.participants3.data +\
-                        form.participants4.data +\
-                        form.participants.data
+        form.participants2.data +\
+        form.participants3.data +\
+        form.participants4.data +\
+        form.participants.data
 
     if form.participants.data:
         form.participants.data = [Member.query.get(

@@ -12,29 +12,29 @@ visible_member_list_for_form = [(m.id, m.show_name)
                                 order_by(Member.year.desc()).all()]
 
 visible_member_list_for_form_1 = [(m.id, m.show_name)
-                                for m in Member.query.filter_by(visible=True).
-                                filter(Member.year == current_school_year).
-                                order_by(Member.family_kana).all()]
+                                  for m in Member.query.filter_by(visible=True).
+                                  filter(Member.year == current_school_year).
+                                  order_by(Member.family_kana).all()]
 
 visible_member_list_for_form_2 = [(m.id, m.show_name)
-                                for m in Member.query.filter_by(visible=True).
-                                filter(Member.year == current_school_year-1).
-                                order_by(Member.family_kana).all()]
+                                  for m in Member.query.filter_by(visible=True).
+                                  filter(Member.year == current_school_year-1).
+                                  order_by(Member.family_kana).all()]
 
 visible_member_list_for_form_3 = [(m.id, m.show_name)
-                                for m in Member.query.filter_by(visible=True).
-                                filter(Member.year == current_school_year-2).
-                                order_by(Member.family_kana).all()]
+                                  for m in Member.query.filter_by(visible=True).
+                                  filter(Member.year == current_school_year-2).
+                                  order_by(Member.family_kana).all()]
 
 visible_member_list_for_form_4 = [(m.id, m.show_name)
-                                for m in Member.query.filter_by(visible=True).
-                                filter(Member.year == current_school_year-3).
-                                order_by(Member.family_kana).all()]
+                                  for m in Member.query.filter_by(visible=True).
+                                  filter(Member.year == current_school_year-3).
+                                  order_by(Member.family_kana).all()]
 
 visible_member_list_for_form_5 = [(m.id, m.show_name)
-                                for m in Member.query.filter_by(visible=True).
-                                filter(Member.year <= current_school_year-4).
-                                order_by(Member.year.desc(), Member.family_kana).all()]
+                                  for m in Member.query.filter_by(visible=True).
+                                  filter(Member.year <= current_school_year-4).
+                                  order_by(Member.year.desc(), Member.family_kana).all()]
 
 training_place_list = [('代々木公園', '代々木公園'), ('皇居', '皇居'), ('山手線企画',
                                                           '山手線企画'), ('箱根企画', '箱根企画'), ('距離練', '距離練'), ('その他', 'その他')]
@@ -80,17 +80,17 @@ class TrainingForm(FlaskForm):
                         InputRequired()], choices=training_place_list)
     weather = SelectField('天気:', validators=[Optional()], choices=weather_list)
     participants1 = SelectMultipleField('1年生', coerce=int,
-                                       choices=visible_member_list_for_form_1
-                                       )
+                                        choices=visible_member_list_for_form_1
+                                        )
     participants2 = SelectMultipleField('2年生', coerce=int,
-                                       choices=visible_member_list_for_form_2
-                                       )
+                                        choices=visible_member_list_for_form_2
+                                        )
     participants3 = SelectMultipleField('3年生', coerce=int,
-                                       choices=visible_member_list_for_form_3
-                                       )
+                                        choices=visible_member_list_for_form_3
+                                        )
     participants4 = SelectMultipleField('4年生', coerce=int,
-                                       choices=visible_member_list_for_form_4
-                                       )
+                                        choices=visible_member_list_for_form_4
+                                        )
     participants = SelectMultipleField('5年生以上', coerce=int,
                                        choices=visible_member_list_for_form_5
                                        )
@@ -109,17 +109,17 @@ class AfterForm(FlaskForm):
     restaurant = SelectField('店:', coerce=int, validators=[InputRequired()],
                              choices=restaurants_choices)
     participants1 = SelectMultipleField('1年生', coerce=int,
-                                       choices=visible_member_list_for_form_1
-                                       )
+                                        choices=visible_member_list_for_form_1
+                                        )
     participants2 = SelectMultipleField('2年生', coerce=int,
-                                       choices=visible_member_list_for_form_2
-                                       )
+                                        choices=visible_member_list_for_form_2
+                                        )
     participants3 = SelectMultipleField('3年生', coerce=int,
-                                       choices=visible_member_list_for_form_3
-                                       )
+                                        choices=visible_member_list_for_form_3
+                                        )
     participants4 = SelectMultipleField('4年生', coerce=int,
-                                       choices=visible_member_list_for_form_4
-                                       )
+                                        choices=visible_member_list_for_form_4
+                                        )
     participants = SelectMultipleField('5年生以上', coerce=int,
                                        choices=visible_member_list_for_form_5
                                        )
