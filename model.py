@@ -63,7 +63,7 @@ class Training(db.Model):
     participants = db.relationship(
         'Member',
         secondary=TrainingParticipant.__tablename__,
-        order_by='Member.year, Member.family_kana, Member.first_kana' 
+        order_by='Member.year, Member.family_kana, Member.first_kana'
     )
 
     def __init__(self, form=None, **args):
@@ -92,7 +92,7 @@ class Restaurant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60), nullable=False)
     place = db.Column(db.String(20))
-    score = db.Column(db.Float, server_default=db.text('0') )
+    score = db.Column(db.Float, server_default=db.text('0'))
     comment = db.Column(db.Text)
 
     def __repr__(self):

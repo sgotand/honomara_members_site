@@ -29,26 +29,26 @@
                         {% for restaurant in pagination.items %}
                         <tr>
                             <th>
-                                {{ restaurant[0].name }}({{ restaurant[0].place }})
+                                {{ restaurant.name }}({{ restaurant.place }})
                             </th>
                             <th>
-                                {{ restaurant[0].comment }}
+                                {{ restaurant.comment }}
                             </th>
                             <th>
-                                {{ restaurant[0].score }}
+                                {{ restaurant.score }}
                             </th>
                             <th>
                                 <form method="get" action="{{url_for('restaurant_edit')}}">
                                     <input type="hidden" name="method" value="PUT">
-                                    <input type="hidden" name="id" value="{{restaurant[0].id}}">
+                                    <input type="hidden" name="id" value="{{restaurant.id}}">
                                     <input type="submit" value="編集" class="btn btn-sm btn-warning">
                                 </form>
                             </th>
-                            {% if restaurant[0].id not in afters %}
+                            {% if restaurant.id not in afters %}
                             <th>
                                 <form method="post" action="{{url_for('restaurant_confirm')}}">
                                     <input type="hidden" name="method" value="DELETE">
-                                    <input type="hidden" name="id" value="{{restaurant[0].id}}">
+                                    <input type="hidden" name="id" value="{{restaurant.id}}">
                                     <input type="submit" value="削除" class="btn btn-sm btn-danger">
                                 </form>
                             </th>

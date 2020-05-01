@@ -134,7 +134,8 @@ def training():
             keyword = keyword.replace(' ', '')
             keyword = keyword.replace('　', '')
             trainings = trainings.filter(Training.comment.match(keyword))
-    trainings = trainings.order_by( Training.date.desc()).paginate(page, per_page)
+    trainings = trainings.order_by(
+        Training.date.desc()).paginate(page, per_page)
     return render_template('training.html', pagination=trainings)
 
 
@@ -511,12 +512,13 @@ def race_type():
 @app.route('/restaurant/')
 @login_required
 def restaurant():
-    afters = list(set(list(itertools.chain.from_iterable(db.session.query(After.restaurant_id).all()))))
+    afters = list(set(list(itertools.chain.from_iterable(
+        db.session.query(After.restaurant_id).all()))))
     per_page = 40
     page = request.args.get('page') or 1
     page = max([1, int(page)])
-    restaurants = db.session.query(Restaurant, func.count(After.restaurant_id).label('cnt')).\
-        outerjoin(After, Restaurant.id == After.restaurant_id).group_by(Restaurant.id).order_by(db.text('cnt DESC')).paginate(page, per_page)
+    restaurants = Restaurant.query.order_by(
+        Restaurant.score.desc()).paginate(page, per_page)
     return render_template('restaurant.html', pagination=restaurants, afters=afters)
 
 
