@@ -241,6 +241,7 @@ def after():
 @login_required
 def after_edit():
     form = AfterForm(formdata=request.form)
+    keyword = request.args.get('keyword')
 
     if form.validate_on_submit():
         return redirect(url_for('after_confirm'), code=307)
@@ -257,6 +258,9 @@ def after_edit():
         form.restaurant.data = after.restaurant.id
         form.method.data = 'PUT'
     else:
+        if keyword is not None:
+            form.restaurant.choices = [(r.id, "{}({})".format(
+                r.name, r.place)) for r in Restaurant.query.filter(Restaurant.name.contains(keyword)).order_by(Restaurant.score.desc()).all()]
         form.method.data = 'POST'
 
     return render_template('after_edit.html', form=form)

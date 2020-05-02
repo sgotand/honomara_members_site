@@ -41,9 +41,6 @@ training_place_list = [('代々木公園', '代々木公園'), ('皇居', '皇�
 weather_list = [('晴れ', '晴れ'), ('曇り', '曇り'), ('雨', '雨'),
                 ('強風', '強風'), ('雪', '雪'), ('その他', 'その他')]
 
-restaurants_choices = [(r.id, "{}({})".format(
-    r.name, r.place)) for r in Restaurant.query.order_by(Restaurant.score.desc()).all()]
-
 
 race_base_list_for_form = [(r.race_name, r.race_name)
                            for r in RaceBase.query.all()]
@@ -102,6 +99,9 @@ class TrainingForm(FlaskForm):
 
 
 class AfterForm(FlaskForm):
+    restaurants_choices = [(r.id, "{}({})".format(
+        r.name, r.place)) for r in Restaurant.query.order_by(Restaurant.score.desc()).all()]
+
     id = HiddenField(validators=[Optional()])
     date = DateField('日付:', validators=[InputRequired()])
     after_stage = SelectField('何次会:', coerce=int, default=1, choices=[
