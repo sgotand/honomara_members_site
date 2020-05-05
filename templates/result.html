@@ -172,8 +172,8 @@
                     id="competition{{results_by_competition[0].id}}year{{results_by_date[0].year}}">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <h4 class="panel-title"><small>
-                                    {{results_by_competition[0].show_name}}({{results_by_date[0]}})
+                            <h4 class="panel-title"><small><a href="{{url_for('competition_individual', id=results_by_competition[0].id)}}">
+                                    {{results_by_competition[0].show_name}}</a>({{results_by_date[0]}})
                                 </small>
                             </h4>
                         </div>
