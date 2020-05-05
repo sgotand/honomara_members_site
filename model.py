@@ -1,4 +1,5 @@
 from honomara_members_site import db
+from geoalchemy2 import Geometry
 
 
 class Member(db.Model):
@@ -132,88 +133,125 @@ class After(db.Model):
 
 
 class Competition(db.Model):
-    __tablename__ = 'competitions'
+    __tablename__ = 'competition'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     name_kana = db.Column(db.String(100))
     show_name = db.Column(db.String(100))
-    place = db.Column(db.String(100))
+    location = db.Column(Geometry("POINT"))
     url = db.Column(db.Text)
     comment = db.Column(db.Text)
 
-    races = db.relationship(
-        'Race',
+    cources = db.relationship(
+        'Cource',
         backref="competition",
-        order_by='Race.distance'
+        order_by='cource.cource_base_id'
     )
 
-    results = db.relationship(
-        'Result',
-        backref="competition",
-        order_by='Result.date, Result.race_id, Result.record'
+    def __init__(self, form=None, **args):
+        return super().__init__(**args)
+
+    def __repr__(self):  # location書けていない
+        return "<competition(id:{}, name:{}, name_kana:{}, show_name:{}, url:{}, comment:{}, cources:{})>".\
+            format(self.id, self.name, self.name_kana, self.show_name,
+                   self.url, self.comment, len(self.cources))
+
+
+class CourceBase(db.Model):
+    __tablename__ = 'cource_base'
+
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(30), nullable=False)
+    distance = db.Column(db.Integer)
+    dulation = db.Column(db.Integer)
+    comment = db.Column(db.Text)
+
+    cources = db.relationship(
+        'Cource',
+        backref='cource_base',
+        order_by='Cource.competition_id'
     )
 
     def __init__(self, form=None, **args):
         return super().__init__(**args)
 
     def __repr__(self):
-        return "<competition(id:{}, name:{}, name_kana:{}, show_name:{}, place:{}, url:{}, comment:{}, results:{}, race_types:{})>".\
-            format(self.id, self.name, self.name_kana, self.show_name, self.place,
-                   self.url, self.comment, len(self.results), len(self.race_types))
+        return "<cource_base(id:{}, type:{}, distance:{}, dulation:{}, comment:{}, coueces:{})>".\
+            format(self.id, self.type, self.distance,
+                   self.dulation, self.comment, len(self.cources))
+
+
+class Cource(db.Model):
+    __tablename__ = 'cource'
+
+    id = db.Column(db.Integer, primary_key=True)
+    competition_id = db.Column(
+        db.Integer, db.ForeignKey('competition.id'))
+    # competition by backref
+    cource_base_id = db.Column(
+        db.Integer, db.ForeignKey('cource_base.id'))
+    # cource_base by backref
+    name = db.Column(db.String(30))
+    cumulative_elevation = db.Column(db.Integer)
+    comment = db.Column(db.Text)
+
+    races = db.relationship(
+        'Race',
+        backref='cource',
+        order_by='Race.date'
+    )
+
+    def __init__(self, form=None, **args):
+        return super().__init__(**args)
+
+    def __repr__(self):
+        return "<cource(id:{}, competition:{}, cource_base_id:{}, name:{}, cumulative_elevation:{}, comment:{})>".\
+            format(self.id, self.competition.name, self.cource_base_id,
+                   self.name, self.cumulative_elevation, self.comment)
 
 
 class Race(db.Model):
-    __tablename__ = 'races'
+    __tablename__ = 'race'
 
     id = db.Column(db.Integer, primary_key=True)
-    competition_id = db.Column(db.Integer, db.ForeignKey('competitions.id'),
-                               nullable=False)
-    # competition by backref
-    show_name = db.Column(db.String(30))
-    type = db.Column(db.Integer)
-    distance = db.Column(db.Float)
-    dulation = db.Column(db.Float)
-    cumulative_elevation = db.Column(db.Float)
+    cource_id = db.Column(
+        db.Integer, db.ForeignKey('cource.id'))
+    # cource by backref
+    date = db.Column(db.Date, nullable=False)
     comment = db.Column(db.Text)
 
     results = db.relationship(
         'Result',
         backref='race',
-        order_by='Result.record'
+        order_by='Result.time, Result.distance'
     )
 
     def __init__(self, form=None, **args):
-        return super().__init__(**args)
+        return super().__init__(*: args)
 
     def __repr__(self):
-        return "<RaceType(id:{}, competition_id:{}, name:{}, type:{}, distance:{}, dulation:{}, cumulative_elevation:{}, comment:{}, rases:{})>".\
-            format(self.id, self.competition_id, self.name, self.type, self.distance,
-                   self.dulation, self.cumulative_elevation, self.comment, len(self.rases))
+        return "<race(id:{}, cource:{}, date:{}, {:%Y-%m-%d}, comment:{})>".\
+            format(self.id, self.cource.name, self.date, self.comment)
 
 
 class Result(db.Model):
-    __tablename__ = 'results'
+    __tablename__ = 'result'
 
-    id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.Date, nullable=False)
     member_id = db.Column(
-        db.Integer, db.ForeignKey('member.id'))
+        db.Integer, db.ForeignKey('member.id'), primary_key=True)
     # member by backref
-    competition_id = db.Column(
-        db.Integer, db.ForeignKey('competitions.id'))
-    # competition by backref
     race_id = db.Column(
-        db.Integer, db.ForeignKey('races.id'))
+        db.Integer, db.ForeignKey('race.id'), primary_key=True)
     # race by backref
-
-    record = db.Column(db.Integer, nullable=False)
+    time = db.Column(db.Integer)
+    distance = db.Column(db.Integer)
     comment = db.Column(db.Text)
 
     def __init__(self, form=None, **args):
         return super().__init__(**args)
 
     def __repr__(self):
-        return "<Result(id:{}, member_id:{}, race_id:{}, record:{}, comment:{})>".\
-            format(self.id, self.member_id, self.race_id,
-                   self.record, self.comment)
+        return "<result(id:{}, member:{}, race_id:{}, time:{}, distance:{}, comment:{})>".\
+            format(self.id, self.member.show_name, self.race_id,
+                   self.time, self.distance, self.comment)
