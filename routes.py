@@ -133,7 +133,7 @@ def training():
         for keyword in keywords.split(','):
             keyword = keyword.replace(' ', '')
             keyword = keyword.replace('　', '')
-            trainings = trainings.filter(Training.comment.match(keyword))
+            trainings = trainings.filter(Training.comment.contains(keyword))
     trainings = trainings.order_by(
         Training.date.desc()).paginate(page, per_page)
     return render_template('training.html', pagination=trainings)
@@ -231,7 +231,7 @@ def after():
         for keyword in keywords.split(','):
             keyword = keyword.replace(' ', '')
             keyword = keyword.replace('　', '')
-            afters = afters.filter(After.comment.match(keyword))
+            afters = afters.filter(After.comment.contains(keyword))
 
     afters = afters.order_by(After.date.desc()).paginate(page, per_page)
     return render_template('after.html', pagination=afters)

@@ -15,11 +15,12 @@
                         document.getElementById('div_1').style.display='block'"></p>
         <form class="form-group" action="{{url_for('after_edit')}}" method="get">
                 <div style="display:inline-flex">
-                <input name="keyword" required type="text" value="" style="width:150px">&nbsp;&nbsp;
+                <input name="keyword" type="text" value="" style="width:150px">&nbsp;&nbsp;
                 <input class="btn btn-default" type="submit" value="絞り込む">
                 </div>
         </form>
-<p>もしも見つからない場合は、<a href="{{url_for('restaurant_edit')}}">こちら</a>から新しい店舗を作成してください。</p>
+        何も入力せずに絞り込むと全ての店舗が表示されます。<br>
+        もしも見つからない場合は、<a href="{{url_for('restaurant_edit')}}">こちら</a>から新しい店舗を作成してください。
 </div>
 <form action="{{url_for('after_edit')}}" class="form" method="post" role="form">
         {{ form.hidden_tag() }}
