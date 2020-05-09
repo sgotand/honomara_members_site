@@ -1,0 +1,47 @@
+{% extends "template.html" %}
+{% block content %}
+
+<div class="container">
+    <h2>コース分類一覧</h2>
+    <a class="btn btn-xs btn-default" href="{{url_for('course_base_edit')}}">新規登録</a>
+    <div class="table-responsive">
+        <table class="table table-defalut table-condensed small">
+            <thead>
+                <tr>
+                    <th><small>種類</small></th>
+                    <th><small>距離(時間)</small></th>
+                    <th><small>備考</small></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course_base in course_bases %}
+                <tr>
+                    <td>{{course_base.type}}</td>
+                    {% if course_base.type == "ロード" or course_base.type == "トレイル" %}
+                    <td>{{int(course_base.distance)/1000}}km</td>
+                    {% elif course_base.type == "トラック" %}
+                    <td>{{int(course_base.distance)}}m</td>
+                    {% else %}
+                    <td>{{int(course_base.duration)//3600}}時間</td>
+                    {% endif %}
+                    <td>{{course_base.comment}}</td>
+                    <td style="display:flex">
+                        <form method="get" action="{{url_for('course_base_edit')}}">
+                            <input type="hidden" name="method" value="PUT">
+                            <input type="hidden" name="id" value="{{course_base.id}}">
+                            <input type="submit" value="編集" class="btn btn-xs btn-defalt" style="margin:0px 3px;">
+                        </form>
+                        <form method="post" action="{{url_for('course_base_confirm')}}">
+                            <input type="hidden" name="method" value="DELETE">
+                            <input type="hidden" name="id" value="{{course_base.id}}">
+                            <input type="submit" value="削除" class="btn btn-xs btn-defalt" style="margin:0px 3px;">
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

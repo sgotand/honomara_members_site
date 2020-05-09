@@ -1,0 +1,29 @@
+{% extends "edit_template.html" %}
+{% block content %}
+<div class="container">
+    コース登録ページ({{competition_name}})
+    <br>
+    <!-- エラーメッセージを分かりやすく実装したい -->
+    {% if form.errors %}
+    エラーが発生しました。 <br>
+    error:{{ form.errors }}
+    {% endif %}
+    <div class="row">
+        <div class="col-lg-8 col-lg-offset-2 col-sm-12">
+            <form action="{{url_for('course_edit')}}" class="form" method="post" role="form">
+                {{ form.hidden_tag() }}
+                <input type="hidden" name="competition_id" value="{{ form.competition_id.data }}">
+                <div class="form-group  required">{{ form.name.label(class="control-label") }}
+                    {{form.name(class="form-control")}}</div>
+                <div class="form-group  required">{{ form.course_base_id.label(class="control-label") }}
+                    {{form.course_base_id(class="form-control")}}</div>
+                <div class="form-group  required">{{ form.cumulative_elevation.label(class="control-label") }}
+                    {{form.cumulative_elevation(class="form-control")}}</div>
+                <div class="form-group  required">{{ form.comment.label(class="control-label") }}
+                    {{form.comment(class="form-control")}}</div>
+                <input class="btn btn-default" id="submit" name="submit" type="submit" value="確定">
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

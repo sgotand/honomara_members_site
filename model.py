@@ -19,7 +19,7 @@ class Member(db.Model):
     results = db.relationship(
         'Result',
         backref='member',
-        order_by='Result.record'
+        order_by='Result.time, Result.distance'
     )
 
     def __init__(self, form=None, **args):
@@ -139,66 +139,66 @@ class Competition(db.Model):
     name = db.Column(db.String(100), nullable=False)
     name_kana = db.Column(db.String(100))
     show_name = db.Column(db.String(100))
-    location = db.Column(Geometry("POINT"))
+    location = db.Column(db.String(30))
     url = db.Column(db.Text)
     comment = db.Column(db.Text)
 
-    cources = db.relationship(
-        'Cource',
+    courses = db.relationship(
+        'Course',
         backref="competition",
-        order_by='cource.cource_base_id'
+        order_by='Course.course_base_id'
     )
 
     def __init__(self, form=None, **args):
         return super().__init__(**args)
 
     def __repr__(self):  # location書けていない
-        return "<competition(id:{}, name:{}, name_kana:{}, show_name:{}, url:{}, comment:{}, cources:{})>".\
+        return "<competition(id:{}, name:{}, name_kana:{}, show_name:{}, url:{}, comment:{}, courses:{})>".\
             format(self.id, self.name, self.name_kana, self.show_name,
-                   self.url, self.comment, len(self.cources))
+                   self.url, self.comment, len(self.courses))
 
 
-class CourceBase(db.Model):
-    __tablename__ = 'cource_base'
+class CourseBase(db.Model):
+    __tablename__ = 'course_base'
 
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(30), nullable=False)
     distance = db.Column(db.Integer)
-    dulation = db.Column(db.Integer)
+    duration = db.Column(db.Integer)
     comment = db.Column(db.Text)
 
-    cources = db.relationship(
-        'Cource',
-        backref='cource_base',
-        order_by='Cource.competition_id'
+    courses = db.relationship(
+        'Course',
+        backref='course_base',
+        order_by='Course.competition_id'
     )
 
     def __init__(self, form=None, **args):
         return super().__init__(**args)
 
     def __repr__(self):
-        return "<cource_base(id:{}, type:{}, distance:{}, dulation:{}, comment:{}, coueces:{})>".\
+        return "<course_base(id:{}, type:{}, distance:{}, dulation:{}, comment:{}, coueses:{})>".\
             format(self.id, self.type, self.distance,
-                   self.dulation, self.comment, len(self.cources))
+                   self.dulation, self.comment, len(self.courses))
 
 
-class Cource(db.Model):
-    __tablename__ = 'cource'
+class Course(db.Model):
+    __tablename__ = 'course'
 
     id = db.Column(db.Integer, primary_key=True)
     competition_id = db.Column(
         db.Integer, db.ForeignKey('competition.id'))
     # competition by backref
-    cource_base_id = db.Column(
-        db.Integer, db.ForeignKey('cource_base.id'))
-    # cource_base by backref
-    name = db.Column(db.String(30))
+    course_base_id = db.Column(
+        db.Integer, db.ForeignKey('course_base.id'))
+    # course_base by backref
+    name = db.Column(db.String(60))
     cumulative_elevation = db.Column(db.Integer)
     comment = db.Column(db.Text)
 
     races = db.relationship(
         'Race',
-        backref='cource',
+        backref='course',
         order_by='Race.date'
     )
 
@@ -206,8 +206,8 @@ class Cource(db.Model):
         return super().__init__(**args)
 
     def __repr__(self):
-        return "<cource(id:{}, competition:{}, cource_base_id:{}, name:{}, cumulative_elevation:{}, comment:{})>".\
-            format(self.id, self.competition.name, self.cource_base_id,
+        return "<course(id:{}, competition:{}, course_base_id:{}, name:{}, cumulative_elevation:{}, comment:{})>".\
+            format(self.id, self.competition.name, self.course_base_id,
                    self.name, self.cumulative_elevation, self.comment)
 
 
@@ -215,9 +215,9 @@ class Race(db.Model):
     __tablename__ = 'race'
 
     id = db.Column(db.Integer, primary_key=True)
-    cource_id = db.Column(
-        db.Integer, db.ForeignKey('cource.id'))
-    # cource by backref
+    course_id = db.Column(
+        db.Integer, db.ForeignKey('course.id'))
+    # course by backref
     date = db.Column(db.Date, nullable=False)
     comment = db.Column(db.Text)
 
@@ -228,11 +228,11 @@ class Race(db.Model):
     )
 
     def __init__(self, form=None, **args):
-        return super().__init__(*: args)
+        return super().__init__(**args)
 
     def __repr__(self):
-        return "<race(id:{}, cource:{}, date:{}, {:%Y-%m-%d}, comment:{})>".\
-            format(self.id, self.cource.name, self.date, self.comment)
+        return "<race(id:{}, course:{}, date:{}, {:%Y-%m-%d}, comment:{})>".\
+            format(self.id, self.course.name, self.date, self.comment)
 
 
 class Result(db.Model):

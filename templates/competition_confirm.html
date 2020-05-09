@@ -31,7 +31,7 @@
                                 </tr>
                                 <tr>
                                     <th>開催地</th>
-                                    <td>{{places[form.place.data-1][1]}}</td>
+                                    <td>{{form.location.data}}</td>
                                 </tr>
                                 <tr>
                                     <th>URL</th>
@@ -55,7 +55,7 @@
         <input type="hidden" name="name" value="{{ form.name.data }}">
         <input type="hidden" name="name_kana" value="{{ form.name_kana.data }}">
         <input type="hidden" name="show_name" value="{{ form.show_name.data }}">
-        <input type="hidden" name="place" value="{{ form.place.data }}">
+        <input type="hidden" name="location" value="{{ form.location.data }}">
         <input type="hidden" name="url" value="{{ form.url.data }}">
         <input type="hidden" name="comment" value="{{ form.comment.data }}">
         <input type="hidden" name="confirmed" value="True">
@@ -68,7 +68,7 @@
         <input type="hidden" name="id" value="{{ form.id.data }}">
         <input type="submit" value="削除" class="btn btn-danger">
         {% endif %}
-        <a href="{{url_for('result')}}" class="btn btn-default">キャンセル</a>
+        <a href="{{url_for('competition')}}" class="btn btn-default">キャンセル</a>
     </form>
 
 
