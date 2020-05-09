@@ -1,10 +1,12 @@
 from itertools import groupby
+import itertools
 from flask import render_template, request, abort, redirect, url_for, flash
 from honomara_members_site import app, db
 from honomara_members_site.login import login_check
 from honomara_members_site.model import Member, Training, TrainingParticipant, After, Restaurant, Competition, CourseBase, Course, Race, Result
 from sqlalchemy import func
-from honomara_members_site.form import MemberForm, TrainingForm, AfterForm, CompetitionForm, CourseBaseForm, CourseForm
+from sqlalchemy.sql import text
+from honomara_members_site.form import MemberForm, TrainingForm, AfterForm, Competitionform, CourseBaseForm, CourseForm
 from flask_login import login_required, login_user, logout_user
 from honomara_members_site.util import current_school_year, data_collection
 from datetime import date, timedelta
@@ -151,6 +153,10 @@ def training_edit():
         training = Training.query.get(id)
         form = TrainingForm(obj=training)
         form.method.data = 'PUT'
+        form.participants1.data = [m.id for m in training.participants]
+        form.participants2.data = [m.id for m in training.participants]
+        form.participants3.data = [m.id for m in training.participants]
+        form.participants4.data = [m.id for m in training.participants]
         form.participants.data = [m.id for m in training.participants]
     else:
         form.method.data = 'POST'
@@ -167,6 +173,12 @@ def training_confirm():
 
     if request.form.get('submit') == 'キャンセル':
         return redirect(url_for('training'))
+
+    form.participants.data = form.participants1.data +\
+        form.participants2.data +\
+        form.participants3.data +\
+        form.participants4.data +\
+        form.participants.data
 
     if form.participants.data:
         form.participants.data = [Member.query.get(
@@ -230,6 +242,7 @@ def after():
 @login_required
 def after_edit():
     form = AfterForm(formdata=request.form)
+    keyword = request.args.get('keyword')
 
     if form.validate_on_submit():
         return redirect(url_for('after_confirm'), code=307)
@@ -238,10 +251,17 @@ def after_edit():
         id = int(request.args.get('id'))
         after = After.query.get(id)
         form = AfterForm(obj=after)
+        form.participants1.data = [m.id for m in after.participants]
+        form.participants2.data = [m.id for m in after.participants]
+        form.participants3.data = [m.id for m in after.participants]
+        form.participants4.data = [m.id for m in after.participants]
         form.participants.data = [m.id for m in after.participants]
         form.restaurant.data = after.restaurant.id
         form.method.data = 'PUT'
     else:
+        if keyword is not None:
+            form.restaurant.choices = [(r.id, "{}({})".format(
+                r.name, r.place)) for r in Restaurant.query.filter(Restaurant.name.contains(keyword)).order_by(Restaurant.score.desc()).all()]
         form.method.data = 'POST'
 
     return render_template('after_edit.html', form=form)
@@ -254,6 +274,12 @@ def after_confirm():
     app.logger.info(request.form)
     if request.form.get('submit') == 'キャンセル':
         return redirect(url_for('after'))
+
+    form.participants.data = form.participants1.data +\
+        form.participants2.data +\
+        form.participants3.data +\
+        form.participants4.data +\
+        form.participants.data
 
     if form.participants.data:
         form.participants.data = [Member.query.get(
@@ -297,6 +323,10 @@ def after_confirm():
         if request.form.get('method') == 'DELETE':
             after = After.query.get(form.id.data)
             form = AfterForm(obj=after)
+            form.participants1.data = after.participants
+            form.participants2.data = after.participants
+            form.participants3.data = after.participants
+            form.participants4.data = after.participants
             form.participants.data = after.participants
             form.restaurant.data = after.restaurant
         return render_template('after_confirm.html', form=form)
@@ -621,3 +651,85 @@ def search():
 @login_required
 def manage():
     return render_template('manage.html')
+
+@app.route('/restaurant/')
+@login_required
+def restaurant():
+    afters = list(set(list(itertools.chain.from_iterable(
+        db.session.query(After.restaurant_id).all()))))
+    per_page = 40
+    page = request.args.get('page') or 1
+    page = max([1, int(page)])
+    restaurants = Restaurant.query.order_by(
+        Restaurant.score.desc()).paginate(page, per_page)
+    return render_template('restaurant.html', pagination=restaurants, afters=afters)
+
+
+@app.route('/restaurant/edit', methods=['GET', 'POST'])
+@login_required
+def restaurant_edit():
+    form = RestaurantForm(formdata=request.form)
+
+    if form.validate_on_submit():
+        return redirect(url_for('restaurant_confirm'), code=307)
+
+    if request.args.get('method') == 'PUT':
+        id = int(request.args.get('id'))
+        restaurant = Restaurant.query.get(id)
+        form = RestaurantForm(obj=restaurant)
+        form.name.data = restaurant.name
+        form.place.data = restaurant.place
+        form.score.data = restaurant.score
+        form.comment.data = restaurant.comment
+        form.method.data = 'PUT'
+    else:
+        form.method.data = 'POST'
+
+    return render_template('restaurant_edit.html', form=form)
+
+
+@app.route('/restaurant/confirm', methods=['POST'])
+@login_required
+def restaurant_confirm():
+    form = RestaurantForm(formdata=request.form)
+
+    if request.form.get('submit') == 'キャンセル':
+        return redirect(url_for('restaurant'))
+
+    if form.validate_on_submit() and request.form.get('confirmed'):
+        if request.form.get('method') == 'DELETE':
+            restaurant = Restaurant.query.get(form.id.data)
+            db.session.delete(restaurant)
+            db.session.commit()
+            flash('レストラン: "{}" の削除が完了しました'.format(restaurant.name), 'danger')
+
+        elif request.form.get('method') == 'PUT':
+            restaurant = Restaurant.query.get(form.id.data)
+            restaurant.name = restaurant.name.encode(
+                'euc-jp', errors='xmlcharrefreplace').decode('euc-jp')
+            restaurant.comment = restaurant.comment.encode(
+                'euc-jp', errors='xmlcharrefreplace').decode('euc-jp')
+            form.populate_obj(restaurant)
+            db.session.commit()
+            flash('レストラン: "{}" の更新が完了しました'.format(restaurant.name), 'warning')
+
+        elif request.form.get('method') == 'POST':
+            restaurant = Restaurant()
+            form.populate_obj(restaurant)
+            restaurant.name = restaurant.name.encode(
+                'euc-jp', errors='xmlcharrefreplace').decode('euc-jp')
+            restaurant.comment = restaurant.comment.encode(
+                'euc-jp', errors='xmlcharrefreplace').decode('euc-jp')
+            restaurant.id = None
+            db.session.add(restaurant)
+            db.session.commit()
+            flash('レストラン: "{}" の登録が完了しました'.format(restaurant.name), 'info')
+
+        return redirect(url_for('restaurant'))
+
+    else:
+        if request.form.get('method') == 'DELETE':
+            restaurant = Restaurant.query.get(form.id.data)
+            form = RestaurantForm(obj=restaurant)
+        return render_template('restaurant_confirm.html', form=form)
+

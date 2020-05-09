@@ -11,13 +11,36 @@ visible_member_list_for_form = [(m.id, m.show_name)
                                 filter(Member.year <= current_school_year).
                                 order_by(Member.year.desc()).all()]
 
+visible_member_list_for_form_1 = [(m.id, m.show_name)
+                                  for m in Member.query.filter_by(visible=True).
+                                  filter(Member.year == current_school_year).
+                                  order_by(Member.family_kana).all()]
+
+visible_member_list_for_form_2 = [(m.id, m.show_name)
+                                  for m in Member.query.filter_by(visible=True).
+                                  filter(Member.year == current_school_year-1).
+                                  order_by(Member.family_kana).all()]
+
+visible_member_list_for_form_3 = [(m.id, m.show_name)
+                                  for m in Member.query.filter_by(visible=True).
+                                  filter(Member.year == current_school_year-2).
+                                  order_by(Member.family_kana).all()]
+
+visible_member_list_for_form_4 = [(m.id, m.show_name)
+                                  for m in Member.query.filter_by(visible=True).
+                                  filter(Member.year == current_school_year-3).
+                                  order_by(Member.family_kana).all()]
+
+visible_member_list_for_form_5 = [(m.id, m.show_name)
+                                  for m in Member.query.filter_by(visible=True).
+                                  filter(Member.year <= current_school_year-4).
+                                  order_by(Member.year.desc(), Member.family_kana).all()]
+
 training_place_list = [('代々木公園', '代々木公園'), ('皇居', '皇居'), ('山手線企画',
                                                           '山手線企画'), ('箱根企画', '箱根企画'), ('距離練', '距離練'), ('その他', 'その他')]
 weather_list = [('晴れ', '晴れ'), ('曇り', '曇り'), ('雨', '雨'),
                 ('強風', '強風'), ('雪', '雪'), ('その他', 'その他')]
 
-restaurants_choices = [(r.id, "{}({})".format(
-    r.name, r.place)) for r in Restaurant.query.order_by(Restaurant.score.desc()).all()]
 
 course_choices = [(r.id, "{}km({})".format(r.distance, r.type))
                   for r in CourseBase.query.order_by(CourseBase.type, CourseBase.distance, CourseBase.duration)]
@@ -48,8 +71,21 @@ class TrainingForm(FlaskForm):
     place = SelectField('練習場所:', coerce=str,  validators=[
                         InputRequired()], choices=training_place_list)
     weather = SelectField('天気:', validators=[Optional()], choices=weather_list)
-    participants = SelectMultipleField('参加者:', coerce=int, validators=[InputRequired()],
-                                       choices=visible_member_list_for_form)
+    participants1 = SelectMultipleField('1年生', coerce=int,
+                                        choices=visible_member_list_for_form_1
+                                        )
+    participants2 = SelectMultipleField('2年生', coerce=int,
+                                        choices=visible_member_list_for_form_2
+                                        )
+    participants3 = SelectMultipleField('3年生', coerce=int,
+                                        choices=visible_member_list_for_form_3
+                                        )
+    participants4 = SelectMultipleField('4年生', coerce=int,
+                                        choices=visible_member_list_for_form_4
+                                        )
+    participants = SelectMultipleField('5年生以上', coerce=int,
+                                       choices=visible_member_list_for_form_5
+                                       )
     title = StringField('タイトル:', validators=[InputRequired()])
     comment = TextAreaField('コメント:', validators=[Optional()])
     confirmed = HiddenField(validators=[Optional()])
@@ -58,14 +94,29 @@ class TrainingForm(FlaskForm):
 
 
 class AfterForm(FlaskForm):
+    restaurants_choices = [(r.id, "{}({})".format(
+        r.name, r.place)) for r in Restaurant.query.order_by(Restaurant.score.desc()).all()]
+
     id = HiddenField(validators=[Optional()])
     date = DateField('日付:', validators=[InputRequired()])
     after_stage = SelectField('何次会:', coerce=int, default=1, choices=[
                               (i, i) for i in range(0, 10)], validators=[InputRequired()])
     restaurant = SelectField('店:', coerce=int, validators=[InputRequired()],
                              choices=restaurants_choices)
-    participants = SelectMultipleField('参加者:', coerce=int, validators=[InputRequired()],
-                                       choices=visible_member_list_for_form
+    participants1 = SelectMultipleField('1年生', coerce=int,
+                                        choices=visible_member_list_for_form_1
+                                        )
+    participants2 = SelectMultipleField('2年生', coerce=int,
+                                        choices=visible_member_list_for_form_2
+                                        )
+    participants3 = SelectMultipleField('3年生', coerce=int,
+                                        choices=visible_member_list_for_form_3
+                                        )
+    participants4 = SelectMultipleField('4年生', coerce=int,
+                                        choices=visible_member_list_for_form_4
+                                        )
+    participants = SelectMultipleField('5年生以上', coerce=int,
+                                       choices=visible_member_list_for_form_5
                                        )
     title = StringField('タイトル:', validators=[InputRequired()])
     comment = TextAreaField('コメント:', validators=[Optional()])
@@ -129,6 +180,17 @@ class CourseForm(FlaskForm):
                                  choices=course_choices)
     cumulative_elevation = FloatField(
         '累積標高(m):', validators=[Optional()], default=0)
+    comment = TextAreaField('コメント:', validators=[Optional()])
+    confirmed = HiddenField(validators=[Optional()])
+    method = HiddenField(validators=[Optional()])
+    submit = SubmitField('確定', validators=[Optional()])
+
+
+class RestaurantForm(FlaskForm):
+    id = HiddenField(validators=[Optional()])
+    name = StringField('店名:', validators=[InputRequired()])
+    place = StringField('場所:', validators=[InputRequired()])
+    score = FloatField('スコア:', validators=[InputRequired()])
     comment = TextAreaField('コメント:', validators=[Optional()])
     confirmed = HiddenField(validators=[Optional()])
     method = HiddenField(validators=[Optional()])
