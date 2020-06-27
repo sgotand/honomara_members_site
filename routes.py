@@ -1,5 +1,6 @@
 from itertools import groupby
 import itertools
+import datetime
 from flask import render_template, request, abort, redirect, url_for, flash
 from honomara_members_site import app, db
 from honomara_members_site.login import login_check
@@ -129,11 +130,25 @@ def training():
     page = max([1, int(page)])
     trainings = Training.query
     keywords = request.args.get('keyword')
+    day_from = request.args.get('from')
+    day_until = request.args.get('until')
     if keywords is not None:
         for keyword in keywords.split(','):
             keyword = keyword.replace(' ', '')
             keyword = keyword.replace('　', '')
             trainings = trainings.filter(Training.comment.contains(keyword))
+    if day_from is not None and day_from != "":
+        day_from = datetime.datetime.strptime(day_from, '%Y-%m-%d')
+        trainings = trainings.filter(Training.date >= day_from)
+    if day_until is not None and day_until != "":
+        day_until = datetime.datetime.strptime(day_until, '%Y-%m-%d')
+        trainings = trainings.filter(Training.date <= day_until)
+    if request.args.get('submit') == "検索":
+        count = trainings.count()
+        if count > 0:
+            flash('{}件ヒットしました'.format(count), 'info')
+        else:
+            flash('ヒットしませんでした', 'danger')
     trainings = trainings.order_by(
         Training.date.desc()).paginate(page, per_page)
     return render_template('training.html', pagination=trainings)
@@ -226,13 +241,29 @@ def after():
     page = request.args.get('page') or 1
     page = max([1, int(page)])
     afters = After.query
+    stage = request.args.get('stage')
     keywords = request.args.get('keyword')
+    day_from = request.args.get('from')
+    day_until = request.args.get('until')
+    if stage is not None and stage != "":
+        afters = afters.filter(After.after_stage == int(stage))
     if keywords is not None:
         for keyword in keywords.split(','):
             keyword = keyword.replace(' ', '')
             keyword = keyword.replace('　', '')
             afters = afters.filter(After.comment.contains(keyword))
-
+    if day_from is not None and day_from != "":
+        day_from = datetime.datetime.strptime(day_from, '%Y-%m-%d')
+        afters = afters.filter(After.date >= day_from)
+    if day_until is not None and day_until != "":
+        day_until = datetime.datetime.strptime(day_until, '%Y-%m-%d')
+        afters = afters.filter(After.date <= day_until)
+    if request.args.get('submit') == "検索":
+        count = afters.count()
+        if count > 0:
+            flash('{}件ヒットしました'.format(count), 'info')
+        else:
+            flash('ヒットしませんでした', 'danger')
     afters = afters.order_by(After.date.desc()).paginate(page, per_page)
     return render_template('after.html', pagination=afters)
 
