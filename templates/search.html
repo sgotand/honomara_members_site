@@ -1,17 +1,48 @@
 {% extends "template.html" %}
 {% block content %}
 <div class="container">
-<h2> 練習録キーワード検索</h2>
+<h2> 練習録検索</h2>
 <form action="{{url_for('training')}}" class="form" method="get" role="form">
-<div class="form-group  required"><label class="control-label" for="keyword">キーワード:</label><input class="form-control" id="keyword" name="keyword" required type="text" value=""></div>
+<div class="form-group"><label class="control-label" for="keyword">キーワード:</label><input class="form-control" id="keyword" name="keyword" type="text" value=""></div>
+<p>※検索したいキーワードをカンマ(',')区切りで入力してください。</p>
+<div class="form-group row">
+    <div class="col-sm-6">
+    <label class="control-label" for="from">日付(いつから):</label><input class="form-control" id="from" name="from" type="date" value="">
+    </div>
+    <div class="col-sm-6">
+    <label class="control-label" for="until">日付(いつまで):</label><input class="form-control" id="until" name="until" type="date" value="">
+    </div>
+</div>
 <input class="btn btn-default" id="submit" name="submit" type="submit" value="検索">
 </form>
-<p>※検索したいキーワードをカンマ(',')区切りで入力してください。</p>
-<h2> アフター録キーワード検索</h2>
+
+<h2> アフター録検索</h2>
 <form action="{{url_for('after')}}" class="form" method="get" role="form">
-<div class="form-group  required"><label class="control-label" for="keyword">キーワード:</label><input class="form-control" id="keyword" name="keyword" required type="text" value=""></div>
+<div class="form-group"><label class="control-label" for="stage">何次会:</label>
+    <select class="form-control" id="stage" name="stage">
+        <option selected></option>
+        <option>0</option>
+        <option>1</option>
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
+        <option>6</option>
+        <option>7</option>
+        <option>8</option>
+        <option>9</option>
+    </select></div>
+<div class="form-group"><label class="control-label" for="keyword">キーワード:</label><input class="form-control" id="keyword" name="keyword" type="text" value=""></div>
+<p>※検索したいキーワードをカンマ(',')区切りで入力してください。</p>
+<div class="form-group row">
+    <div class="col-sm-6">
+    <label class="control-label" for="from">日付(いつから):</label><input class="form-control" id="from" name="from" type="date" value="">
+    </div>
+    <div class="col-sm-6">
+    <label class="control-label" for="until">日付(いつまで):</label><input class="form-control" id="until" name="until" type="date" value="">
+    </div>
+</div>
 <input class="btn btn-default" id="submit" name="submit" type="submit" value="検索">
 </form>
-<p>※検索したいキーワードをカンマ(',')区切りで入力してください。</p>
 </div>
 {% endblock %}
