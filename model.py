@@ -1,4 +1,5 @@
 from honomara_members_site import db
+from geoalchemy2 import Geometry
 
 
 class Member(db.Model):
@@ -15,7 +16,11 @@ class Member(db.Model):
     sex = db.Column(db.Integer, nullable=False)
     visible = db.Column(db.Boolean, nullable=False)
 
-    results = db.relationship('Result')
+    results = db.relationship(
+        'Result',
+        backref='member',
+        order_by='Result.time, Result.distance'
+    )
 
     def __init__(self, form=None, **args):
         return super().__init__(**args)
@@ -127,85 +132,126 @@ class After(db.Model):
             format(self.id, self.date, self.title)
 
 
-class RaceBase(db.Model):
-    __tablename__ = 'race_base'
+class Competition(db.Model):
+    __tablename__ = 'competition'
 
-    race_name = db.Column(db.String(100), primary_key=True)
-    prefecture = db.Column(db.String(100))
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    name_kana = db.Column(db.String(100))
+    show_name = db.Column(db.String(100))
+    location = db.Column(db.String(30))
+    url = db.Column(db.Text)
     comment = db.Column(db.Text)
-    # races = db.relationship("Race")
+
+    courses = db.relationship(
+        'Course',
+        backref="competition",
+        order_by='Course.course_base_id'
+    )
+
+    def __init__(self, form=None, **args):
+        return super().__init__(**args)
+
+    def __repr__(self):  # location書けていない
+        return "<competition(id:{}, name:{}, name_kana:{}, show_name:{}, url:{}, comment:{}, courses:{})>".\
+            format(self.id, self.name, self.name_kana, self.show_name,
+                   self.url, self.comment, len(self.courses))
+
+
+class CourseBase(db.Model):
+    __tablename__ = 'course_base'
+
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(30), nullable=False)
+    distance = db.Column(db.Integer)
+    duration = db.Column(db.Integer)
+    comment = db.Column(db.Text)
+
+    courses = db.relationship(
+        'Course',
+        backref='course_base',
+        order_by='Course.competition_id'
+    )
 
     def __init__(self, form=None, **args):
         return super().__init__(**args)
 
     def __repr__(self):
-        return "<RaceBase(race_name:{}, prefecture:{}, comment:'{}')>".\
-            format(self.race_name, self.prefecture, self.comment)
+        return "<course_base(id:{}, type:{}, distance:{}, dulation:{}, comment:{}, coueses:{})>".\
+            format(self.id, self.type, self.distance,
+                   self.dulation, self.comment, len(self.courses))
+
+
+class Course(db.Model):
+    __tablename__ = 'course'
+
+    id = db.Column(db.Integer, primary_key=True)
+    competition_id = db.Column(
+        db.Integer, db.ForeignKey('competition.id'))
+    # competition by backref
+    course_base_id = db.Column(
+        db.Integer, db.ForeignKey('course_base.id'))
+    # course_base by backref
+    name = db.Column(db.String(60))
+    cumulative_elevation = db.Column(db.Integer)
+    comment = db.Column(db.Text)
+
+    races = db.relationship(
+        'Race',
+        backref='course',
+        order_by='Race.date'
+    )
+
+    def __init__(self, form=None, **args):
+        return super().__init__(**args)
+
+    def __repr__(self):
+        return "<course(id:{}, competition:{}, course_base_id:{}, name:{}, cumulative_elevation:{}, comment:{})>".\
+            format(self.id, self.competition.name, self.course_base_id,
+                   self.name, self.cumulative_elevation, self.comment)
 
 
 class Race(db.Model):
     __tablename__ = 'race'
 
     id = db.Column(db.Integer, primary_key=True)
-    # , db.ForeignKey('race_bases.race_name')
-    race_name = db.Column(db.String(100))
+    course_id = db.Column(
+        db.Integer, db.ForeignKey('course.id'))
+    # course by backref
     date = db.Column(db.Date, nullable=False)
-
-    results = db.relationship('Result',
-                              backref="race",
-                              order_by='Result.result'
-                              )
     comment = db.Column(db.Text)
+
+    results = db.relationship(
+        'Result',
+        backref='race',
+        order_by='Result.time, Result.distance'
+    )
 
     def __init__(self, form=None, **args):
         return super().__init__(**args)
 
     def __repr__(self):
-        return "<Race(id:{},race_name:{},date {:%Y-%m-%d}, results:{}, comment:'{}')>".\
-            format(self.id, self.race_name, self.date,
-                   len(self.results), self.comment)
-
-
-class RaceType(db.Model):
-    __tablename__ = 'race_type'
-
-    id = db.Column(db.Integer, primary_key=True)
-    race_type = db.Column(db.String(30))
-    show_name = db.Column(db.String(30))
-    ranking = db.Column(db.Integer)
-    duration = db.Column(db.Float)
-    distance = db.Column(db.Float)
-    comment = db.Column(db.Text)
-    results = db.relationship('Result')
-
-    def __init__(self, form=None, **args):
-        return super().__init__(**args)
-
-    def __repr__(self):
-        return "<RaceType(id:{}, race_type:{}, show_name:{}, ranking:{}, duration:{}, distance:{}, comment:'{}')>".\
-            format(self.id, self.race_type, self.show_name,
-                   self.ranking, self.duration, self.distance, self.comment)
+        return "<race(id:{}, course:{}, date:{}, {:%Y-%m-%d}, comment:{})>".\
+            format(self.id, self.course.name, self.date, self.comment)
 
 
 class Result(db.Model):
     __tablename__ = 'result'
 
-    member_id = db.Column(db.Integer, db.ForeignKey(
-        'member.id'), primary_key=True)
-    member = db.relationship('Member')
-
-    race_id = db.Column(db.Integer, db.ForeignKey(
-        'race.id'), primary_key=True)
+    member_id = db.Column(
+        db.Integer, db.ForeignKey('member.id'), primary_key=True)
+    # member by backref
+    race_id = db.Column(
+        db.Integer, db.ForeignKey('race.id'), primary_key=True)
     # race by backref
-
-    race_type_id = db.Column(db.Integer, db.ForeignKey(
-        'race_type.id'), primary_key=True)
-    race_type = db.relationship('RaceType')
-
-    result = db.Column(db.Integer, nullable=False)
+    time = db.Column(db.Integer)
+    distance = db.Column(db.Integer)
     comment = db.Column(db.Text)
 
+    def __init__(self, form=None, **args):
+        return super().__init__(**args)
+
     def __repr__(self):
-        return "<Result(race:{}({:%Y-%m-%d}), race_type:{}, member:{}, result:{}, comment:{})>".\
-            format(self.race.race_name, self.race.date, self.race_type.race_type,
-                   self.member.show_name, self.result, self.comment)
+        return "<result(id:{}, member:{}, race_id:{}, time:{}, distance:{}, comment:{})>".\
+            format(self.id, self.member.show_name, self.race_id,
+                   self.time, self.distance, self.comment)

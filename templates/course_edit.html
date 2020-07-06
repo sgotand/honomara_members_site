@@ -1,25 +1,22 @@
 {% extends "edit_template.html" %}
 {% block content %}
 <div class="container">
-    レース登録ページ({{competition_name}})
+    コース登録ページ({{competition_name}})
     <br>
+    <!-- エラーメッセージを分かりやすく実装したい -->
     {% if form.errors %}
     エラーが発生しました。 <br>
     error:{{ form.errors }}
     {% endif %}
     <div class="row">
         <div class="col-lg-8 col-lg-offset-2 col-sm-12">
-            <form action="{{url_for('race_edit')}}" class="form" method="post" role="form">
+            <form action="{{url_for('course_edit')}}" class="form" method="post" role="form">
                 {{ form.hidden_tag() }}
                 <input type="hidden" name="competition_id" value="{{ form.competition_id.data }}">
-                <div class="form-group  required">{{ form.type.label(class="control-label") }}
-                    {{form.type(class="form-control")}}</div>
-                <div class="form-group  required">{{ form.show_name.label(class="control-label") }}
-                    {{form.show_name(class="form-control")}}</div>
-                <div class="form-group  required">{{ form.distance.label(class="control-label") }}
-                    {{form.distance(class="form-control")}}</div>
-                <div class="form-group  required">{{ form.dulation.label(class="control-label") }}
-                    {{form.dulation(class="form-control")}}</div>
+                <div class="form-group  required">{{ form.name.label(class="control-label") }}
+                    {{form.name(class="form-control")}}</div>
+                <div class="form-group  required">{{ form.course_base_id.label(class="control-label") }}
+                    {{form.course_base_id(class="form-control")}}</div>
                 <div class="form-group  required">{{ form.cumulative_elevation.label(class="control-label") }}
                     {{form.cumulative_elevation(class="form-control")}}</div>
                 <div class="form-group  required">{{ form.comment.label(class="control-label") }}

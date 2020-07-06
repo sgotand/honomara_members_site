@@ -1,130 +1,171 @@
 {% extends "template.html" %}
 {% block styles %}
-{{ super() }}
-
+{{super()}}
 <style>
-.borders {
-    border-top: lightgray 1px solid;
-    padding-top: 5px;
-    overflow: hidden;
-}
+    .competitions {
+        margin-top: -100px;
+        padding-top: 100px;
+    }
+
+    #gotop {
+        position: fixed;
+        bottom: 30px;
+        left: 30px;
+        z-index: 100;
+    }
 </style>
 {% endblock %}
-
 {% block content %}
-<div class="container">
-
+<div>
+    <a id="gotop" class="btn btn-default btn-xs" href="#top" style="color:black;">ページTOPへ</a>
+</div>
+<div class="container-fluid">
     <div class="row">
-        <div class="col-lg-12">
-            <div class="page-header">
-                <h1 id="tables">大会記録
-                        {% if current_user.is_authenticated %}
-                            <a href="{{url_for('race_edit')}}" class="btn btn-primary btn-lg">新規大会登録</a>
-                        {% endif %}
-
-                </h1>
-                <div class="bs-component">
-                    <ul class="pager">
-                        <li class="previous {{ "disabled" if not pagination.has_prev}}"><a
-                                href="{{url_for('result',page=pagination.prev_num) }}">&larr; Newer</a></li>
-                        <li> {{ pagination.page}}/{{ pagination.pages}} </li>
-                        <li class="next  {{ "disabled" if not pagination.has_next}}"><a
-                                href="{{url_for('result',page=pagination.next_num) }}">Older &rarr;</a></li>
-                    </ul>
+        <div class="col-xs-12 col-sm-3">
+            {{time.time()-start}} 実行時間測定用。いずれ消す。
+            <div class="panel panel-default">
+                <div class="panel-heading collapse-heading" data-toggle="collapse" data-target="#collapse-year">
+                    <h3 class="panel-title">
+                        選択
+                        <span class="glyphicon glyphicon-chevron-down pull-right"></span>
+                    </h3>
+                </div>
+                <div id="collapse-year" class="panel-body panel-collapse collapse">
+                    <a class="btn btn-link btn-block" href="{{url_for('result', list_type='latest')}}" role="button"
+                        style="color:black;">最新</a>
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
+                            年度
+                            <span class="glyphicon glyphicon-chevron-down"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            {% for i in range(current_school_year-1998) %}
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='year', year=current_school_year-i)}}">{{current_school_year-i}}年度</a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
+                            種類
+                            <span class="glyphicon glyphicon-chevron-down"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <!-- 実装を保留し、リンクを外しています -->
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='fullbreak3')}}"></a>フル・サブ3</li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='halfbreak80')}}"></a>ハーフ・70分台</li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='road100')}}"></a>ロード・100キロ</li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='roadover100')}}"></a>ロード・100キロ超
+                            </li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='roadoverfull')}}"></a>ロード・フル以上100キロ未満
+                            </li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='roadunderfull')}}"></a>ロード・ハーフ超フル未満
+                            </li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='roadunderhalf')}}"></a>ロード・10キロ超ハーフ未満
+                            </li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='road10')}}"></a>ロード・10キロ</li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='roadunder10')}}"></a>ロード・10キロ未満
+                            </li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='track')}}"></a>トラック競技</li>
+                            <li class="small" role="presentation"><a
+                                    href="{{url_for('result', list_type='type', type='time')}}"></a>時間走</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-            <div class="row">
-                {% for race in pagination.items %}
-                {% if len(race.results) > 0 or current_user.is_authenticated %}                
-                <div class="bs-component">
+            <div class="panel panel-default">
+                <div class="panel-heading collapse-heading" data-toggle="collapse" data-target="#collapse-listing">
+                    <h3 class="panel-title">
+                        表示中の大会
+                        <span class="glyphicon glyphicon-chevron-down pull-right"></span>
+                    </h3>
+                </div>
+                <div id="collapse-listing" class="panel-body panel-collapse collapse table-responsive">
+                    <table class="table table-default table-condensed small">
+
+                        {% for results_by_date in groupby(results, key=key['date']) %}
+                        {% for results_by_competition in groupby(results_by_date[1], key=key['competition']) %}
+                        <tr>
+                            <td><a href="#competition{{results_by_competition[0].id}}year{{results_by_date[0].year}}"
+                                    style="color:black;">
+                                    {{results_by_competition[0].show_name}}({{results_by_date[0]}})
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-5">
+            <div>
+                <h3><small>
+                        {% if list_type == 'latest' %}
+                        最新結果
+                        {% elif list_type == 'year'%}
+                        {{year}}年度
+                        {% endif %}
+
+                    </small>
+                </h3>
+                {% for results_by_date in groupby(results, key=key['date']) %}
+                <!--大会が二日に分かれている時の対応がまだできていない-->
+                {% for results_by_competition in groupby(results_by_date[1], key=key['competition']) %}
+                <div class="competitions"
+                    id="competition{{results_by_competition[0].id}}year{{results_by_date[0].year}}">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <!-- <h3> -->
-                            <div class="row">
-                                <h3 class="col-xs-12 col-sm-8">
-                                    {{ race.date }} {{ race.race_name }}
-                                </h3>
-                                {% if current_user.is_authenticated %}
-                                <div class="col-xs-12 col-sm-4" style="margin-top: 10px;">
-                                    <form method="get" action="{{url_for('result_edit')}}"
-                                        style="display: inline-block; float: right; margin: 0 3px;">
-                                        <input type="hidden" name="method" value="POST">
-                                        <input type="hidden" name="race_id" value="{{race.id}}">
-                                        <input type="submit" value="追加" class="btn btn-primary">
-                                    </form>
-                
-                                    <form method="get" action="{{url_for('race_edit')}}"
-                                        style="display: inline-block; float: right; margin: 0 3px;">
-                                        <input type="hidden" name="method" value="PUT">
-                                        <input type="hidden" name="id" value="{{race.id}}">
-                                        <input type="submit" value="編集" class="btn btn-warning">
-                                    </form>
-                                    <form method="post" action="{{url_for('race_confirm')}}"
-                                        style="display: inline-block; float: right; margin: 0 3px;">
-                                        <input type="hidden" name="method" value="DELETE">
-                                        <input type="hidden" name="id" value="{{race.id}}">
-                                        <input type="submit" value="削除" class="btn btn-danger">
-                                    </form>
-                
-                                </div>
-                                {% endif %}
-                            </div>
-                            <!-- </h3> -->
-                        </div>                        
-                        <div class="panel-body">
-                            {% for result_by_type in groupby(race.results,key=key) %}
-                            <h3>{{ result_by_type[0] }}</h3>
-                            {% for result in result_by_type[1] %}
-                            <div class="borders clearfix">
-                                <p style="font-size: 1.2em;" class="col-xs-4 col-sm-2 col-lg-2">
-                                    {{result.member.show_name}}
-                                </p>
-                                <p style="font-size: 1.2em;" class="col-xs-4 col-sm-2 col-lg-2 ">
-                                    {{"{:02}:{:02}:{:02}".format(int(result.result)//3600,(int(result.result)%3600)//60,int(result.result)%60)}}
-                                    <br>
-                                </p>
-                                <p style="font-size: 1.2em;" class="col-xs-8 col-sm-5 col-lg-5 ">
-                                    {{ result.comment }}
-                                </p>
-                                {% if current_user.is_authenticated %}
-                                <form method="get" action="{{url_for('result_edit')}}"
-                                    style="display: inline-block; float: right; margin: 0 3px;">
-                                    <input type="hidden" name="method" value="PUT">
-                                    <input type="hidden" name="race_id" value="{{result.race_id}}">
-                                    <input type="hidden" name="race_type_id" value="{{result.race_type_id}}">
-                                    <input type="hidden" name="member_id" value="{{result.member_id}}">
-                                    <input type="submit" value="編集" class="btn btn-warning">
-                                </form>
-                                <form method="post" action="{{url_for('result_confirm')}}"
-                                    style="display: inline-block; float: right; margin: 0 3px;">
-                                    <input type="hidden" name="method" value="DELETE">
-                                    <input type="hidden" name="race_id" value="{{result.race_id}}">
-                                    <input type="hidden" name="race_type_id" value="{{result.race_type_id}}">
-                                    <input type="hidden" name="member_id" value="{{result.member_id}}">
-                                    <input type="submit" value="削除" class="btn btn-danger">
-                                </form>
-                                {% endif %}
-
-                            </div>
-                            {% endfor %}
+                            <h4 class="panel-title"><small>
+                                    <a
+                                        href="{{url_for('competition_individual', id=results_by_competition[0].id)}}">{{results_by_competition[0].show_name}}</a>({{results_by_date[0]}})
+                                </small>
+                            </h4>
+                        </div>
+                        <div class="panel-body table-responsive" style="padding-bottom:0;">
+                            {% for r in results_by_competition[1] %}
+                            <h5 style="margin:0;"><small>{{r.Race.course.name}}</small></h5>
+                            <table class="table table-default table-condensed small" 　style="table-layout:fixed;">
+                                <tbody>
+                                    {% for result in  r.Race.results %}
+                                    <tr>
+                                        <td style="width:100px;">
+                                            {{result.member.show_name}}</td>
+                                        <td style="width:100px;" align="right">
+                                            {% if result.race.course.course_base.type == "ロード" or result.race.course.course_base.type == "トレイル" %}
+                                            {{"{:2}:{:02}:{:02}".format(int(result.time)//1000//3600,(int(result.time)//1000%3600)//60,int(result.time)//1000%60)}}
+                                            {% elif result.race.course.course_base.type == "トラック" %}
+                                            {{"{:2}:{:02}.{:02}".format((int(result.time)//1000%3600)//60,int(result.time)//1000%60,int(result.time/10-int(result.time//10)))}}
+                                            {% elif result.race.course.course_base.type == "時間走" %}
+                                            {{int(result.distance)/1000}}km
+                                            {% endif %}
+                                        </td>
+                                        <td style="width:200px;">
+                                            {% if not result.comment == None %}
+                                            {{result.comment}}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                             {% endfor %}
                         </div>
                     </div>
                 </div>
-                {% endif %}
                 {% endfor %}
-                <!--        race in pagination.items                  -->
-            </div>
-            <div class="bs-component">
-                <div class="bs-component">
-                    <ul class="pager">
-                        <li class="previous {{ "disabled" if not pagination.has_prev}}"><a
-                                href="{{url_for('result',page=pagination.prev_num) }}">&larr; Newer</a></li>
-                        <li> {{ pagination.page}}/{{ pagination.pages}} </li>
-                        <li class="next  {{ "disabled" if not pagination.has_next}}"><a
-                                href="{{url_for('result',page=pagination.next_num) }}">Older &rarr;</a></li>
-                    </ul>
-                </div>
+                {% endfor %}
             </div>
         </div>
     </div>

@@ -1,20 +1,16 @@
 {% extends "template.html" %}
 {% block content %}
 <div class="container">
-    大会記録確認ページ
-    {% if form.errors %}
-    エラーが発生しました。 <br>
-    error:{{ form.errors }}
-    {% endif %}
+    大会確認ページ
     <div class="row">
         <div class="bs-component">
             <div class="panel panel-default">
                 {% if form.method.data == 'POST' %}
-                <div class="panel-heading">以下の記録を新規に登録します。</div>
+                <div class="panel-heading">以下の大会を新規に登録します。</div>
                 {% elif form.method.data == 'PUT' %}
-                <div class="panel-heading">以下の様に記録情報を更新します。</div>
+                <div class="panel-heading">以下の様に大会情報を更新します。</div>
                 {% elif form.method.data == 'DELETE' %}
-                <div class="panel-heading">以下の記録情報を削除します。</div>
+                <div class="panel-heading">以下の大会情報を削除します。</div>
                 {% endif %}
 
                 <div class="panel-body">
@@ -22,25 +18,24 @@
                         <table class="table table-striped table-hover ">
                             <tbody>
                                 <tr>
-                                    <th>日付</th>
-                                    <td>{{form.date.data}}</td>
+                                    <th>大会名(正式名称)</th>
+                                    <td>{{form.name.data}}</td>
                                 </tr>
                                 <tr>
-                                    <th>大会</th>
-                                    <td>{{competition_name}}</td>
+                                    <th>大会名(カナ)</th>
+                                    <td>{{form.name_kana.data}}</td>
                                 </tr>
                                 <tr>
-                                    <th>種目</th>
-                                    <td>{{race_name}}</td>
+                                    <th>大会名(表示名)</th>
+                                    <td>{{form.show_name.data}}</td>
                                 </tr>
                                 <tr>
-                                    <th>名前</th>
-                                    <td>{{member_name}}</td>
+                                    <th>開催地</th>
+                                    <td>{{form.location.data}}</td>
                                 </tr>
                                 <tr>
-                                    <th>記録</th>
-                                    <td>{{"{:02}:{:02}:{:02}".format(int(form.record.data)//3600,(int(form.record.data)%3600)//60,int(form.record.data)%60)}}
-                                    </td>
+                                    <th>URL</th>
+                                    <td>{{form.url.data}}</td>
                                 </tr>
                                 <tr>
                                     <th>備考</th>
@@ -53,17 +48,15 @@
             </div>
         </div>
     </div>
-    <form id="form-id" action="{{url_for('result_confirm')}}" method="post">
+    <form id="form-id" action="{{url_for('competition_confirm')}}" method="post">
         {{ form.csrf_token }}
+        {{ form.id }}
         {{ form.method }}
-        <input type="hidden" name="date" value="{{ form.date.data }}">
-        <input type="hidden" name="member_id" value="{{ form.member_id.data }}">
-        <input type="hidden" name="competition_id" value="{{ form.competition_id.data }}">
-        <input type="hidden" name="race_id" value="{{ form.race_id.data }}">
-        <input type="hidden" name="record" value="{{ form.record.data }}">
-        <input type="hidden" name="record_h" value="{{ form.record_h.data }}">
-        <input type="hidden" name="record_m" value="{{ form.record_m.data }}">
-        <input type="hidden" name="record_s" value="{{ form.record_s.data }}">
+        <input type="hidden" name="name" value="{{ form.name.data }}">
+        <input type="hidden" name="name_kana" value="{{ form.name_kana.data }}">
+        <input type="hidden" name="show_name" value="{{ form.show_name.data }}">
+        <input type="hidden" name="location" value="{{ form.location.data }}">
+        <input type="hidden" name="url" value="{{ form.url.data }}">
         <input type="hidden" name="comment" value="{{ form.comment.data }}">
         <input type="hidden" name="confirmed" value="True">
         {% if form.method.data == 'POST' %}
@@ -75,7 +68,7 @@
         <input type="hidden" name="id" value="{{ form.id.data }}">
         <input type="submit" value="削除" class="btn btn-danger">
         {% endif %}
-        <a href="{{url_for('result')}}" class="btn btn-default">キャンセル</a>
+        <a href="{{url_for('competition')}}" class="btn btn-default">キャンセル</a>
     </form>
 
 

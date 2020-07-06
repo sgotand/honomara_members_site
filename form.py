@@ -2,8 +2,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, RadioField, FloatField, IntegerField
 from wtforms import HiddenField, TextAreaField, DateField, SelectMultipleField, SelectField
 from wtforms.validators import Optional, InputRequired
-from honomara_members_site.model import Member, Restaurant, RaceBase, Race, RaceType
-from honomara_members_site.util import current_school_year
+from honomara_members_site.model import Member, Restaurant, CourseBase
+from honomara_members_site.util import current_school_year, data_collection
 
 
 visible_member_list_for_form = [(m.id, m.show_name)
@@ -42,13 +42,8 @@ weather_list = [('晴れ', '晴れ'), ('曇り', '曇り'), ('雨', '雨'),
                 ('強風', '強風'), ('雪', '雪'), ('その他', 'その他')]
 
 
-race_base_list_for_form = [(r.race_name, r.race_name)
-                           for r in RaceBase.query.all()]
-
-
-race_list_for_form = [(r.id, r.race_name) for r in Race.query.all()]
-race_type_list_for_form = [(rt.id, rt.show_name)
-                           for rt in RaceType.query.all()]
+course_choices = [(r.id, "{}km({})".format(r.distance, r.type))
+                  for r in CourseBase.query.order_by(CourseBase.type, CourseBase.distance, CourseBase.duration)]
 
 
 class MemberForm(FlaskForm):
@@ -130,65 +125,62 @@ class AfterForm(FlaskForm):
     submit = SubmitField('確定', validators=[Optional()])
 
 
-class RaceForm(FlaskForm):
+class CompetitionForm(FlaskForm):
     id = HiddenField(validators=[Optional()])
-    race_name = SelectField('大会名:', coerce=str, validators=[Optional()],
-                            choices=race_base_list_for_form)
-    race_name_option = StringField('大会名（選択肢にない場合）:', validators=[Optional()])
-    date = DateField('大会日時:', validators=[InputRequired()])
-    comment = TextAreaField('コメント:', validators=[Optional()])
-    confirmed = HiddenField(validators=[Optional()])
-    method = HiddenField(validators=[Optional()])
-    submit = SubmitField('確定', validators=[Optional()])
-
-
-class RaceBaseForm(FlaskForm):
-    race_name = SelectField('大会名:', coerce=str, validators=[Optional()],
-                            choices=race_base_list_for_form)
-    race_name_option = StringField('大会名（選択肢にない場合）:', validators=[Optional()])
-    prefecture = SelectField('開催都道府県:', validators=[InputRequired()],
-                             choices=[('北海道', '北海道'), ('青森県', '青森県'), ('岩手県', '岩手県'),
-                                      ('宮城県', '宮城県'), ('秋田県', '秋田県'),
-                                      ('山形県', '山形県'), ('福島県', '福島県'),
-                                      ('茨城県', '茨城県'), ('栃木県', '栃木県'),
-                                      ('群馬県', '群馬県'), ('埼玉県', '埼玉県'),
-                                      ('千葉県', '千葉県'), ('東京都', '東京都'),
-                                      ('神奈川県', '神奈川県'), ('新潟県', '新潟県'),
-                                      ('富山県', '富山県'), ('石川県', '石川県'),
-                                      ('福井県', '福井県'), ('山梨県', '山梨県'), ('長野', '長野'),
-                                      ('奈良県', '奈良県'), ('和歌山県', '和歌山県'),
-                                      ('鳥取県', '鳥取県'), ('島根県', '島根県'),
-                                      ('岡山県', '岡山県'), ('広島県', '広島県'),
-                                      ('山口県', '山口県'),
-                                      ('徳島県', '徳島県'),
-                                      ('香川県', '香川県'), ('愛媛県',
-                                                       '愛媛県'),
-                                      ('高知県', '高知県'),
-                                      ('福岡県', '福岡県'), ('佐賀県', '佐賀県'),
-                                      ('長崎県', '長崎県'), ('熊本県',
-                                                       '熊本県'), ('大分県', '大分県'),
-                                      ('宮崎県', '宮崎県'), ('鹿児島県', '鹿児島県'),
-                                      ('沖縄県', '沖縄県')])
-    comment = TextAreaField('コメント:', validators=[Optional()])
-    confirmed = HiddenField(validators=[Optional()])
-    method = HiddenField(validators=[Optional()])
-    submit = SubmitField('確定', validators=[Optional()])
-
-
-class ResultForm(FlaskForm):
-    member_id = SelectField('参加者:', coerce=int, validators=[InputRequired()],
-                            choices=visible_member_list_for_form)
-
-    race_id = SelectField('大会:', coerce=int, validators=[InputRequired()],
-                          choices=race_list_for_form)
-
-    race_type_id = SelectField('種目:', coerce=int, default=7, validators=[InputRequired()],
-                               choices=race_type_list_for_form)
-    result = HiddenField('記録', validators=[Optional()])
-    result_h = IntegerField('記録(時間)', validators=[InputRequired()], default=0)
-    result_m = IntegerField('記録(分)', validators=[InputRequired()], default=0)
-    result_s = IntegerField('記録(秒)', validators=[InputRequired()], default=0)
+    name = StringField('大会名(正式名称):', validators=[InputRequired()])
+    name_kana = StringField('大会名(カナ):', validators=[InputRequired()])
+    show_name = StringField('大会名(表示名):', validators=[InputRequired()])
+    location = SelectField('開催都道府県:', validators=[InputRequired()],
+                           choices=[('北海道', '北海道'), ('青森県', '青森県'), ('岩手県', '岩手県'),
+                                    ('宮城県', '宮城県'), ('秋田県', '秋田県'),
+                                    ('山形県', '山形県'), ('福島県', '福島県'),
+                                    ('茨城県', '茨城県'), ('栃木県', '栃木県'),
+                                    ('群馬県', '群馬県'), ('埼玉県', '埼玉県'),
+                                    ('千葉県', '千葉県'), ('東京都', '東京都'),
+                                    ('神奈川県', '神奈川県'), ('新潟県', '新潟県'),
+                                    ('富山県', '富山県'), ('石川県', '石川県'),
+                                    ('福井県', '福井県'), ('山梨県', '山梨県'), ('長野', '長野'),
+                                    ('奈良県', '奈良県'), ('和歌山県', '和歌山県'),
+                                    ('鳥取県', '鳥取県'), ('島根県', '島根県'),
+                                    ('岡山県', '岡山県'), ('広島県', '広島県'),
+                                    ('山口県', '山口県'),
+                                    ('徳島県', '徳島県'),
+                                    ('香川県', '香川県'), ('愛媛県',
+                                                     '愛媛県'),
+                                    ('高知県', '高知県'),
+                                    ('福岡県', '福岡県'), ('佐賀県', '佐賀県'),
+                                    ('長崎県', '長崎県'), ('熊本県',
+                                                     '熊本県'), ('大分県', '大分県'),
+                                    ('宮崎県', '宮崎県'), ('鹿児島県', '鹿児島県'),
+                                    ('沖縄県', '沖縄県')])
+    url = TextAreaField('URL:', validators=[Optional()])
     comment = TextAreaField('備考:', validators=[Optional()])
+    confirmed = HiddenField(validators=[Optional()])
+    method = HiddenField(validators=[Optional()])
+    submit = SubmitField('確定', validators=[Optional()])
+
+
+class CourseBaseForm(FlaskForm):
+    id = HiddenField(validators=[Optional()])
+    type = SelectField('分類:', coerce=str, validators=[InputRequired()],
+                       choices=[('ロード', 'ロード'), ('トラック', 'トラック'), ('トレイル', 'トレイル'), ('時間走', '時間走')])
+    distance = FloatField('距離(km):', validators=[Optional()], default=0)
+    duration = FloatField('時間(h):', validators=[Optional()], default=0)
+    comment = TextAreaField('備考:', validators=[Optional()])
+    confirmed = HiddenField(validators=[Optional()])
+    method = HiddenField(validators=[Optional()])
+    submit = SubmitField('確定', validators=[Optional()])
+
+
+class CourseForm(FlaskForm):
+    id = HiddenField(validators=[Optional()])
+    competition_id = HiddenField(validators=[Optional()])
+    name = StringField('表示名:', validators=[InputRequired()])
+    course_base_id = SelectField('コース分類:', coerce=int, validators=[InputRequired()],
+                                 choices=course_choices)
+    cumulative_elevation = FloatField(
+        '累積標高(m):', validators=[Optional()], default=0)
+    comment = TextAreaField('コメント:', validators=[Optional()])
     confirmed = HiddenField(validators=[Optional()])
     method = HiddenField(validators=[Optional()])
     submit = SubmitField('確定', validators=[Optional()])

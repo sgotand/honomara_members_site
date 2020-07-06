@@ -2,6 +2,8 @@
 {% block content %}
 <div class="container">
     レース確認ページ
+    <br>
+    <!-- エラーメッセージを分かりやすく実装したい -->
     {% if form.errors %}
     エラーが発生しました。 <br>
     error:{{ form.errors }}
@@ -10,33 +12,29 @@
         <div class="bs-component">
             <div class="panel panel-default">
                 {% if form.method.data == 'POST' %}
-                <div class="panel-heading">以下のレースを新規に登録します。</div>
+                <div class="panel-heading">以下のコースを新規に登録します。</div>
                 {% elif form.method.data == 'PUT' %}
-                <div class="panel-heading">以下の様にレース情報を更新します。</div>
+                <div class="panel-heading">以下の様にコース情報を更新します。</div>
                 {% elif form.method.data == 'DELETE' %}
-                <div class="panel-heading">以下のレース情報を削除します。</div>
+                <div class="panel-heading">以下のコース情報を削除します。</div>
                 {% endif %}
-
                 <div class="panel-body">
                     <div class="bs-component">
                         {{competition_name}}
                         <table class="table table-striped table-hover ">
                             <thead>
                                 <tr>
-                                    <th>分類</th>
                                     <th>表示名</th>
-                                    <th>距離</th>
-                                    <th>制限時間</th>
+                                    <th>コース分類</th>
                                     <th>獲得標高</th>
                                     <th>コメント</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>{{ form.type.data }}</td>
-                                    <td>{{ form.show_name.data }}</td>
-                                    <td>{{ form.distance.data }}</td>
-                                    <td>{{ form.dulation.data }}</td>
+                                    <td>{{ form.name.data }}</td>
+                                    <td>{{ form.course_base_id.data }}</td> 　
+                                    <!--ここの表示方法は課題-->
                                     <td>{{ form.cumulative_elevation.data }}</td>
                                     <td>{{ form.comment.data }}</td>
                                 </tr>
@@ -47,15 +45,13 @@
             </div>
         </div>
     </div>
-    <form id="form-id" action="{{url_for('race_confirm')}}" method="post">
+    <form id="form-id" action="{{url_for('course_confirm')}}" method="post">
         {{ form.csrf_token }}
         {{ form.id }}
         {{ form.method }}
         <input type="hidden" name="competition_id" value="{{ form.competition_id.data }}">
-        <input type="hidden" name="type" value="{{ form.type.data }}">
-        <input type="hidden" name="show_name" value="{{ form.show_name.data }}">
-        <input type="hidden" name="distance" value="{{ form.distance.data }}">
-        <input type="hidden" name="dulation" value="{{ form.dulation.data }}">
+        <input type="hidden" name="name" value="{{ form.name.data }}">
+        <input type="hidden" name="course_base_id" value="{{ form.course_base_id.data }}">
         <input type="hidden" name="cumulative_elevation" value="{{ form.cumulative_elevation.data }}">
         <input type="hidden" name="comment" value="{{ form.comment.data }}">
         <input type="hidden" name="confirmed" value="True">

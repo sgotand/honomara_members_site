@@ -1,26 +1,51 @@
-{% extends "template.html" %}
+{% extends "edit_template.html" %}
 {% block content %}
 <div class="container">
-大会記録登録ページ
+    <div class="col-lg-8 col-lg-offset-2 col-sm-12">
+        大会記録登録ページ
+        {% if form.errors %}
+        エラーが発生しました。 <br>
+        error:{{ form.errors }}
+        {% endif %}
+        {% if step == "step1" %}
+        <form action="{{url_for('result_edit')}}" class="form" method="post" role="form">
+            {{ form.hidden_tag() }}
+            <div class="form-group  required">{{ form.date.label(class="control-label") }}
+                {{form.date(class="form-control")}}</div>
+            <div class="form-group  required">{{ form.competition_id.label(class="control-label") }}
+                {{form.competition_id(class="form-control")}}</div>
+            <input type="hidden" name="step" value="{{ step }}">
+            <input class="btn btn-default" id="submit" name="submit" type="submit" value="確定">
+        </form>
+        {% elif step == "step2" %}
+        <form action="{{url_for('result_edit')}}" class="form" method="post" role="form">
+            {{ form.hidden_tag() }}
+            <div class="form-group  required">{{ form.date.label(class="control-label") }}
+                {{form.date(class="form-control")}}</div>
+            <div class="form-group  required">{{ form.competition_id.label(class="control-label") }}
+                {{form.competition_id(class="form-control")}}</div>
+            <div class="form-group  required">{{ form.race_id.label(class="control-label") }}
+                {{form.race_id(class="form-control")}}</div>
+            <div class="form-group  required">{{ form.member_id.label(class="control-label") }}
+                {{form.member_id(class="form-control")}}</div>
+            <div class="form-group  required">{{ form.record.label(class="control-label") }}
+                {{form.record(class="form-control")}}</div>
+            <div class="row">
+                <div class="form-group  required col-sm-4">{{ form.record_h.label(class="control-label") }}
+                    {{form.record_h(class="form-control")}}</div>
+                <div class="form-group  required col-sm-4">{{ form.record_m.label(class="control-label") }}
+                    {{form.record_m(class="form-control")}}</div>
+                <div class="form-group  required col-sm-4">{{ form.record_s.label(class="control-label") }}
+                    {{form.record_s(class="form-control")}}</div>
+            </div>
+            <div class="form-group  required">{{ form.comment.label(class="control-label") }}
+                {{form.comment(class="form-control")}}</div>
+            <input type="hidden" name="step" value="{{ step }}">
+            <input class="btn btn-default" id="submit" name="submit" type="submit" value="確定">
 
-<h2>{{ form.race.race_name }} {{ form.race.date }}</h2>
-<form action="{{url_for('result_edit')}}" class="form" method="post" role="form">
-        {{ form.hidden_tag() }}
-        <div class="row">
-        <input type="hidden" name="race_id" value="{{ form.race_id.data }}">
-        <div class="form-group  required">{{ form.race_type_id.label(class="control-label") }} {{form.race_type_id(class="form-control")}}</div>      
-        <div class="form-group  required">{{ form.member_id.label(class="control-label") }} {{form.member_id(class="form-control")}}</div>      
-        <div class="form-group  required">{{ form.result.label(class="control-label") }} {{form.result(class="form-control")}}</div>      
-        <div class="row">
-                        <div class="form-group  required col-sm-4">{{ form.result_h.label(class="control-label") }} {{form.result_h(class="form-control")}}</div>      
-                        <div class="form-group  required col-sm-4">{{ form.result_m.label(class="control-label") }} {{form.result_m(class="form-control")}}</div>      
-                        <div class="form-group  required col-sm-4">{{ form.result_s.label(class="control-label") }} {{form.result_s(class="form-control")}}</div>                      
-        </div>
-        <div class="form-group  required">{{ form.comment.label(class="control-label") }} {{form.comment(class="form-control")}}</div>      
-        <input class="btn btn-default" id="submit" name="submit" type="submit" value="確定">
 
-        </div>
-        <!-- <div class="form-group  required">{{ form.race_id.label(class="control-label") }} {{form.race_id(class="form-control")}}</div>       -->
-</form>
+        </form>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

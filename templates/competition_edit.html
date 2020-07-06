@@ -1,0 +1,23 @@
+{% extends "template.html" %}
+{% block content %}
+<div class="container">
+    大会登録ページ
+
+    <form action="{{url_for('competition_edit')}}" class="form" method="post" role="form">
+        {{ form.hidden_tag() }}
+        <div class="form-group  required">{{ form.name.label(class="control-label") }}
+            {{form.name(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.name_kana.label(class="control-label") }}
+            {{form.name_kana(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.show_name.label(class="control-label") }}
+            {{form.show_name(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.location.label(class="control-label") }}
+            {{form.location(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.url.label(class="control-label") }}
+            {{form.url(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.comment.label(class="control-label") }}
+            {{form.comment(class="form-control")}}</div>
+        <input class="btn btn-default" id="submit" name="submit" type="submit" value="確定">
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends "template.html" %}
+{% block content %}
+<div class="container">
+    <h2>大会一覧</h2>
+    <br>
+    {% if current_user.is_authenticated %}
+    <a class="btn btn-xs btn-default" href="{{url_for('competition_edit')}}">新規登録</a>
+    {% endif %}
+    <div class="table-responsive">
+        <table class="table table-default table-condensed small">
+            <thead>
+                <tr>
+                    {% if current_user.is_authenticated %}
+                    <th></th>
+                    <th>正式大会名</th>
+                    <th>大会名（カナ）</th>
+                    <th>表示名</th>
+                    {% else %}
+                    <th>大会</th>
+                    {% endif %}
+                    <th>走った人数</th>
+                    <th>参加回数</th>
+                    <th>最近の参加年</th>
+                    <th>開催地</th>
+                    <th>大会サイト</th>
+                    <th>備考</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for competition_with_data in competitions_with_data %}
+                <tr>
+                    {% if current_user.is_authenticated %}
+                    <td style="display:flex">
+
+                        <form method="get" action="{{url_for('competition_edit')}}">
+                            <input type="hidden" name="method" value="PUT">
+                            <input type="hidden" name="id" value="{{competition_with_data[0].id}}">
+                            <input type="submit" value="編集" class="btn btn-xs btn-defalt" style="margin:0px 3px;">
+                        </form>
+                        <form method="post" action="{{url_for('competition_confirm')}}">
+                            <input type="hidden" name="method" value="DELETE">
+                            <input type="hidden" name="id" value="{{competition_with_data[0].id}}">
+                            <input type="submit" value="削除" class="btn btn-xs btn-defalt" style="margin:0px 3px;">
+                        </form>
+
+                    </td>
+                    <td><a style="color:black;"
+                            href="{{url_for('competition_individual', id=competition_with_data[0].id)}}">{{competition_with_data[0].name}}</a>
+                    </td>
+                    <td>
+                        {% if competition_with_data[0].name_kana %}
+                        {{competition_with_data[0].name_kana}}
+                        {% else %}
+                        データ無し
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                    <td><a style="color:black;"
+                            href="{{url_for('competition_individual', id=competition_with_data[0].id)}}">{{competition_with_data[0].show_name}}</a>
+                    </td>
+                    <td>{{competition_with_data[1]}}</td>
+                    <td>{{competition_with_data[2]}}</td>
+                    <td>{{competition_with_data[3]}}</td>
+                    <td>
+                        {% if competition_with_data[0].location %}
+                        {{competition_with_data[0].location}}
+                        {% else %}
+                        データ無し
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if competition_with_data[0].url %}
+                        {{ competition_with_data[0].url}}
+                        {% else %}
+                        不明
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if competition_with_data[0].comment %}
+                        {{ competition_with_data[0].comment }}
+                        {% else %}
+                        無し
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

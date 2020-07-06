@@ -1,0 +1,311 @@
+{% extends "template.html" %}
+{% block styles %}
+{{super()}}
+<style>
+    .competitions {
+        margin-top: -100px;
+        padding-top: 100px;
+    }
+
+    #gotop {
+        position: fixed;
+        bottom: 30px;
+        left: 30px;
+        z-index: 100;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div>
+    <a id="gotop" class="btn btn-default btn-xs" href="#top" style="color:black;">ページTOPへ</a>
+</div>
+<div class="container">
+    <h2><small>{{competition.show_name}}</small></h2>
+    <div class="row">
+        {% if current_user.is_authenticated %}
+
+        <div style="display:flex">
+            <form method="get" action="{{url_for('competition_edit')}}">
+                <input type="hidden" name="method" value="PUT">
+                <input type="hidden" name="id" value="{{competition.id}}">
+                <input type="submit" value="編集" class="btn btn-xs btn-defalt" style="margin:5px 3px;">
+            </form>
+            <form method="post" action="{{url_for('competition_confirm')}}">
+                <input type="hidden" name="method" value="DELETE">
+                <input type="hidden" name="id" value="{{competition.id}}">
+                <input type="submit" value="削除" class="btn btn-xs btn-defalt" style="margin:5px 3px;">
+            </form>
+        </div>
+
+        {% endif %}
+        <div class="col-xs-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><small>基本データ</small>
+                    </h3>
+                </div>
+                <div class="panel-body table-responsive">
+                    <table class="table table-default table-condensed">
+                        <tbody>
+                            <tr>
+                                <th><small>
+                                        大会名
+                                    </small>
+                                </th>
+                                <td>
+                                    {{competition.name}}
+                                </td>
+                            </tr>
+                            {% if competition.location != None %}
+                            <tr>
+                                <th><small>開催地</small>
+                                </th>
+                                <td>
+                                    {{competition.location}}
+                                </td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <th><small>開催時期</small>
+                                </th>
+                                <td>
+                                    {% for s in season %}
+                                    {{s}}月　
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            {% if competition.url != None %}
+                            <tr>
+                                <th><small>大会サイト</small>
+                                </th>
+                                <td>
+                                    {{competition.url}}
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% if competition.comment != None and competition.comment != "" %}
+                            <tr>
+                                <th><small>コメント</small>
+                                </th>
+                                <td>
+                                    {{competition.comment}}
+                                </td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <th><small>参加回数</small>
+                                </th>
+                                <td>
+                                    {{len(dates)}}回
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><small>走った人数</small>
+                                </th>
+                                <td>
+                                    {{sum_mem}}人
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><small>初参加</small>
+                                </th>
+                                <td>
+                                    {{dates[0]}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><small>最近の参加</small>
+                                </th>
+                                <td>
+                                    {{dates[len(dates)-1]}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><small>参加回数トップ5</small>
+                                </th>
+                                <td>
+                                    {% for x in sum_ind_top5 %}
+                                    {{x[0].show_name}}({{x[1]}}回)&emsp;
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><small>
+                            種目
+                        </small></h3>
+                    {% if current_user.is_authenticated %}
+                    <form method="get" action="{{url_for('course_edit')}}">
+                        <input type="hidden" name="method" value="POST">
+                        <input type="hidden" name="competition_id" value="{{competition.id}}">
+                        <input type="submit" value="レース追加" class="btn btn-defalt btn-xs">
+                    </form>
+                    {% endif %}
+                </div>
+                <div class="panel-body table-responsive">
+                    <table class="table table-default table-condensed">
+                        <thead>
+                            <tr>
+                                {% if current_user.is_authenticated %}
+                                <th></th>
+                                {% endif %}
+                                <th>表示名</th>
+                                <th>分類</th>
+                                <th>時間(距離)</th>
+                                <th>累積標高</th>
+                                <th>備考</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for course in competition.courses %}
+                            <tr>
+                                {% if current_user.is_authenticated %}
+                                <td style="display:flex;">
+                                    <form method="get" action="{{url_for('course_edit')}}">
+                                        <input type="hidden" name="method" value="PUT">
+                                        <input type="hidden" name="id" value="{{course.id}}">
+                                        <input type="submit" value="編集" class="btn btn-defalt btn-xs"
+                                            style="margin:0px 3px;">
+                                    </form>
+                                    <form method="post" action="{{url_for('course_confirm')}}">
+                                        <input type="hidden" name="method" value="DELETE">
+                                        <input type="hidden" name="id" value="{{course.id}}">
+                                        <input type="submit" value="削除" class="btn btn-defalt btn-xs"
+                                            style="margin:0px 3px;">
+                                    </form>
+                                </td>
+                                {% endif %}
+                                <td>{{course.name}}</td>
+                                <td>{{course.course_base.type}}</td>
+                                <td>{% if course.course_base.type == "時間走" %}
+                                    {{int(course.course_base.duration)/3600}}時間
+                                    {% elif course.course_base.type == "トラック" %}
+                                    {{course.course_base.distance}}m
+                                    {% else %}
+                                    {{int(course.course_base.distance)/1000}}km
+                                    {% endif %}</td>
+                                <td>{% if course.cumulative_elevation == None %}
+                                    データ無し
+                                    {% else %}
+                                    {{course.cumulative_elevation}}m
+                                    {% endif %}</td>
+                                <td>{% if course.cumulative_elevation == None %}
+                                    無し
+                                    {% else %}
+                                    {{course.comment}}
+                                    {% endif %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-3">
+            <div class="panel panel-default">
+                <div class="panel-heading collapse-heading" data-toggle="collapse" data-target="#collapse-listing">
+                    <h3 class="panel-title" align="center"><small>
+                            記録一覧</small></h3>
+                </div>
+                <div id="collapse-listing" class="panel-body panel-collapse collapse" style="padding-bottom:0;">
+                    <div>
+                        <table class="table table-default table-condensed small">
+                            {% for ranking_by_course in groupby(rankings, key=key['course']) %}
+                            <tr>
+                                <td><a href="#course{{ranking_by_course[0].id}}" style="color:black;">
+                                        {{ranking_by_course[0].name}}歴代ランキング
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% for history_by_year in groupby(history, key=key['year']) %}
+                            <tr>
+                                <td><a href="#year{{history_by_year[0]}}" style="color:black;">
+                                        {{history_by_year[0]}}年
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-5">
+            <h3><small>歴代ランキング</small></h3>
+            {% for ranking_by_course in groupby(rankings, key=key['course']) %}
+            <div class="competitions" id="course{{ranking_by_course[0].id}}">
+                <h4><small>{{ranking_by_course[0].name}}</small></h4>
+                <div class="table-responsive">
+                    <table class="table table-default table-condensed small" style="table-layout:fixed;">
+                        <thead>
+                        </thead>
+                        <tbody>
+                            {% for r in ranking_by_course[1] %}
+                            <tr>
+                                <td style="width:100px;">
+                                    {{r.Result.member.show_name}}</td>
+                                <td style="width:100px;" align="right">
+                                    {{"{:2}:{:02}:{:02}".format(int(r.Result.time)//1000//3600,(int(r.Result.time)//1000%3600)//60,int(r.Result.time)//1000%60)}}
+                                </td>
+                                <td style="width:200px;">
+                                    {% if not r.Result.comment == None %}
+                                    {{r.Result.comment}}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endfor %}
+            <h3><small>歴代の記録</small></h3>
+            {% for history_by_year in groupby(history, key=key['year']) %}
+            <div class="competitions" id="year{{history_by_year[0]}}">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title"><small>
+                                {{history_by_year[0]}}年
+                            </small>
+                        </h4>
+                    </div>
+                    <div class="competitions" id="{year{results_by_date[0].year}}">
+                        <div class="panel-body table-responsive" style="padding-bottom:0;">
+                            {% for history_by_course in groupby(history_by_year[1], key=key['course']) %}
+                            <h5 style="margin:0;"><small>{{history_by_course[0].name}}</small></h5>
+                            <table class="table table-default table-condensed small" 　style="table-layout:fixed;">
+                                <tbody>
+                                    {% for r in history_by_course[1] %}
+                                    <tr>
+                                        <td style="width:100px;">
+                                            {{r.Result.member.show_name}}</td>
+                                        <td style="width:100px;" align="right">
+                                            {{"{:2}:{:02}:{:02}".format(int(r.Result.time)//1000//3600,(int(r.Result.time)//1000%3600)//60,int(r.Result.time)//1000%60)}}
+                                        </td>
+                                        <td style="width:200px;">
+                                            {% if not r.Result.comment == None %}
+                                            {{r.Result.comment}}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endblock %}
+    
