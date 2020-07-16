@@ -83,7 +83,7 @@ def member_individual(member_id):
 
     def summary(li, name):
         for i in range(len(li)):
-            li[i] = {'year':li[i][1].year, 'month':li[i][1].month}
+            li[i] = {'year': li[i][1].year, 'month': li[i][1].month}
             if li[i]['month'] < 4:
                 li[i]['year'] -= 1
                 li[i]['month'] += 12
@@ -92,7 +92,8 @@ def member_individual(member_id):
             y = []
             for year in group:
                 y.append(year['month'])
-            x.append({'year': key, name+'_sum': len(y), name+'_first_half':len([i for i in y if i < 10]), name+'_second_half':len([i for i in y if i >= 10])})
+            x.append({'year': key, name+'_sum': len(y), name+'_first_half': len(
+                [i for i in y if i < 10]), name+'_second_half': len([i for i in y if i >= 10])})
 
         return x
 

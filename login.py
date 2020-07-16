@@ -6,6 +6,8 @@ from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return users.get(int(user_id))
