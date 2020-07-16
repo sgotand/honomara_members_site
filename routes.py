@@ -5,8 +5,8 @@ from flask import render_template, request, abort, redirect, url_for, flash
 from honomara_members_site import app, db
 from honomara_members_site.login import login_check
 from honomara_members_site.model import Member, Training, After, Restaurant, Race, RaceBase, RaceType, Result
-from honomara_members_site.model import TrainingParticipant
-from sqlalchemy import func
+from honomara_members_site.model import TrainingParticipant, AfterParticipant
+from sqlalchemy import func, distinct
 from sqlalchemy.sql import text
 from honomara_members_site.form import MemberForm, TrainingForm, AfterForm, RaceBaseForm, RaceForm, ResultForm, RestaurantForm
 from flask_login import login_required, login_user, logout_user
@@ -62,7 +62,56 @@ def member_individual(member_id):
         results += [{'x': "{:%Y/%m/%d}".format(r.race.date), 'y': r.result}]
         races += [r.race.race_name]
 
-    return render_template('member_individual.html', member=m, races=str(races), results=str(results))
+    trainings = db.session.query(TrainingParticipant.member_id, Training.date).\
+        filter(TrainingParticipant.member_id == member_id).\
+        join(Training, Training.id == TrainingParticipant.training_id).\
+        order_by(Training.date).all()
+
+    afters = db.session.query(AfterParticipant.member_id, After.date).\
+        filter(AfterParticipant.member_id == member_id).\
+        join(After, After.id == AfterParticipant.after_id).\
+        order_by(After.date)
+
+    afterdays = afters.distinct(After.date).all()
+    afters = afters.all()
+
+    first_training = trainings[0][1].strftime('%Y/%m/%d')
+    first_after = afters[0][1].strftime('%Y/%m/%d')
+    count_trainings = len(trainings)
+    count_afters = len(afters)
+    count_afterdays = len(afterdays)
+
+    def summary(li, name):
+        for i in range(len(li)):
+            li[i] = {'year':li[i][1].year, 'month':li[i][1].month}
+            if li[i]['month'] < 4:
+                li[i]['year'] -= 1
+                li[i]['month'] += 12
+        x = []
+        for key, group in groupby(li, key=lambda x: x['year']):
+            y = []
+            for year in group:
+                y.append(year['month'])
+            x.append({'year': key, name+'_sum': len(y), name+'_first_half':len([i for i in y if i < 10]), name+'_second_half':len([i for i in y if i >= 10])})
+
+        return x
+
+    participations = []
+    for key, group in groupby(sorted(summary(trainings, "trainings") + summary(afters, "afters") + summary(afterdays, "afterdays"), key=lambda x: x['year']), key=lambda x: x['year']):
+        y = []
+        for year in group:
+            y.append(year)
+        for i in range(len(y)-1):
+            y[0].update(y[i+1])
+        participations.append(y[0])
+
+    restaurants = db.session.query(AfterParticipant.member_id, Restaurant.name, Restaurant.id, func.count(After.id).label('cnt')).\
+        filter(AfterParticipant.member_id == member_id).\
+        join(After, After.id == AfterParticipant.after_id).\
+        join(Restaurant, Restaurant.id == After.restaurant_id).\
+        group_by(Restaurant.id).order_by(db.text('cnt DESC')).all()
+
+    return render_template('member_individual.html', member=m, races=str(races), results=str(results), first_training=first_training, first_after=first_after, count_trainings=count_trainings, count_afters=count_afters, count_afterdays=count_afterdays, participations=participations, restaurants=restaurants)
 
 
 @app.route('/member/edit', methods=['GET', 'POST'])
