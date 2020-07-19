@@ -52,13 +52,13 @@
             <tbody>
                 {% for item in participations %}
                 <tr>
-                    <td rowspan="2" class="align-middle"><br>{{item['year']}}年度</td>
+                    <td rowspan="2" style="vertical-align:middle;">{{item['year']}}年度</td>
                     <td>上期</td>
-                    <td rowspan="2" class="text-right align-middle"><br>{{item['trainings_sum']|default('0')}}</td>
+                    <td rowspan="2" class="text-right" style="vertical-align:middle;">{{item['trainings_sum']|default('0')}}</td>
                     <td class="text-right">{{item['trainings_first_half']|default('0')}}</td>
-                    <td rowspan="2" class="text-right align-middle"><br>{{item['afters_sum']|default('0')}}</td>
+                    <td rowspan="2" class="text-right" style="vertical-align:middle;">{{item['afters_sum']|default('0')}}</td>
                     <td class="text-right">{{item['afters_first_half']|default('0')}}</td>
-                    <td rowspan="2" class="text-right align-middle"><br>{{item['afterdays_sum']|default('0')}}</td>
+                    <td rowspan="2" class="text-right" style="vertical-align:middle;">{{item['afterdays_sum']|default('0')}}</td>
                     <td class="text-right">{{item['afterdays_first_half']|default('0')}}</td>
                 </tr>
                 <tr>
