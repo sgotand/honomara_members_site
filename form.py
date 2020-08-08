@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, RadioField, FloatField, IntegerField
-from wtforms import HiddenField, TextAreaField, DateField, SelectMultipleField, SelectField
+from wtforms import HiddenField, TextAreaField, SelectMultipleField, SelectField
+from wtforms.fields.html5 import DateField
 from wtforms.validators import Optional, InputRequired
 from honomara_members_site.model import Member, Restaurant, RaceBase, Race, RaceType
 from honomara_members_site.util import current_school_year
