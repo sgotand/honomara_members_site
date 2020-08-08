@@ -27,7 +27,8 @@ def login():
             flash('ログインしました', 'success')
             return redirect(url_for('index'))
         else:
-            return abort(401)
+            flash('username または password が正しくありません', 'danger')
+            return render_template("login.html")
     else:
         return render_template("login.html")
 
