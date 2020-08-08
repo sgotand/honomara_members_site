@@ -84,7 +84,7 @@
                                     <br>
                                 </p>
                                 <p style="font-size: 1.2em;" class="col-xs-8 col-sm-5 col-lg-5 ">
-                                    {{ result.comment }}
+                                    {{ result.comment or '' }}
                                 </p>
                                 {% if current_user.is_authenticated %}
                                 <form method="get" action="{{url_for('result_edit')}}"
