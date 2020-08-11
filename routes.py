@@ -4,13 +4,12 @@ import datetime
 from flask import render_template, request, abort, redirect, url_for, flash
 from honomara_members_site import app, db
 from honomara_members_site.login import login_check
-from honomara_members_site.model import Member, Training, After, Restaurant, Race, RaceBase, RaceType, Result
-from honomara_members_site.model import TrainingParticipant, AfterParticipant
-from sqlalchemy import func, distinct
+from honomara_members_site.model import *
+from sqlalchemy import func
 from sqlalchemy.sql import text
-from honomara_members_site.form import MemberForm, TrainingForm, AfterForm, RaceBaseForm, RaceForm, ResultForm, RestaurantForm
+from honomara_members_site.form import *
 from flask_login import login_required, login_user, logout_user
-from honomara_members_site.util import current_school_year
+from honomara_members_site.util import *
 
 
 @app.route('/')
@@ -57,13 +56,14 @@ def member_individual(member_id):
 
     m.results.sort(key=lambda x: x.race.date, reverse=False)
     raw_results = list(
-        filter(lambda x: x.race_type.show_name == 'フルマラソン', m.results))
+        filter(lambda x: x.race.course.distance == 42.195, m.results))
 
     results = []
     races = []
     for r in raw_results:
-        results += [{'x': "{:%Y/%m/%d}".format(r.race.date), 'y': r.result}]
-        races += [r.race.race_name]
+        results += [{'x': "{:%Y/%m/%d}".format(r.race.date),
+                     'y': r.time//1000}]
+        races += [r.race.course.competition.name]
 
     trainings = db.session.query(TrainingParticipant.member_id, Training.date).\
         filter(TrainingParticipant.member_id == member_id).\
@@ -326,6 +326,7 @@ def after():
 def after_edit():
     form = AfterForm(formdata=request.form)
     keyword = request.args.get('keyword')
+    app.logger.info(form.data)
 
     if form.validate_on_submit():
         return redirect(url_for('after_confirm'), code=307)
@@ -339,6 +340,11 @@ def after_edit():
         form.participants3.data = [m.id for m in after.participants]
         form.participants4.data = [m.id for m in after.participants]
         form.participants.data = [m.id for m in after.participants]
+        app.logger.info(form.participants1)
+        app.logger.info(form.participants2)
+        app.logger.info(form.participants3)
+        app.logger.info(form.participants4)
+        app.logger.info(form.participants)
         form.restaurant.data = after.restaurant.id
         form.method.data = 'PUT'
     else:
@@ -354,7 +360,7 @@ def after_edit():
 @login_required
 def after_confirm():
     form = AfterForm(formdata=request.form)
-    app.logger.info(request.form)
+    app.logger.info(form.data)
     if request.form.get('submit') == 'キャンセル':
         return redirect(url_for('after'))
 
@@ -385,6 +391,8 @@ def after_confirm():
                 'euc-jp', errors='xmlcharrefreplace').decode('euc-jp')
             after.comment = after.comment.encode(
                 'euc-jp', errors='xmlcharrefreplace').decode('euc-jp')
+            app.logger.info(after)
+            app.logger.info(form.data)
             form.populate_obj(after)
             db.session.commit()
             flash('アフター録: "{}" の更新が完了しました'.format(after.title), 'warning')
@@ -420,8 +428,147 @@ def result():
     per_page = 40
     page = request.args.get('page') or 1
     page = max([1, int(page)])
-    results = Race.query.order_by(Race.date.desc()).paginate(page, per_page)
-    return render_template('result.html', pagination=results, groupby=groupby, key=(lambda x: x.race_type.show_name))
+    results = Race.query.join(Course).order_by(
+        Race.date.desc(), text("course.competition_id")).paginate(page, per_page)
+    return render_template('result.html', pagination=results)
+
+
+@app.route('/competition/')
+def competition():
+    competitions = Competition.query.order_by(
+        Competition.place)
+    return render_template('competition.html', competitions=competitions)
+
+
+@app.route('/competition/<int:competition_id>')
+@login_required
+def competition_individual(competition_id):
+    c = Competition.query.get(competition_id)
+    if c is None:
+        return abort(404)
+
+    return render_template('competition_individual.html', competition=c)
+
+
+@app.route('/competition/edit', methods=['GET', 'POST'])
+@login_required
+def competition_edit():
+    form = CompetitionForm(formdata=request.form)
+#     form.visible.data = request.form.get('visible') != 'False'
+
+    if form.validate_on_submit():
+        return redirect(url_for('competition_confirm'), code=307)
+
+    if request.args.get('method') == 'PUT':
+        id = int(request.args.get('id'))
+        competition = Competition.query.get(id)
+        form = CompetitionForm(obj=competition)
+        form.method.data = 'PUT'
+    else:
+        form.method.data = 'POST'
+    return render_template('competition_edit.html', form=form)
+
+
+@app.route('/competition/confirm', methods=['POST'])
+@login_required
+def competition_confirm():
+    form = CompetitionForm(formdata=request.form)
+#     form.visible.data = request.form.get('visible') != 'False'
+
+    if request.form.get('submit') == 'キャンセル':
+        return redirect(url_for('competition'))
+
+    if form.validate_on_submit() and request.form.get('confirmed'):
+        if request.form.get('method') == 'DELETE':
+            competition = Competition.query.get(form.id.data)
+            db.session.delete(competition)
+            db.session.commit()
+            flash('大会："{}"の削除が完了しました'.format(competition.name), 'danger')
+        elif request.form.get('method') == 'PUT':
+            competition = Competition.query.get(form.id.data)
+            form.populate_obj(competition)
+            db.session.commit()
+            flash('大会："{}"の更新が完了しました'.format(competition.name), 'warning')
+        elif request.form.get('method') == 'POST':
+            competition = Competition()
+            form.populate_obj(competition)
+            competition.id = None
+            db.session.add(competition)
+            db.session.commit()
+            flash('大会："{}"の登録が完了しました'.format(competition.name), 'info')
+
+        return redirect(url_for('competition'))
+    else:
+        if request.form.get('method') == 'DELETE':
+            competition = Competition.query.get(form.id.data)
+            form = CompetitionForm(obj=competition)
+        return render_template('competition_confirm.html', form=form)
+
+
+@app.route('/course/edit', methods=["GET", "POST"])
+def course_edit():
+    form = CourseForm(formdata=request.form)
+    errmsg = validate_course_and_set_name(form=form)
+
+    if errmsg is not None:
+        flash(errmsg, 'danger')
+    if form.validate_on_submit() and errmsg is None:
+        return redirect(url_for('course_confirm'), code=307)
+
+    competition_id = request.args.get(
+        "competition_id", default=-1, type=int) or request.form.get('competition_id')
+
+    if competition_id == -1:
+        return render_template('template_message.html', message='大会指定が無効です<br>先に大会を作成してください')
+
+    competition = Competition.query.get(competition_id)
+    form.competition_id.data = competition.id
+
+    if form.validate_on_submit():
+        return redirect(url_for('course_confirm'), code=307)
+
+    if request.args.get('method') == 'PUT':
+        id = int(request.args.get('id'))
+        course = course.query.get(id)
+        form = courseForm(obj=course)
+        form.method.data = 'PUT'
+    else:
+        form.method.data = 'POST'
+    return render_template('course_edit.html', form=form, competition=competition)
+
+
+@app.route('/course/confirm', methods=["POST"])
+def course_confirm():
+    form = CourseForm(formdata=request.form)
+    validate_course_and_set_name(form=form)  # set form.show_name.data
+    if request.form.get('submit') == 'キャンセル':
+        return redirect(url_for('competition'))
+
+    if form.validate_on_submit() and request.form.get('confirmed'):
+        if request.form.get('method') == 'DELETE':
+            course = Course.query.get(form.id.data)
+            db.session.delete(course)
+            db.session.commit()
+            flash('大会："{}"の削除が完了しました'.format(course.name), 'danger')
+        elif request.form.get('method') == 'PUT':
+            course = Course.query.get(form.id.data)
+            form.populate_obj(course)
+            db.session.commit()
+            flash('大会："{}"の更新が完了しました'.format(course.name), 'warning')
+        elif request.form.get('method') == 'POST':
+            course = Course()
+            form.populate_obj(course)
+            course.id = None
+            db.session.add(course)
+            db.session.commit()
+            flash('コース："{}"の登録が完了しました'.format(course.show_name), 'info')
+        return redirect(url_for('result'))
+    else:
+        if request.form.get('method') == 'DELETE':
+            course = Course.query.get(form.id.data)
+            form = CourseForm(obj=course)
+        competition = Competition.query.get(form.competition_id.data)
+        return render_template('course_confirm.html', form=form, competition=competition)
 
 
 @app.route('/race/')
@@ -432,25 +579,30 @@ def race():
 @app.route('/race/edit', methods=['GET', 'POST'])
 @login_required
 def race_edit():
-    app.logger.info(request.form)
-    RaceBaseForm.race_name.choices = [
-        (r.race_name, r.race_name) for r in RaceBase.query.all()]
     form = RaceForm(formdata=request.form)
 
     if form.validate_on_submit():
         return redirect(url_for('race_confirm'), code=307)
-    form.race_name.choices = [
-        (r.race_name, r.race_name) for r in RaceBase.query.all()]
-
-    if request.args.get('method') == 'PUT':
-        id = int(request.args.get('id'))
-        race = Race.query.get(id)
-        form = RaceForm(obj=race)
-        form.method.data = 'PUT'
     else:
-        form.method.data = 'POST'
+        app.logger.info(form.errors)
+    course = None
 
-    return render_template('race_edit.html', form=form)
+    if request.form.get('method') == 'PUT':
+        race = Race.query.get(form.id.data)
+        if race is None:
+            flash('該当の大会日程は登録されていません', "danger")
+            return redirect(url_for('result'))
+        form = RaceForm(obj=race)
+        course = race.course
+#         form.method.data = 'PUT'
+    else:
+        course = Course.query.get(request.form.get("course_id"))
+        if course is None:
+            flash('該当の大会種目は登録されていません', "danger")
+            return redirect(url_for('result'))
+        form.method.data = 'POST'  # unnecessary
+
+    return render_template('race_edit.html', form=form, course=course)
 
 
 @app.route('/race/confirm', methods=['POST'])
@@ -458,171 +610,246 @@ def race_edit():
 def race_confirm():
     form = RaceForm(formdata=request.form)
     app.logger.info(request.form)
+    app.logger.info(form.data)
+    course = Course.query.get(form.course_id.data)
 
     if request.form.get('submit') == 'キャンセル':
-        return redirect(url_for('user'))
+        return redirect(url_for('result'))
 
     if form.validate_on_submit() and request.form.get('confirmed'):
-        if request.form.get('method') in ['PUT', 'POST'] and len(form.race_name_option.data) > 3:
-            rb = RaceBase.query.get(form.race_name_option.data)
-            if rb is None:
-                rb = RaceBase()
-                rb.race_name = form.race_name_option.data
-                db.session.add(rb)
-                db.session.commit()
-                app.logger.info('register race_base {}'.format(rb))
-            form.race_name.data = rb.race_name
-
         if request.form.get('method') == 'DELETE':
             race = Race.query.get(form.id.data)
             db.session.delete(race)
-            db.session.commit()
             flash('大会: "{}({})" の削除が完了しました'.format(
-                race.race_name, race.date), 'danger')
+                race.course.competition.name, race.date), 'danger')
 
         elif request.form.get('method') == 'PUT':
             race = Race.query.get(form.id.data)
             form.populate_obj(race)
-            db.session.commit()
             flash('大会: "{}({})" の更新が完了しました'.format(
-                race.race_name, race.date), 'warning')
+                race.course.competition.name, race.date), 'warning')
 
         elif request.form.get('method') == 'POST':
             race = Race()
             form.populate_obj(race)
             race.id = None
             db.session.add(race)
-            db.session.commit()
             flash('大会: "{}({})" の登録が完了しました'.format(
-                race.race_name, race.date), 'info')
-
+                race.course.competition.name, race.date), 'info')
+        db.session.commit()
         return redirect(url_for('race'))
     else:
         if request.form.get('method') == 'DELETE':
             race = Race.query.get(form.id.data)
             form = RaceForm(obj=race)
-        return render_template('race_confirm.html', form=form)
+        return render_template('race_confirm.html', form=form, course=course)
 
 
 @app.route('/result/edit', methods=['GET', 'POST'])
 @login_required
 def result_edit():
-    form = ResultForm(formdata=request.form)
-    form.result.data = form.result_h.data * 3600 + \
-        form.result_m.data * 60 + form.result_s.data
+    app.logger.info(request.form)
+    form = ResultAllForm(formdata=request.form)
+    app.logger.info(form.data)
+    form_set_time(form=form)
+    competition, course = None, None
 
-    if form.validate_on_submit():
-        return redirect(url_for('result_confirm'), code=307)
+    if request.args.get("restart") == "race":
+        race = Race.query.get(request.args.get("race_id"))
+        form.race_id.data = race.id
+        form.course_id.data = race.course_id
+        form.competition_id.data = race.course.competition_id
+        form.date.data = race.date
+        form.method.data = "POST"
+        app.logger.info("restart")
+        app.logger.info(form.data)
 
-    if request.args.get('method') == 'PUT':
-        race_id = int(request.args.get('race_id'))
-        race_type_id = int(request.args.get('race_type_id'))
-        member_id = int(request.args.get('member_id'))
-        result = Result.query.get(
-            {"race_id": race_id, "race_type_id": race_type_id, "member_id": member_id})
-        form = ResultForm(obj=result)
-        form.race = Race.query.get(race_type_id)
-        form.result_h.data = int(result.result)//3600
-        form.result_m.data = (int(result.result) % 3600)//60
-        form.result_s.data = int(result.result) % 60
-        form.method.data = 'PUT'
+    form.competition_id.choices = [(c.id, c.name) for c in Competition.query.order_by(
+        Competition.name.desc()).all()]
 
-    else:
-        race_id = int(request.args.get('race_id'))
-        result = Result()
-        result.race_id = race_id
-        form = ResultForm(obj=result)
-        form.race = Race.query.get(race_id)
+    # 大会未指定時は大会選択へjump
+    if form.competition_id.data is None:
         form.method.data = 'POST'
+        return render_template('result_edit_competition.html', form=form)
 
-    return render_template('result_edit.html', form=form)
+    competition = Competition.query.get(form.competition_id.data)
+
+    form.course_id.choices = [(c.id, c.distance) for c in Course.query.filter(Course.competition_id == form.competition_id.data).order_by(
+        Course.distance.desc()).all()]
+
+    if form.method.data == "POST":
+        # コース未指定時はコース選択へjump
+        if form.course_id.data is None:
+            return render_template('result_edit_course.html', form=form, competition=competition)
+        else:
+            course = Course.query.get(form.course_id.data)
+
+        # レース(日付)未指定時は
+        if form.date.data is None:
+            if form.race_id.data is None:
+                return render_template('result_edit_race.html', form=form, competition=competition, course=course)
+            else:
+                race = Race.query.get(form.race_id.data)
+                form.date.data = race.date
+        d = form.validate()
+        if not d:
+            app.logger.info(d)
+            app.logger.info(form.errors)
+        if form.validate_on_submit():
+            return redirect(url_for('result_confirm'), code=307)
+
+    elif form.method.data == 'PUT':
+        if form.validate_on_submit():
+            return redirect(url_for('result_confirm'), code=307)
+        result_id = request.form.get('result_id')  # request.args.get('id')
+        result = Result.query.get(result_id)
+        form = ResultAllForm(obj=result)  # TODO
+        form_set_time(form=form)
+        form.date.data = result.race.date
+        course = result.race.course
+        form.course_id.data = course.id
+        form.race_id.data = result.race_id
+        form.participants.data = [m.id for m in result.participants]
+        form.method.data = 'PUT'
+#         app.logger.info("participants of results")
+#         app.logger.info(form.participants)
+
+    return render_template('result_edit.html', form=form, competition=competition, course=course)
 
 
 @app.route('/result/confirm', methods=['POST'])
 @login_required
 def result_confirm():
-    form = ResultForm(formdata=request.form)
-    form.result.data = form.result_h.data * 3600 + \
-        form.result_m.data * 60 + form.result_s.data
+    app.logger.info(request.form)
+    form = ResultAllForm(formdata=request.form)
+    form_set_time(form=form)
+    app.logger.info(form.data)
 
     if request.form.get('submit') == 'キャンセル':
-        return redirect(url_for('user'))
+        return redirect(url_for('result'))
 
-    race_id = int(form.race_id.data)
-    race_type_id = int(form.race_type_id.data)
-    member_id = int(form.member_id.data)
+#     competition = form.competition.data
+#     course = form.course.data
+#     race = form.race_id.data or -1
+#     participants = form.participants.data
 
-    if form.validate_on_submit() and request.form.get('confirmed'):
+    form.competition_id.choices = [(c.id, c.name) for c in Competition.query.order_by(
+        Competition.name.desc()).all()]
+
+    form.course_id.choices = [(c.id, c.distance) for c in Course.query.join(Competition).filter(
+        Competition.id == form.competition_id.data).order_by(Course.distance.desc()).all()]
+
+    if form.validate_on_submit() and request.form.get('confirmed') == 'True':
         if request.form.get('method') == 'DELETE':
-            result = Result.query.get(
-                {"race_id": race_id, "race_type_id": race_type_id, "member_id": member_id})
+            result = Result.query.get(request.form.get('id'))
+            competition_name = result.race.course.competition.name
+            participant_name = result.participants[0].show_name
             db.session.delete(result)
             db.session.commit()
             flash('{}さんの{}の結果の削除が完了しました'.format(
-                result.member.show_name, result.race.race_name), 'danger')
-
+                participant_name, competition_name), 'danger')
         elif request.form.get('method') == 'PUT':
-            result = Result.query.get(
-                {"race_id": race_id, "race_type_id": race_type_id, "member_id": member_id})
+
+            result = Result.query.get(form.id.data)
+            competition_name = result.race.course.competition.name
+            participant_name = result.participants[0].show_name
+            app.logger.info(result)
+            app.logger.info(form.data)
+            form.participants.data = [Member.query.get(
+                int(member_id)) for member_id in form.participants.data]
             form.populate_obj(result)
             db.session.commit()
             flash('{}さんの{}の結果の更新が完了しました'.format(
-                result.member.show_name, result.race.race_name), 'warning')
+                participant_name, competition_name), 'warning')
 
         elif request.form.get('method') == 'POST':
+            race = None
+            # create race if not exists
+            if form.race_id.data is not None and form.race_id.data >= 0:
+                race = Race.query.get(form.race_id.data)
+            elif form.date.data is not None:
+                race = Race.query.filter(Race.course_id == form.course_id.data).filter(
+                    Race.date == form.date.data).all()
+                if len(race) == 1:
+                    race = race[0]
+                elif len(race) == 0:
+                    race = Race()
+                    race.course_id = form.course.data
+                    race.date = form.date.data
+                    db.session.add(race)
+                    race = Race.query.filter(Race.course_id == race.course_id).filter(
+                        Race.date == race.date).one()
+                else:
+                    assert(False)  # TODO
+            else:
+                race = None
+            form2 = ResultForm(formdata=request.form)
+            form2.race_id.data = race.id
+            form2.participants.data = [Member.query.get(
+                int(member_id)) for member_id in form.participants.data]
+
             result = Result()
-            form.populate_obj(result)
+            form2.populate_obj(result)
+            result.id = None
             db.session.add(result)
             db.session.commit()
             flash('{}さんの{}の結果の登録が完了しました'.format(
-                result.member.show_name, result.race.race_name), 'info')
+                result.participants[0].show_name, result.race.course.competition.name), 'info')
 
-        return redirect(url_for('result'))
-    else:
+        app.logger.info("form.submit.data")
+        app.logger.info(form.submit.data)
+        app.logger.info(request.form.get("submit"))
+        if request.form.get("submitValue") == "登録して、同じ大会の記録を追加":
+            return redirect(url_for('result_edit', restart="race", race_id=result.race_id))
+        else:
+            return redirect(url_for('result'))
+    else:  # show confirm view when not confirmed
+        app.logger.info(form.errors)
+
         if request.form.get('method') == 'DELETE':
-            result = Result.query.get(
-                {"race_id": race_id, "race_type_id": race_type_id, "member_id": member_id})
-            form = ResultForm(obj=result)
-        form.member = Member.query.get(int(form.member_id.data))
-        form.race_type = RaceType.query.get(int(form.race_type_id.data))
-        form.race = Race.query.get(int(form.race_id.data))
-        return render_template('result_confirm.html', form=form)
+            result = Result.query.get(request.form.get("result_id"))
+            form = ResultAllForm(obj=result)
+            form_set_time(form=form)
+            form.course_id.data = result.race.course_id
+            form.competition_id.data = result.race.course.competition_id
+            form.participants.data = [m.id for m in result.participants]
+            form.date.data = result.race.date
+#             app.logger.info(result)
+            app.logger.info(form.data)
+#             abort(404)
+            # TODO
+        competition = Competition.query.get(form.competition_id.data)
+        course = Course.query.get(form.course_id.data)
+        form.participants = [Member.query.get(mid)
+                             for mid in form.participants.data]
+        return render_template('result_confirm.html', form=form, competition=competition, course=course)
 
 
-@app.route('/ranking')
+@ app.route('/ranking')
 def ranking():
-    q1 = db.session.query(Member.show_name, func.count(TrainingParticipant.training_id).label('cnt'), Member.sex).\
-        join(TrainingParticipant, TrainingParticipant.member_id == Member.id).\
-        group_by(TrainingParticipant.member_id)
+    q1 = db.session.query(Member.show_name, func.count(TrainingParticipant.training_id).label('cnt'), Member.sex).join(
+        TrainingParticipant, TrainingParticipant.member_id == Member.id).group_by(TrainingParticipant.member_id)
     year_list = request.args.getlist('year_list')
     app.logger.info(year_list)
     if year_list:
-        q2 = q1.\
-            filter(Member.year.in_(year_list))
+        q2 = q1.filter(Member.year.in_(year_list))
     else:
         q2 = q1
 
-    items = [{'rank': i+1, 'show_name': d[0], 't_cnt': d[1], 'sex': d[2]}
+    items = [{'rank': i + 1, 'show_name': d[0], 't_cnt': d[1], 'sex': d[2]}
              for i, d in enumerate(q2.order_by(db.text('cnt DESC')).all())
              ]
 
     return render_template('ranking.html', items=items, years=range(current_school_year, 1990, -1))
 
 
-@app.route('/search/')
+@ app.route('/search/')
 def search():
     return render_template('search.html')
 
 
-@app.route('/race-type/')
-@login_required
-def race_type():
-    race_types = RaceType.query.order_by(RaceType.race_type, RaceType.duration)
-    return render_template('race_type.html', race_types=race_types)
-
-
-@app.route('/restaurant/')
-@login_required
+@ app.route('/restaurant/')
+@ login_required
 def restaurant():
     afters = list(set(list(itertools.chain.from_iterable(
         db.session.query(After.restaurant_id).all()))))
@@ -634,8 +861,8 @@ def restaurant():
     return render_template('restaurant.html', pagination=restaurants, afters=afters)
 
 
-@app.route('/restaurant/edit', methods=['GET', 'POST'])
-@login_required
+@ app.route('/restaurant/edit', methods=['GET', 'POST'])
+@ login_required
 def restaurant_edit():
     form = RestaurantForm(formdata=request.form)
 
@@ -657,8 +884,8 @@ def restaurant_edit():
     return render_template('restaurant_edit.html', form=form)
 
 
-@app.route('/restaurant/confirm', methods=['POST'])
-@login_required
+@ app.route('/restaurant/confirm', methods=['POST'])
+@ login_required
 def restaurant_confirm():
     form = RestaurantForm(formdata=request.form)
 

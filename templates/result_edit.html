@@ -1,26 +1,31 @@
-{% extends "template.html" %}
+{% extends "edit_template.html" %}
 {% block content %}
 <div class="container">
-大会記録登録ページ
-
-<h2>{{ form.race.race_name }} {{ form.race.date }}</h2>
+<h1>記録登録:結果＆走者登録<h1>
+<div class="row">
+<div class="col-lg-8 col-lg-offset-2 col-sm-12">
+<h2>{{ competition.name }}  {{ course.distance }}km {{form.date.data}}</h2>
 <form action="{{url_for('result_edit')}}" class="form" method="post" role="form">
         {{ form.hidden_tag() }}
         <div class="row">
+        <input type="hidden" name="competition_id" value="{{ form.competition_id.data }}">
+        <input type="hidden" name="course_id" value="{{ form.course_id.data }}">
         <input type="hidden" name="race_id" value="{{ form.race_id.data }}">
-        <div class="form-group  required">{{ form.race_type_id.label(class="control-label") }} {{form.race_type_id(class="form-control")}}</div>      
-        <div class="form-group  required">{{ form.member_id.label(class="control-label") }} {{form.member_id(class="form-control")}}</div>      
-        <div class="form-group  required">{{ form.result.label(class="control-label") }} {{form.result(class="form-control")}}</div>      
+        <input type="hidden" name="date" value="{{ form.date.data }}">
+        <div class="form-group  required">{{ form.participants.label(class="control-label") }} {{form.participants(class="form-control")}}</div>
         <div class="row">
-                        <div class="form-group  required col-sm-4">{{ form.result_h.label(class="control-label") }} {{form.result_h(class="form-control")}}</div>      
-                        <div class="form-group  required col-sm-4">{{ form.result_m.label(class="control-label") }} {{form.result_m(class="form-control")}}</div>      
-                        <div class="form-group  required col-sm-4">{{ form.result_s.label(class="control-label") }} {{form.result_s(class="form-control")}}</div>                      
+          <div class="form-group  required col-sm-3">{{ form.time_h.label(class="control-label") }} {{form.time_h(class="form-control")}}</div>
+          <div class="form-group  required col-sm-3">{{ form.time_m.label(class="control-label") }} {{form.time_m(class="form-control")}}</div>
+          <div class="form-group  required col-sm-3">{{ form.time_s.label(class="control-label") }} {{form.time_s(class="form-control")}}</div>
+          <div class="form-group  required col-sm-3">{{ form.time_ms.label(class="control-label") }} {{form.time_ms(class="form-control")}}</div>
         </div>
-        <div class="form-group  required">{{ form.comment.label(class="control-label") }} {{form.comment(class="form-control")}}</div>      
-        <input class="btn btn-default" id="submit" name="submit" type="submit" value="確定">
-
+        <div class="form-group  required">{{ form.distance.label(class="control-label") }} {{form.distance(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.comment.label(class="control-label") }} {{form.comment(class="form-control")}}</div>
+        <input class="btn btn-primary" id="submit" name="submit" type="submit" value="確定">
+        <a href="{{url_for('result')}}" class="btn btn-default">キャンセル</a>
         </div>
-        <!-- <div class="form-group  required">{{ form.race_id.label(class="control-label") }} {{form.race_id(class="form-control")}}</div>       -->
 </form>
+</div>
+</div>
 </div>
 {% endblock %}

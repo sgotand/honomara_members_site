@@ -1,18 +1,18 @@
 {% extends "edit_template.html" %}
 {% block content %}
 <div class="container">
-大会登録ページ
-<div class="row">
-<div class="col-lg-8 col-lg-offset-2 col-sm-12">            
-<form action="{{url_for('race_edit')}}" class="form" method="post" role="form">
+  大会種目登録ページ
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-sm-12">
+      <h3>{{ course.competition.name }}  {{ course.distance }}km </h3>
+      <form action="{{url_for('race_edit')}}" class="form" method="post" role="form">
         {{ form.hidden_tag() }}
-        <div class="form-group  required">{{ form.date.label(class="control-label") }} {{form.date(class="form-control")}}</div>      
-        <div class="form-group  required">{{ form.race_name.label(class="control-label") }} {{form.race_name(class="form-control")}}</div>      
-        <div class="form-group  required">{{ form.race_name_option.label(class="control-label") }} {{form.race_name_option(class="form-control")}}</div>      
-        <div class="form-group  required">{{ form.comment.label(class="control-label") }} {{form.comment(class="form-control")}}</div>      
+        <input type="hidden" name="course_id" value="{{ form.course_id.data }}">
+        <div class="form-group  required">{{ form.date.label(class="control-label") }} {{form.date(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.comment.label(class="control-label") }} {{form.comment(class="form-control")}}</div>
         <input class="btn btn-default" id="submit" name="submit" type="submit" value="確定">
-</form>
-</div> 
-</div>
+      </form>
+    </div>
+  </div>
 </div>
 {% endblock %}

@@ -1,5 +1,4 @@
 {% extends "bootstrap/base.html" %}
-
 {% block title %}ホノマラメンバーズページ{% endblock %}
 
 {% block styles %}
@@ -51,12 +50,12 @@ body { padding-top: 80px; }
 <div class="container">
 {% include 'flash.html' %}
 </div>
-    
+
 {% block content %}
 {% endblock %}
 {% include 'footer.html' %}
 {% block scripts %}
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.0/js/bootstrap.min.js"></script>
 
 <script type="text/javascript">
@@ -64,14 +63,12 @@ body { padding-top: 80px; }
 	$('.bs-component [data-toggle="tooltip"]').tooltip();
 </script>
 
-
-<link rel="stylesheet"
-      href="">
-    <script type="text/javascript">
-    var delaycss = document.createElement('link');
-    delaycss.rel = 'stylesheet';
-    delaycss.href = "{{url_for('.static', filename='css/bootstrap.min.css')}}";
-    document.head.appendChild(delaycss);
+<link rel="stylesheet" href="">
+<script type="text/javascript">
+var delaycss = document.createElement('link');
+delaycss.rel = 'stylesheet';
+delaycss.href = "{{url_for('.static', filename='css/bootstrap.min.css')}}";
+document.head.appendChild(delaycss);
 </script>
 {% endblock %}
 {% endblock %}

@@ -1,132 +1,139 @@
 {% extends "template.html" %}
 {% block styles %}
 {{ super() }}
-
 <style>
 .borders {
-    border-top: lightgray 1px solid;
-    padding-top: 5px;
-    overflow: hidden;
+  border-top: lightgray 1px solid;
+  padding-top: 5px;
+  overflow: hidden;
+}
+.panel-default {
+  font-size: 0.8em;
+}
+.btn btn-xs {
+  margin: 2px 6px;
 }
 </style>
-{% endblock %}
-
+{% endblock styles %}
 {% block content %}
 <div class="container">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="page-header">
+        <h1 id="tables">大会記録
+          {% if current_user.is_authenticated %}
+          <a href="{{url_for('result_edit')}}" class="btn btn-primary">記録登録</a>
+          {% endif %}
+        </h1>
+        <div class="bs-component">
+          <ul class="pager">
+            <li class="previous {{ "disabled" if not pagination.has_prev}}"><a
+                href="{{url_for('result',page=pagination.prev_num) }}">&larr; Newer</a></li>
+            <li> {{ pagination.page}}/{{ pagination.pages}} </li>
+            <li class="next  {{ "disabled" if not pagination.has_next}}"><a
+                href="{{url_for('result',page=pagination.next_num) }}">Older &rarr;</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="row">
+        {% for race in pagination.items %}
+        {% if len(race.results) > 0 or current_user.is_authenticated %}
+        <div class="bs-component">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <div class="row" style="margin-top: 0;">
+                <h4 class="col-xs-12 col-sm-7" style="padding: 0 10px; margin: 0px;">
+                  {{ race.date }} {{ race.course.competition.name }}  {{ race.course.show_name if race.course.show_name else "{}km".format(race.course.distance) }}
 
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="page-header">
-                <h1 id="tables">大会記録
-                        {% if current_user.is_authenticated %}
-                            <a href="{{url_for('race_edit')}}" class="btn btn-primary btn-lg">新規大会登録</a>
-                        {% endif %}
-
-                </h1>
-                <div class="bs-component">
-                    <ul class="pager">
-                        <li class="previous {{ "disabled" if not pagination.has_prev}}"><a
-                                href="{{url_for('result',page=pagination.prev_num) }}">&larr; Newer</a></li>
-                        <li> {{ pagination.page}}/{{ pagination.pages}} </li>
-                        <li class="next  {{ "disabled" if not pagination.has_next}}"><a
-                                href="{{url_for('result',page=pagination.next_num) }}">Older &rarr;</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="row">
-                {% for race in pagination.items %}
-                {% if len(race.results) > 0 or current_user.is_authenticated %}                
-                <div class="bs-component">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <!-- <h3> -->
-                            <div class="row">
-                                <h3 class="col-xs-12 col-sm-8">
-                                    {{ race.date }} {{ race.race_name }}
-                                </h3>
-                                {% if current_user.is_authenticated %}
-                                <div class="col-xs-12 col-sm-4" style="margin-top: 10px;">
-                                    <form method="get" action="{{url_for('result_edit')}}"
-                                        style="display: inline-block; float: right; margin: 0 3px;">
-                                        <input type="hidden" name="method" value="POST">
-                                        <input type="hidden" name="race_id" value="{{race.id}}">
-                                        <input type="submit" value="追加" class="btn btn-primary">
-                                    </form>
-                
-                                    <form method="get" action="{{url_for('race_edit')}}"
-                                        style="display: inline-block; float: right; margin: 0 3px;">
-                                        <input type="hidden" name="method" value="PUT">
-                                        <input type="hidden" name="id" value="{{race.id}}">
-                                        <input type="submit" value="編集" class="btn btn-warning">
-                                    </form>
-                                    <form method="post" action="{{url_for('race_confirm')}}"
-                                        style="display: inline-block; float: right; margin: 0 3px;">
-                                        <input type="hidden" name="method" value="DELETE">
-                                        <input type="hidden" name="id" value="{{race.id}}">
-                                        <input type="submit" value="削除" class="btn btn-danger">
-                                    </form>
-                
-                                </div>
-                                {% endif %}
-                            </div>
-                            <!-- </h3> -->
-                        </div>                        
-                        <div class="panel-body">
-                            {% for result_by_type in groupby(race.results,key=key) %}
-                            <h3>{{ result_by_type[0] }}</h3>
-                            {% for result in result_by_type[1] %}
-                            <div class="borders clearfix">
-                                <p style="font-size: 1.2em;" class="col-xs-4 col-sm-2 col-lg-2">
-                                    {{result.member.show_name}}
-                                </p>
-                                <p style="font-size: 1.2em;" class="col-xs-4 col-sm-2 col-lg-2 ">
-                                    {{"{:02}:{:02}:{:02}".format(int(result.result)//3600,(int(result.result)%3600)//60,int(result.result)%60)}}
-                                    <br>
-                                </p>
-                                <p style="font-size: 1.2em;" class="col-xs-8 col-sm-5 col-lg-5 ">
-                                    {{ result.comment or '' }}
-                                </p>
-                                {% if current_user.is_authenticated %}
-                                <form method="get" action="{{url_for('result_edit')}}"
-                                    style="display: inline-block; float: right; margin: 0 3px;">
-                                    <input type="hidden" name="method" value="PUT">
-                                    <input type="hidden" name="race_id" value="{{result.race_id}}">
-                                    <input type="hidden" name="race_type_id" value="{{result.race_type_id}}">
-                                    <input type="hidden" name="member_id" value="{{result.member_id}}">
-                                    <input type="submit" value="編集" class="btn btn-warning">
-                                </form>
-                                <form method="post" action="{{url_for('result_confirm')}}"
-                                    style="display: inline-block; float: right; margin: 0 3px;">
-                                    <input type="hidden" name="method" value="DELETE">
-                                    <input type="hidden" name="race_id" value="{{result.race_id}}">
-                                    <input type="hidden" name="race_type_id" value="{{result.race_type_id}}">
-                                    <input type="hidden" name="member_id" value="{{result.member_id}}">
-                                    <input type="submit" value="削除" class="btn btn-danger">
-                                </form>
-                                {% endif %}
-
-                            </div>
-                            {% endfor %}
-                            {% endfor %}
-                        </div>
-                    </div>
+                </h4>
+                {% if current_user.is_authenticated %}
+                <div class="col-xs-12 col-sm-5" style="margin-top: 0px;">
+                  <form method="POST" action="{{url_for('result_edit')}}"
+                                      style="display: inline-block; float: right; margin: 0 3px;">
+                    <input type="hidden" name="method" value="POST">
+                    <input type="hidden" name="competition_id" value={{race.course.competition_id}}>
+                    <input type="hidden" name="course_id" value={{race.course.id}}>
+                    <input type="hidden" name="race_id" value={{race.id}}>
+                    <input type="submit" value="追加" class="btn btn-xs btn-primary">
+                  </form>
+                  <form method="POST" action="{{url_for('race_edit')}}"
+                                      style="display: inline-block; float: right; margin: 0 3px;">
+                    <input type="hidden" name="method" value="PUT">
+                    <input type="hidden" name="id" value="{{race.id}}">
+                    <input type="submit" value="日程編集" class="btn btn-xs btn-warning">
+                  </form>
+                  <form method="POST" action="{{url_for('race_confirm')}}"
+                                      style="display: inline-block; float: right; margin: 0 3px;">
+                    <input type="hidden" name="method" value="DELETE">
+                    <input type="hidden" name="course_id" value="{{race.course_id}}">
+                    <input type="hidden" name="id" value="{{race.id}}">
+                    <input type="submit" value="削除" class="btn btn-xs btn-danger">
+                  </form>
                 </div>
                 {% endif %}
-                {% endfor %}
-                <!--        race in pagination.items                  -->
+              </div>
             </div>
-            <div class="bs-component">
-                <div class="bs-component">
-                    <ul class="pager">
-                        <li class="previous {{ "disabled" if not pagination.has_prev}}"><a
-                                href="{{url_for('result',page=pagination.prev_num) }}">&larr; Newer</a></li>
-                        <li> {{ pagination.page}}/{{ pagination.pages}} </li>
-                        <li class="next  {{ "disabled" if not pagination.has_next}}"><a
-                                href="{{url_for('result',page=pagination.next_num) }}">Older &rarr;</a></li>
-                    </ul>
+            <div class="panel-body">
+              {% for result in race.results %}
+              <div class="borders clearfix">
+                <p style="font-size: 1.2em; margin-bottom: 3px;" class="col-xs-3 col-sm-2 col-lg-2">
+                  {% for m in result.participants -%}
+                  <span {% if m.sex == 1 or m.sex == 'female' %} style="color: red;" {% endif %}>
+                    {{ m.show_name }}
+                  </span>
+                  {% endfor %}
+                </p>
+                <p style="font-size: 1.2em; margin-bottom: 3px;" class="col-xs-4 col-sm-2 col-lg-2 ">
+                  {{"{:02}:{:02}:{:02}".format(int(result.time)//3600000,
+                  (int(result.time)%3600000)//60000,(int(result.time)%60000)//1000)}}
+                  <br>
+                </p>
+                {% if result.comment and len(result.comment) > 0 %}
+                <p style="font-size: 1.2em; margin-bottom: 3px;" class="col-xs-7 col-sm-5 col-lg-5 ">
+                  {{ result.comment or '' }}
+                </p>
+                {% endif %}
+                {% if current_user.is_authenticated %}
+                {% if result.comment and len(result.comment) > 0 %}
+                <div class="col-xs-5 col-sm-3">
+                  {% else %}
+                  <div class="col-xs-5 col-sm-3 col-sm-offset-5">
+                    {% endif %}
+                    <form method="POST" action="{{url_for('result_edit')}}"
+                                        style="display: inline-block; float: right; margin: 0 3px;">
+                      <input type="hidden" name="method" value="PUT">
+                      <input type="hidden" name="result_id" value="{{result.id}}">
+                      <input type="hidden" name="competition_id" value={{race.course.competition_id}}>
+                      <input type="submit" value="編集" class="btn btn-xs btn-warning">
+                    </form>
+                    <form method="POST" action="{{url_for('result_confirm')}}"
+                                        style="display: inline-block; float: right; margin: 0 3px;">
+                      <input type="hidden" name="method" value="DELETE">
+                      <input type="hidden" name="result_id" value="{{result.id}}">
+                      <input type="submit" value="削除" class="btn btn-xs btn-danger">
+                    </form></div>
+                    {% endif %}
+
                 </div>
+                {% endfor %}
+              </div>
             </div>
+          </div>
+          {% endif %}
+          {% endfor %}
         </div>
+        <div class="bs-component">
+          <div class="bs-component">
+            <ul class="pager">
+              <li class="previous {{ "disabled" if not pagination.has_prev}}"><a
+                  href="{{url_for('result',page=pagination.prev_num) }}">&larr; Newer</a></li>
+              <li> {{ pagination.page}}/{{ pagination.pages}} </li>
+              <li class="next  {{ "disabled" if not pagination.has_next}}"><a
+                  href="{{url_for('result',page=pagination.next_num) }}">Older &rarr;</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
-{% endblock %}
+  </div>
+  {% endblock %}

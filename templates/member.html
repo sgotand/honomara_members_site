@@ -29,9 +29,9 @@
                                     {% endif %}
 
                                     <a href="{{url_for('member_individual',member_id=member.id)}}">
-                                        {% if member.sex == 1 %}
+                                        {% if member.sex == 1 or member.sex == 'female' %}
                                         <span style="color: red;">
-                                            {% elif (member.sex < 0 or member.sex > 1) %}
+                                            {% elif (member.sex not in [0, 1, 'male', 'female']) %}
                                             <span style="color: green;">
                                                 {% else %}
                                                 <span style="color: black;">
@@ -50,28 +50,23 @@
                                     {% if not member.visible %}
                                 </span>
                                 {% endif %}
-
                             </th>
-
                             <th>
                                 {% if not member.visible %}
                                 <span style="text-decoration-line:line-through;">
-                                    {% endif %}
-
-                                    {% if member.sex == 1 %}
+                                {% endif %}
+                                    {% if member.sex in [1, 'female'] %}
                                     <span style="color: red;">
-                                        {% elif (member.sex < 0 or member.sex > 1) %}
-                                        <span style="color: green;">
-                                            {% else %}
-                                            <span style="color: black;">
-                                                {% endif %}
-
-                                                {{ member.show_name }}
-                                            </span>
-                                            {% if not member.visible %}
-                                        </span>
-                                        {% endif %}
-
+                                    {% elif member.sex in [0, 'male'] %}
+                                    <span style="color: black;">
+                                    {% else %}
+                                    <span style="color: green;">
+                                    {% endif %}
+                                    {{ member.show_name }}
+                                    </span>
+                                {% if not member.visible %}
+                                </span>
+                                {% endif %}
                             </th>
                             <th>
                                 <form method="get" action="{{url_for('member_edit')}}">

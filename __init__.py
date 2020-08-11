@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
+# from flask_wtf.csrf import CSRFProtect
 from html import unescape
 import importlib
 
@@ -11,6 +12,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://honomara:honomar
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.jinja_env.globals.update(len=len, int=int, unescape=unescape)
 
+# csrf = CSRFProtect(app)
 bootstrap = Bootstrap(app)
 db = SQLAlchemy(app)
 

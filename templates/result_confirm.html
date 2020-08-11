@@ -1,64 +1,79 @@
 {% extends "template.html" %}
 {% block content %}
 <div class="container">
-大会確認ページ
-<div class="row">
+  大会確認ページ
+  <div class="row">
     <div class="bs-component">
-        <div class="panel panel-default">
-            {% if form.method.data == 'POST' %}
-                <div class="panel-heading">以下の記録を新規に登録します。</div>
-            {% elif form.method.data == 'PUT' %}
-            <div class="panel-heading">以下の様に記録情報を更新します。</div>
-            {% elif form.method.data == 'DELETE' %}
-                <div class="panel-heading">以下の記録情報を削除します。</div>
-            {% endif %}
-
-            <div class="panel-body">
-                    <div class="bs-component">
-                            <table class="table table-striped table-hover ">
-                                <thead>
-                                    <tr>
-                                        <th>名前</th>
-                                        <th>種目</th>
-                                        <th>記録</th>
-                                        <th>コメント</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                            <th>{{ form.member.show_name }}</th>
-                                            <th>{{ form.race_type.show_name }}</th>
-                                            <th>{{"{:02}:{:02}:{:02}".format(int(form.result.data)//3600,(int(form.result.data)%3600)//60,int(form.result.data)%60)}}</th>
-                                            <th> {{ form.comment.data }}</th>
-                                    </tr>
-                                </tbody>
-                            </table>
-                    </div>
-            </div>
-        </div>
-    </div>
-</div>
-<form id="form-id" action="{{url_for('result_confirm')}}" method="post">
-        {{ form.csrf_token }}
-        {{ form.method }}
-        <input type="hidden" name="member_id" value="{{ form.member_id.data }}">
-        <input type="hidden" name="race_id" value="{{ form.race_id.data }}">
-        <input type="hidden" name="race_type_id" value="{{ form.race_type_id.data }}">
-        <input type="hidden" name="result" value="{{ form.result.data }}">
-        <input type="hidden" name="result_h" value="{{ form.result_h.data }}">
-        <input type="hidden" name="result_m" value="{{ form.result_m.data }}">
-        <input type="hidden" name="result_s" value="{{ form.result_s.data }}">
-        <input type="hidden" name="comment" value="{{ form.comment.data }}">
-        <input type="hidden" name="confirmed" value="True">
+      <div class="panel panel-default">
         {% if form.method.data == 'POST' %}
-            <input type="submit" value="登録"  class="btn btn-primary">
+        <div class="panel-heading">以下の記録を新規に登録します。</div>
         {% elif form.method.data == 'PUT' %}
-            <input type="submit" value="更新"  class="btn btn-warning">
+        <div class="panel-heading">以下の様に記録情報を更新します。</div>
         {% elif form.method.data == 'DELETE' %}
-            <input type="submit" value="削除"  class="btn btn-danger">
+        <div class="panel-heading">以下の記録情報を削除します。</div>
         {% endif %}
-        <a href="{{url_for('result')}}" class="btn btn-default">キャンセル</a>
-</form>
+
+        <div class="panel-body">
+          <div class="bs-component">
+            <table class="table table-striped table-hover ">
+              <thead>
+                <tr>
+                  <th>大会</th>
+                  <th>種目</th>
+                  <th>日程</th>
+                  <th>出場者</th>
+                  <th>記録</th>
+                  <th>コメント</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>{{ competition.name }}</th>
+                  <th>{{ course.distance }}km</th>
+                  <th>{{ form.date.data }}</th>
+                  <th>
+                    {% for m in form.participants %}
+                    {{ m.show_name }}
+                    {% endfor %}
+                  </th>
+                  <th>{{"{:02}:{:02}:{:02}".format(form.time_h.data,form.time_m.data,form.time_s.data)}}</th>
+                  <th> {{ form.comment.data }}</th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <form id="form-id" action="{{url_for('result_confirm')}}" method="post">
+    {{ form.csrf_token }}
+    {{ form.id }}
+    {{ form.method }}
+    <input type="hidden" name="competition_id" value="{{ form.competition_id.data }}">
+    <input type="hidden" name="course_id" value="{{ form.course_id.data }}">
+    <input type="hidden" name="date" value="{{ form.date.data }}">
+    <input type="hidden" name="race_id" value={{ form.race_id.data if form.race_id.data else -1}}>
+    {% for m in form.participants %}
+    <input type="hidden" name="participants" value="{{ m.id }}">
+    {% endfor %}
+    <input type="hidden" name="time" value="{{ form.time.data }}">
+    <input type="hidden" name="time_h" value="{{ form.time_h.data }}">
+    <input type="hidden" name="time_m" value="{{ form.time_m.data }}">
+    <input type="hidden" name="time_s" value="{{ form.time_s.data }}">
+    <input type="hidden" name="time_ms" value="{{ form.time_ms.data }}">
+    <input type="hidden" name="comment" value="{{ form.comment.data }}">
+    <input type="hidden" name="confirmed" value="True">
+    {% if form.method.data == 'POST' %}
+    <input type="submit" name ="submitValue" value="登録"  class="btn btn-primary">
+    <input type="submit" name ="submitValue" value="登録して、同じ大会の記録を追加"  class="btn btn-primary">
+    {% elif form.method.data == 'PUT' %}
+    <input type="submit" name ="submitValue" value="更新"  class="btn btn-warning">
+    {% elif form.method.data == 'DELETE' %}
+    <input type="submit" name ="submitValue" value="削除"  class="btn btn-danger">
+    {% endif %}
+    <a href="{{url_for('result')}}" class="btn btn-default">キャンセル</a>
+  </form>
 
 
 </div>

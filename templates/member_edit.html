@@ -5,28 +5,28 @@
 
 <form action="{{url_for('member_edit')}}" class="form" method="post" role="form">
     {{ form.hidden_tag() }}
-    <div class="form-group  required">{{ form.year.label(class="control-label") }} {{form.year(class="form-control")}}</div>      
-    <div class="form-group  required">{{ form.family_name.label(class="control-label") }} {{form.family_name(class="form-control")}}</div>      
-    <div class="form-group  required">{{ form.family_kana.label(class="control-label") }} {{form.family_kana(class="form-control")}}</div>      
-    <div class="form-group  required">{{ form.first_name.label(class="control-label") }} {{form.first_name(class="form-control")}}</div>      
-    <div class="form-group  required">{{ form.first_kana.label(class="control-label") }} {{form.first_kana(class="form-control")}}</div>      
-    <div class="form-group  required">{{ form.show_name.label(class="control-label") }} {{form.show_name(class="form-control")}}</div>      
+    <div class="form-group  required">{{ form.year.label(class="control-label") }} {{form.year(class="form-control")}}</div>
+    <div class="form-group  required">{{ form.family_name.label(class="control-label") }} {{form.family_name(class="form-control")}}</div>
+    <div class="form-group  required">{{ form.family_kana.label(class="control-label") }} {{form.family_kana(class="form-control")}}</div>
+    <div class="form-group  required">{{ form.first_name.label(class="control-label") }} {{form.first_name(class="form-control")}}</div>
+    <div class="form-group  required">{{ form.first_kana.label(class="control-label") }} {{form.first_kana(class="form-control")}}</div>
+    <div class="form-group  required">{{ form.show_name.label(class="control-label") }} {{form.show_name(class="form-control")}}</div>
 
     <div class="form-group">
         <label class="control-label">姓</label>
         <div class="radio-inline">
             <label>
-                <input type="radio" name="sex" id="sex-0" value="0" {{"checked" if form.sex.data != 1}}>
+                <input type="radio" name="sex" id="sex-0" value="male" {{"checked" if form.sex.data == 0 or form.sex.data=='male' }}>
                 男 </label>
         </div>
         <div class="radio-inline">
             <label>
-                <input type="radio" name="sex" id="sex-1" value="1" {{"checked" if form.sex.data == 1}}>
+                <input type="radio" name="sex" id="sex-1" value="female" {{"checked" if form.sex.data == 1 or form.sex.data=='female'}}>
                 女 </label>
         </div>
     </div>
-    
-  
+
+
     <div class="form-group">
         <label class="control-label">状態</label>
         <div class="radio-inline">

@@ -1,69 +1,70 @@
 {% extends "template.html" %}
 {% block content %}
 <div class="container">
-アフター録確認ページ
-<div class="row">
+  アフター録確認ページ
+  <div class="row">
     <div class="bs-component">
-        <div class="panel panel-default">
-                {% if form.method.data == 'POST' %}
-                <div class="panel-heading">以下のアフター記録を新規に登録します。</div>
-                {% elif form.method.data == 'PUT' %}
-                <div class="panel-heading">以下の様にアフター記録を更新します。</div>
-                {% elif form.method.data == 'DELETE' %}
-                    <div class="panel-heading">以下のアフター記録を削除します。</div>
-                {% endif %}
-                <div class="panel-body">
-                <div class="bs-component">
-                    <dl>
-                        <dt>日付</dt>
-                        <dd>{{form.date.data}}</dd>
-                        <dt>店</dt>
-                        <dd>{{form.restaurant.data.name}}({{form.restaurant.data.place}})</dd>
-                        <dt>何次会</dt>
-                        <dd>{{form.after_stage.data}}</dd>
-                        <dt>参加者</dt>
-                        <dd> {% for m in form.participants.data %}
-                            <span>
-                                {{ m.show_name }}
-                            </span>
-                            {% endfor %}
-                        </dd>
-                        <dt>タイトル</dt>
-                        <dd>{{form.title.data}}</dd>
-                        <dt>コメント</dt>
-                        <dd>{{form.comment.data}}</dd>
-                    </dl>
-                </div>
-            </div>
+      <div class="panel panel-default">
+        {% if form.method.data == 'POST' %}
+        <div class="panel-heading">以下のアフター記録を新規に登録します。</div>
+        {% elif form.method.data == 'PUT' %}
+        <div class="panel-heading">以下の様にアフター記録を更新します。</div>
+        {% elif form.method.data == 'DELETE' %}
+        <div class="panel-heading">以下のアフター記録を削除します。</div>
+        {% endif %}
+        <div class="panel-body">
+          <div class="bs-component">
+            <dl>
+              <dt>日付</dt>
+              <dd>{{form.date.data}}</dd>
+              <dt>店</dt>
+              <dd>{{form.restaurant.data.name}}({{form.restaurant.data.place}})</dd>
+              <dt>何次会</dt>
+              <dd>{{form.after_stage.data}}</dd>
+              <dt>参加者({{len(form.participants.data)}}人)</dt>
+              <dd>
+              {% for m in form.participants.data %}
+              <span {% if m.sex == 1 or m.sex=='female' %} style="color: red;" {% endif %}>
+                {{ m.show_name }}
+              </span>
+              {% endfor %}
+              </dd>
+              <dt>タイトル</dt>
+              <dd>{{form.title.data}}</dd>
+              <dt>コメント</dt>
+              <dd>{{form.comment.data}}</dd>
+            </dl>
+          </div>
         </div>
+      </div>
     </div>
-</div>
-<div class="row bs_component">
+  </div>
+  <div class="row bs_component">
     <form id="form-id" action="{{url_for('after_confirm')}}" method="post">
-            {{ form.csrf_token }}
-            {{ form.id }}
-            {{ form.method }}
-            <input type="hidden" name="date" value="{{ form.date.data }}">
-            <input type="hidden" name="after_stage" value="{{ form.after_stage.data }}">
-            <input type="hidden" name="restaurant" value="{{ form.restaurant.data.id }}">
-            <input type="hidden" name="title" value="{{ form.title.data }}">
-            <input type="hidden" name="comment" value="{{ form.comment.data }}">
-            <input type="hidden" name="method" value="{{ form.method.data }}">
-            <input type="hidden" name="confirmed" value="True">
-            {% for m in form.participants.data %}
-                <input type="hidden" name="participants" value="{{ m.id }}">
-            {% endfor %}
-            {% if form.method.data == 'POST' %}
-                <input type="submit" value="登録"  class="btn btn-primary">
-            {% elif form.method.data == 'PUT' %}
-                <input type="hidden" name="id" value="{{ form.id.data }}">
-                <input type="submit" value="更新"  class="btn btn-warning">
-            {% elif form.method.data == 'DELETE' %}
-                <input type="hidden" name="id" value="{{ form.id.data }}">
-                <input type="submit" value="削除"  class="btn btn-danger">
-            {% endif %}
-        <a href="{{url_for('after')}}" class="btn btn-default">キャンセル</a>
-</form>
-</div>
+      {{ form.csrf_token }}
+      {{ form.id }}
+      {{ form.method }}
+      <input type="hidden" name="date" value="{{ form.date.data }}">
+      <input type="hidden" name="after_stage" value="{{ form.after_stage.data }}">
+      <input type="hidden" name="restaurant" value="{{ form.restaurant.data.id }}">
+      <input type="hidden" name="title" value="{{ form.title.data }}">
+      <input type="hidden" name="comment" value="{{ form.comment.data }}">
+      <input type="hidden" name="method" value="{{ form.method.data }}">
+      <input type="hidden" name="confirmed" value="True">
+      {% for m in form.participants.data %}
+      <input type="hidden" name="participants" value="{{ m.id }}">
+      {% endfor %}
+      {% if form.method.data == 'POST' %}
+      <input type="submit" value="登録"  class="btn btn-primary">
+      {% elif form.method.data == 'PUT' %}
+      <input type="hidden" name="id" value="{{ form.id.data }}">
+      <input type="submit" value="更新"  class="btn btn-warning">
+      {% elif form.method.data == 'DELETE' %}
+      <input type="hidden" name="id" value="{{ form.id.data }}">
+      <input type="submit" value="削除"  class="btn btn-danger">
+      {% endif %}
+      <a href="{{url_for('after')}}" class="btn btn-default">キャンセル</a>
+    </form>
+  </div>
 </div>
 {% endblock %}

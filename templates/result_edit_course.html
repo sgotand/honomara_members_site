@@ -1,0 +1,22 @@
+{% extends "template.html" %}
+{% block content %}
+<div class="container">
+<h1>記録登録:コース選択<h1>
+<div class="row">
+<div class="col-lg-8 col-lg-offset-2 col-sm-12">
+<h2>{{ competition.name }}</h2>
+<form action="{{url_for('result_edit')}}" class="form" method="post" role="form">
+        <div class="row">
+        <div class="form-group  required">{{ form.course_id.label(class="control-label") }} {{form.course_id(class="form-control")}}</div>
+        </div>
+        {{ form.hidden_tag() }}
+        <input type="hidden" name="competition_id" value="{{ form.competition_id.data }}">
+        <input type="hidden" name="confirmed" value="False">
+        <input class="btn btn-primary" id="submit" name="submit" type="submit" value="確定">
+        <a href="{{url_for('course_edit',competition_id=form.competition_id.data)}}" class="btn btn-default">大会コース登録</a>
+        <a href="{{url_for('result')}}" class="btn btn-default">キャンセル</a>
+</form>
+</div>
+</div>
+</div>
+{% endblock %}

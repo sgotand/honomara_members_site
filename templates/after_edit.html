@@ -1,42 +1,42 @@
 {% extends "edit_template.html" %}
 {% block content %}
 <div class="container">
-    アフター録登録ページ
-    <div class="row">
-        <div class="col-lg-8 col-lg-offset-2 col-sm-12">
-            <div id="div_1">
-                <button class="btn btn-default mb-5" style="width:200px; margin-bottom: 20px;"
-                    onClick="document.getElementById('div_2').style.display='block';
-                    document.getElementById('div_1').style.display='none'">店舗検索(部分一致)</button>
-            </div>
-            <div id="div_2" style="display:none">
-                <button class="btn btn-default" style="width:200px; margin-bottom: 20px;"
-                    onClick="document.getElementById('div_2').style.display='none';
-                    document.getElementById('div_1').style.display='block'">非表示</button>
-                    <form class="form-group" action="{{url_for('after_edit')}}" method="get">
-                        <div class="d-inline-flex">
-                            <input name="keyword" type="text" value="" style="width:200px; height: 36px;" />&nbsp;&nbsp;&nbsp;
-                            <button class="btn btn-default" type="submit">絞り込む</button>
-                        </div>
-                    </form>
-                <p>もしも見つからない場合は、<a href="{{url_for('restaurant_edit')}}">こちら</a>から新しい店舗を作成してください。</p>
-            </div>
-            <form action="{{url_for('after_edit')}}" class="form" method="post" role="form">
-                {{ form.hidden_tag() }}
-                <div class="form-group  required">{{ form.date.label(class="control-label") }} {{form.date(class="form-control")}}</div>
-                <div class="form-group  required">{{ form.after_stage.label(class="control-label") }} {{form.after_stage(class="form-control")}}</div>
-                <div class="form-group  required">{{ form.restaurant.label(class="control-label") }} {{form.restaurant(class="form-control")}}</div>
-                <strong>参加者:</strong><br>
-                <div class="form-group  required">{{ form.participants1.label(class="control-label") }} {{form.participants1(class="form-control")}}</div>
-                <div class="form-group  required">{{ form.participants2.label(class="control-label") }} {{form.participants2(class="form-control")}}</div>
-                <div class="form-group  required">{{ form.participants3.label(class="control-label") }} {{form.participants3(class="form-control")}}</div>
-                <div class="form-group  required">{{ form.participants4.label(class="control-label") }} {{form.participants4(class="form-control")}}</div>
-                <div class="form-group  required">{{ form.participants.label(class="control-label") }} {{form.participants(class="form-control")}}</div>
-                <div class="form-group  required">{{ form.title.label(class="control-label") }} {{form.title(class="form-control")}}</div>
-                <div class="form-group  required">{{ form.comment.label(class="control-label") }} {{form.comment(class="form-control", rows="5")}}</div>
-                <input class="btn btn-default" id="submit" name="submit" type="submit" value="確定" />
-            </form>
-        </div>
+  アフター録登録ページ
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-sm-12">
+      <div id="div_1">
+        <button class="btn btn-default mb-5" style="width:200px; margin-bottom: 20px;"
+                                             onClick="document.getElementById('div_2').style.display='block';
+                                             document.getElementById('div_1').style.display='none'">店舗検索(部分一致)</button>
+      </div>
+      <div id="div_2" style="display:none">
+        <button class="btn btn-default" style="width:200px; margin-bottom: 20px;"
+                                        onClick="document.getElementById('div_2').style.display='none';
+                                        document.getElementById('div_1').style.display='block'">非表示</button>
+        <form class="form-group" action="{{url_for('after_edit')}}" method="get">
+          <div class="d-inline-flex">
+            <input name="keyword" type="text" value="" style="width:200px; height: 36px;" />&nbsp;&nbsp;&nbsp;
+            <button class="btn btn-default" type="submit">絞り込む</button>
+          </div>
+        </form>
+        <p>もしも見つからない場合は、<a href="{{url_for('restaurant_edit')}}">こちら</a>から新しい店舗を作成してください。</p>
+      </div>
+      <form action="{{url_for('after_edit')}}" class="form" method="post" role="form">
+        {{ form.hidden_tag() }}
+        <div class="form-group  required">{{ form.date.label(class="control-label") }} {{form.date(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.after_stage.label(class="control-label") }} {{form.after_stage(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.restaurant.label(class="control-label") }} {{form.restaurant(class="form-control")}}</div>
+        <strong>参加者:</strong><br>
+        <div class="form-group  required">{{ form.participants1.label(class="control-label") }} {{form.participants1(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.participants2.label(class="control-label") }} {{form.participants2(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.participants3.label(class="control-label") }} {{form.participants3(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.participants4.label(class="control-label") }} {{form.participants4(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.participants.label(class="control-label") }} {{form.participants(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.title.label(class="control-label") }} {{form.title(class="form-control")}}</div>
+        <div class="form-group  required">{{ form.comment.label(class="control-label") }} {{form.comment(class="form-control", rows="5")}}</div>
+        <input class="btn btn-default" id="submit" name="submit" type="submit" value="確定" />
+      </form>
     </div>
+  </div>
 </div>
 {% endblock %}

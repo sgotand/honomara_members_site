@@ -4,111 +4,114 @@
 <style>
 
 .row-eq-height {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    flex-wrap: wrap;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.btn-sm {
+  margin: 2px 6px;
 }
 </style>
-    
+
 
 {% endblock %}
 
 
 {% block content %}
 <div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="page-header">
+        <h1 id="tables">練習録
+          {% if current_user.is_authenticated %}
+          <a href="{{url_for('training_edit')}}" class="btn btn-primary">新規登録</a>
+          {% endif %}
+        </h1>
 
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="page-header">
-                <h1 id="tables">練習録
-                        {% if current_user.is_authenticated %}
-                        <a href="{{url_for('training_edit')}}" class="btn btn-primary btn-lg">新規登録</a>
-                        {% endif %} 
-                </h1>
+        <div class="bs-component">
+          <ul class="pager">
+            <li class="previous {{ "disabled" if not pagination.has_prev}}"><a href="{{url_for('training',page=pagination.prev_num) }}">&larr; Newer</a></li>
+            <li>                {{ pagination.page}}/{{ pagination.pages}}                            </li>
+            <li class="next  {{ "disabled" if not pagination.has_next}}"><a href="{{url_for('training',page=pagination.next_num) }}">Older &rarr;</a></li>
+          </ul>
+        </div>
 
-                <div class="bs-component">
-                        <ul class="pager">
-                            <li class="previous {{ "disabled" if not pagination.has_prev}}"><a href="{{url_for('training',page=pagination.prev_num) }}">&larr; Newer</a></li>
-                            <li>                {{ pagination.page}}/{{ pagination.pages}}                            </li>
-                            <li class="next  {{ "disabled" if not pagination.has_next}}"><a href="{{url_for('training',page=pagination.next_num) }}">Older &rarr;</a></li>
-                        </ul>
-                </div>
-                
-            </div>
-<div class="row row-eq-height">
-    {% for training in pagination.items %}
-    <div class="col-md-6 col-lg-4">
-        <div class="panel panel-default">
+      </div>
+      <div class="row row-eq-height">
+        {% for training in pagination.items %}
+        <div class="col-md-6 col-lg-4">
+          <div class="panel panel-default">
             <div class="panel-heading">
-                <div class="row">
-                    <div class="bs-component">
-                        <div class="col-xs-6">
-                            <!-- {{training.weather}} -->
-                            {{training.date}}
+              <div class="row">
+                <div class="bs-component">
+                  <div class="col-xs-6">
+                    <!-- {{training.weather}} -->
+                    {{training.date}}
 
-                        </div>
-                        <div class="col-xs-6">
-                            @{{training.place}}
-                        </div>
-                    </div>
+                  </div>
+                  <div class="col-xs-6">
+                    @{{training.type}}
+                  </div>
                 </div>
+              </div>
             </div>
             <div class="panel-body">
+              <div class="bs-component">
+                <dl>
+                  <dt> <b> {{unescape(training.title)}} </b></dt>
+                  <dd>{{unescape(training.comment)}}</dd>
+                  <dt>参加者 ( {{ len(training.participants) }} ) </dt>
+                  <dd>
+                  {% for m in training.participants %}
+                  <span {% if m.sex == 1 or m.sex=='female' %} style="color: red;" {% endif %}>
+                    {{ m.show_name }}
+                  </span>
+                  {% endfor %}
+
+                  </dd>
+                </dl>
+              </div>
+              {% if current_user.is_authenticated %}
+              <div class="row">
                 <div class="bs-component">
-                    <dl>
-                        <dt> <b> {{unescape(training.title)}} </b></dt>
-                        <dd>{{unescape(training.comment)}}</dd>
-                        <dt>参加者 ( {{ len(training.participants) }} ) </dt>
-                        <dd>
-                            {% for m in training.participants %}
-                            <span {% if m.sex == 1 %} style="color: red;" {% endif %}>
-                                {{ m.show_name }}
-                            </span>
-                            {% endfor %}
-
-                        </dd>
-                    </dl>
-                </div>
-                {% if current_user.is_authenticated %}
-                <div class="row">
-                    <div class="bs-component">
-                        <div class="col-xs-12">
-                            <div style="display:inline-block;">
-                                <form method="get" action="{{url_for('training_edit')}}">
-                                    <input type="hidden" name="method" value="PUT">
-                                    <input type="hidden" name="id" value="{{training.id}}">
-                                    <input type="submit" value="編集" class="btn btn-warning">
-                                </form>
-                            </div>
-                            <div style="display:inline-block;">
-
-                                <form method="post" action="{{url_for('training_confirm')}}">
-                                    <input type="hidden" name="method" value="DELETE">
-                                    <input type="hidden" name="id" value="{{training.id}}">
-                                    <input type="submit" value="削除" class="btn btn-danger">
-                                </form>
-                            </div>
-                        </div>
+                  <div class="col-xs-12">
+                    <div style="display:inline-block;">
+                      <form method="get" action="{{url_for('training_edit')}}">
+                        <input type="hidden" name="method" value="PUT">
+                        <input type="hidden" name="id" value="{{training.id}}">
+                        <input type="submit" value="編集" class="btn btn-sm btn-warning">
+                      </form>
                     </div>
+                    <div style="display:inline-block;">
+
+                      <form method="post" action="{{url_for('training_confirm')}}">
+                        <input type="hidden" name="method" value="DELETE">
+                        <input type="hidden" name="id" value="{{training.id}}">
+                        <input type="submit" value="削除" class="btn btn-sm btn-danger">
+                      </form>
+                    </div>
+                  </div>
                 </div>
-                {% endif %}
+              </div>
+              {% endif %}
             </div>
+          </div>
         </div>
-    </div>
-    {% endfor %}
-</div>
-            <div class="bs-component">
-                    <div class="bs-component">
-                            <ul class="pager">
-                                <li class="previous {{ "disabled" if not pagination.has_prev}}"><a href="{{url_for('training',page=pagination.prev_num) }}">&larr; Newer</a></li>
-                                <li>                {{ pagination.page}}/{{ pagination.pages}}                            </li>
-                                <li class="next  {{ "disabled" if not pagination.has_next}}"><a href="{{url_for('training',page=pagination.next_num) }}">Older &rarr;</a></li>
-                            </ul>
-                    </div>
-                </div>
+        {% endfor %}
+      </div>
+      <div class="bs-component">
+        <div class="bs-component">
+          <ul class="pager">
+            <li class="previous {{ "disabled" if not pagination.has_prev}}"><a href="{{url_for('training',page=pagination.prev_num) }}">&larr; Newer</a></li>
+            <li>                {{ pagination.page}}/{{ pagination.pages}}                            </li>
+            <li class="next  {{ "disabled" if not pagination.has_next}}"><a href="{{url_for('training',page=pagination.next_num) }}">Older &rarr;</a></li>
+          </ul>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}
