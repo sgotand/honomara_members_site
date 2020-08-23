@@ -62,14 +62,14 @@ def member_individual(member_id):
     results2 = []
     races1 = []
     races2 = []
-    for r in raw_results:   
+    for r in raw_results:
         if r.distance == 42.195:
             results1 += [{'x': "{:%Y/%m/%d}".format(r.race.date),
-                        'y': r.time//1000}]
+                          'y': r.time//1000}]
             races1 += [r.race.course.competition.name]
         else:
             results2 += [{'x': "{:%Y/%m/%d}".format(r.race.date),
-                        'y': r.time//1000}]
+                          'y': r.time//1000}]
             races2 += [r.race.course.competition.name]
 
     trainings = db.session.query(TrainingParticipant.member_id, Training.date).\
