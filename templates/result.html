@@ -29,7 +29,7 @@
           <ul class="pager">
             <li class="previous {{ "disabled" if not pagination.has_prev}}"><a
                 href="{{url_for('result',page=pagination.prev_num) }}">&larr; Newer</a></li>
-            <li> {{ pagination.page}}/{{ pagination.pages}} </li>
+            <li>{{ pagination.page }}/{{ pagination.pages }}</li>
             <li class="next  {{ "disabled" if not pagination.has_next}}"><a
                 href="{{url_for('result',page=pagination.next_num) }}">Older &rarr;</a></li>
           </ul>
@@ -130,7 +130,7 @@
             <ul class="pager">
               <li class="previous {{ "disabled" if not pagination.has_prev}}"><a
                   href="{{url_for('result',page=pagination.prev_num) }}">&larr; Newer</a></li>
-              <li> {{ pagination.page}}/{{ pagination.pages}} </li>
+              <li> {{ pagination.page }}/{{ pagination.pages }} </li>
               <li class="next  {{ "disabled" if not pagination.has_next}}"><a
                   href="{{url_for('result',page=pagination.next_num) }}">Older &rarr;</a></li>
             </ul>

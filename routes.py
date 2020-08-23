@@ -56,13 +56,18 @@ def member_individual(member_id):
 
     m.results.sort(key=lambda x: x.race.date, reverse=False)
     raw_results = list(
-        filter(lambda x: x.race.course.distance == 42.195, m.results))
+        filter(lambda x: x.race.course.distance == 42.195 or x.race.course.distance == 21.0975, m.results))
 
-    results = []
+    results1 = []
+    results2 = []
     races = []
     for r in raw_results:
-        results += [{'x': "{:%Y/%m/%d}".format(r.race.date),
-                     'y': r.time//1000}]
+        if r.distance == 42.195:
+            results1 += [{'x': "{:%Y/%m/%d}".format(r.race.date),
+                        'y': r.time//1000}]
+        else:
+            results2 += [{'x': "{:%Y/%m/%d}".format(r.race.date),
+                        'y': r.time//1000}]
         races += [r.race.course.competition.name]
 
     trainings = db.session.query(TrainingParticipant.member_id, Training.date).\
@@ -115,7 +120,7 @@ def member_individual(member_id):
         join(Restaurant, Restaurant.id == After.restaurant_id).\
         group_by(Restaurant.id).order_by(db.text('cnt DESC')).all()
 
-    return render_template('member_individual.html', member=m, races=str(races), results=str(results), first_training=first_training, first_after=first_after, count_trainings=count_trainings, count_afters=count_afters, count_afterdays=count_afterdays, participations=participations, restaurants=restaurants)
+    return render_template('member_individual.html', member=m, results1=str(results1), results2=str(results2), races=str(races), first_training=first_training, first_after=first_after, count_trainings=count_trainings, count_afters=count_afters, count_afterdays=count_afterdays, participations=participations, restaurants=restaurants)
 
 
 @app.route('/member/edit', methods=['GET', 'POST'])
@@ -827,7 +832,7 @@ def result_confirm():
 
 @ app.route('/ranking')
 def ranking():
-    query = db.session.query(Member.show_name, func.count(TrainingParticipant.training_id).label('cnt'), Member.sex).join(
+    query = db.session.query(Member.show_name, func.count(TrainingParticipant.training_id).label('cnt'), Member.sex, Member.id).join(
         TrainingParticipant, TrainingParticipant.member_id == Member.id).join(Training, TrainingParticipant.training_id == Training.id)
     year_list = request.args.getlist('year_list')
     app.logger.info(request.form)
@@ -840,7 +845,7 @@ def ranking():
     items = []
     if year_list:
         query = query.filter(Member.year.in_(year_list))
-        items = [{'rank': i + 1, 'show_name': d[0], 't_cnt': d[1], 'sex': d[2]}
+        items = [{'rank': i + 1, 'show_name': d[0], 't_cnt': d[1], 'sex': d[2], 'id': d[3]}
                  for i, d in enumerate(query.order_by(db.text('cnt DESC')).all())
                  ]
     year_list = map(lambda x: int(x), year_list)

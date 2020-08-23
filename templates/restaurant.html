@@ -9,9 +9,11 @@
         </h1>
         <div class="bs-component">
           <ul class="pager">
-            <li class="previous {{ "disabled" if not pagination.has_prev}}"><a href="{{url_for('restaurant',page=pagination.prev_num) }}">&larr; Previous</a></li>
-            <li>                {{ pagination.page}}/{{ pagination.pages}}                            </li>
-            <li class="next  {{ "disabled" if not pagination.has_next}}"><a href="{{url_for('restaurant',page=pagination.next_num) }}">Next &rarr;</a></li>
+            <li class="previous {{ "disabled" if not pagination.has_prev}}"><a
+              href="{{url_for('restaurant',page=pagination.prev_num) }}">&larr; Previous</a></li>
+            <li>{{ pagination.page }}/{{ pagination.pages }}</li>
+            <li class="next  {{ "disabled" if not pagination.has_next}}"><a
+              href="{{url_for('restaurant',page=pagination.next_num) }}">Next &rarr;</a></li>
           </ul>
         </div>
       </div>
@@ -61,9 +63,11 @@
       <div class="bs-component">
         <div class="bs-component">
           <ul class="pager">
-            <li class="previous {{ "disabled" if not pagination.has_prev}}"><a href="{{url_for('restaurant',page=pagination.prev_num) }}">&larr; Previous</a></li>
-            <li>                {{ pagination.page}}/{{ pagination.pages}}                            </li>
-            <li class="next  {{ "disabled" if not pagination.has_next}}"><a href="{{url_for('restaurant',page=pagination.next_num) }}">Next &rarr;</a></li>
+            <li class="previous {{ "disabled" if not pagination.has_prev}}"><a
+              href="{{url_for('restaurant',page=pagination.prev_num) }}">&larr; Previous</a></li>
+            <li>{{ pagination.page }}/{{ pagination.pages }}</li>
+            <li class="next  {{ "disabled" if not pagination.has_next}}"><a
+              href="{{url_for('restaurant',page=pagination.next_num) }}">Next &rarr;</a></li>
           </ul>
         </div>
       </div>
