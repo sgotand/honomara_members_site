@@ -56,7 +56,7 @@ def member_individual(member_id):
 
     m.results.sort(key=lambda x: x.race.date, reverse=False)
     raw_results = list(
-        filter(lambda x: x.race.course.distance == 42.195 or x.race.course.distance == 21.0975, m.results))
+        filter(lambda x: x.race.course.distance in [42.195, 21.0975], m.results))
 
     results1 = []
     results2 = []
