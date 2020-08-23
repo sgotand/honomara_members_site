@@ -60,15 +60,17 @@ def member_individual(member_id):
 
     results1 = []
     results2 = []
-    races = []
-    for r in raw_results:
+    races1 = []
+    races2 = []
+    for r in raw_results:   
         if r.distance == 42.195:
             results1 += [{'x': "{:%Y/%m/%d}".format(r.race.date),
                         'y': r.time//1000}]
+            races1 += [r.race.course.competition.name]
         else:
             results2 += [{'x': "{:%Y/%m/%d}".format(r.race.date),
                         'y': r.time//1000}]
-        races += [r.race.course.competition.name]
+            races2 += [r.race.course.competition.name]
 
     trainings = db.session.query(TrainingParticipant.member_id, Training.date).\
         filter(TrainingParticipant.member_id == member_id).\
@@ -120,7 +122,7 @@ def member_individual(member_id):
         join(Restaurant, Restaurant.id == After.restaurant_id).\
         group_by(Restaurant.id).order_by(db.text('cnt DESC')).all()
 
-    return render_template('member_individual.html', member=m, results1=str(results1), results2=str(results2), races=str(races), first_training=first_training, first_after=first_after, count_trainings=count_trainings, count_afters=count_afters, count_afterdays=count_afterdays, participations=participations, restaurants=restaurants)
+    return render_template('member_individual.html', member=m, results1=str(results1), results2=str(results2), races1=str(races1), races2=str(races2), first_training=first_training, first_after=first_after, count_trainings=count_trainings, count_afters=count_afters, count_afterdays=count_afterdays, participations=participations, restaurants=restaurants)
 
 
 @app.route('/member/edit', methods=['GET', 'POST'])
