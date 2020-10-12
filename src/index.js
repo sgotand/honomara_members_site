@@ -14,7 +14,8 @@ import {
   faSearch,
   faFolder,
   faSignOutAlt,
-  faSignInAlt
+  faSignInAlt,
+  faSpinner
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(faEdit);
@@ -28,5 +29,6 @@ library.add(faSearch);
 library.add(faFolder);
 library.add(faSignOutAlt);
 library.add(faSignInAlt);
+library.add(faSpinner);
 
 dom.i2svg();

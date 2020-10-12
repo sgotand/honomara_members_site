@@ -52,17 +52,28 @@
     <input type="hidden" name="confirmed" value="True">
     {% if form.method.data == 'POST' %}
     <input type="hidden" name="method" value="POST">
-    <input type="submit" value="登録" class="btn btn-primary">
+    <input type="submit" value="登録" class="btn btn-primary" onclick="spinner();">
     {% elif form.method.data == 'PUT' %}
     <input type="hidden" name="id" value="{{ form.id.data }}">
     <input type="hidden" name="method" value="PUT">
-    <input type="submit" value="更新" class="btn btn-warning">
+    <input type="submit" value="更新" class="btn btn-warning" onclick="spinner();">
     {% elif form.method.data == 'DELETE' %}
     <input type="hidden" name="id" value="{{ form.id.data }}">
     <input type="hidden" name="method" value="DELETE">
-    <input type="submit" value="削除" class="btn btn-danger">
+    <input type="submit" value="削除" class="btn btn-danger" onclick="spinner();">
     {% endif %}
     <a href="{{url_for('competition')}}" class="btn btn-default">キャンセル</a>
   </form>
+  <div id="spinner" class="text-center" style="display: none; margin: 100px;">
+    <i class="fas fa-spinner fa-spin fa-5x"></i>
+  </div>
+  <script type="text/javascript">
+    function spinner() {
+      $("#spinner").show();
+      $(".row").hide();
+      $("#form-id").hide();
+    }
+
+  </script>
 </div>
 {% endblock %}
