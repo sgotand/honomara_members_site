@@ -32,27 +32,20 @@
           <a href="{{url_for('training_edit')}}" class="btn btn-primary">新規登録</a>
           {% endif %}
         </h1>
-        <div class="bs-component">
-          <ul class="pager">
-            <li class="previous {{ "disabled" if not pagination.has_prev}}"><a href="{{url_for('training',page=pagination.prev_num) }}">&larr; Newer</a></li>
-            <li>{{ pagination.page }}/{{ pagination.pages }}</li>
-            <li class="next  {{ "disabled" if not pagination.has_next}}"><a href="{{url_for('training',page=pagination.next_num) }}">Older &rarr;</a></li>
-          </ul>
+        <div class="text-center">
+          {{ pagination.info }}
+          {{ pagination.links }}
         </div>
       </div>
       <div class="row row-eq-height">
-        {% for training in pagination.items %}
+        {% for training in trainings.items %}
         <div class="col-xs-12 col-sm-6">
           {{macro.training(training, current_user)}}
         </div>
         {% endfor %}
       </div>
-      <div class="bs-component">
-        <ul class="pager">
-          <li class="previous {{ "disabled" if not pagination.has_prev}}"><a href="{{url_for('training',page=pagination.prev_num) }}">&larr; Newer</a></li>
-          <li>{{ pagination.page }}/{{ pagination.pages }}</li>
-          <li class="next  {{ "disabled" if not pagination.has_next}}"><a href="{{url_for('training',page=pagination.next_num) }}">Older &rarr;</a></li>
-        </ul>
+      <div class="text-center">
+        {{ pagination.links }}
       </div>
     </div>
   </div>

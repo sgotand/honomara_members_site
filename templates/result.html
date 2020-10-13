@@ -28,16 +28,13 @@
           <a href="{{url_for('result_edit')}}" class="btn btn-primary">記録登録</a>
           {% endif %}
         </h1>
-        <div class="bs-component">
-          <ul class="pager">
-            <li class="previous {{ "disabled" if not pagination.has_prev}}"><a href="{{url_for('result',page=pagination.prev_num) }}">&larr; Newer</a></li>
-            <li>{{ pagination.page }}/{{ pagination.pages }}</li>
-            <li class="next  {{ "disabled" if not pagination.has_next}}"><a href="{{url_for('result',page=pagination.next_num) }}">Older &rarr;</a></li>
-          </ul>
+        <div class="text-center">
+          {{ pagination.info }}
+          {{ pagination.links }}
         </div>
       </div>
       <div class="row">
-        {% for race in pagination.items %}
+        {% for race in results.items %}
         {% if len(race.results) > 0 or current_user.is_authenticated %}
         <div class="bs-component">
           <div class="panel panel-default">
@@ -121,14 +118,8 @@
         </div> <!-- .bs-component -->
         {% endif %}
         {% endfor %}
-        <div class="bs-component">
-          <div class="bs-component">
-            <ul class="pager">
-              <li class="previous {{ "disabled" if not pagination.has_prev}}"><a href="{{url_for('result',page=pagination.prev_num) }}">&larr; Newer</a></li>
-              <li> {{ pagination.page }}/{{ pagination.pages }} </li>
-              <li class="next  {{ "disabled" if not pagination.has_next}}"><a href="{{url_for('result',page=pagination.next_num) }}">Older &rarr;</a></li>
-            </ul>
-          </div>
+        <div class="text-center">
+          {{ pagination.links }}
         </div>
       </div>
     </div>

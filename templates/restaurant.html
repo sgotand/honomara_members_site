@@ -7,12 +7,9 @@
         <h1 id="tables">店舗リスト
           <a href="{{url_for('restaurant_edit')}}" class="btn btn-primary btn-lg">新規登録</a>
         </h1>
-        <div class="bs-component">
-          <ul class="pager">
-            <li class="previous {{ "disabled" if not pagination.has_prev}}"><a href="{{url_for('restaurant',page=pagination.prev_num) }}">&larr; Previous</a></li>
-            <li>{{ pagination.page }}/{{ pagination.pages }}</li>
-            <li class="next  {{ "disabled" if not pagination.has_next}}"><a href="{{url_for('restaurant',page=pagination.next_num) }}">Next &rarr;</a></li>
-          </ul>
+        <div class="text-center">
+          {{ pagination.info }}
+          {{ pagination.links }}
         </div>
       </div>
       <div class="bs-component">
@@ -26,7 +23,7 @@
             </tr>
           </thead>
           <tbody>
-            {% for restaurant in pagination.items %}
+            {% for restaurant in restaurants.items %}
             <tr>
               <th>
                 {{ restaurant.name }}({{ restaurant.place }})
@@ -58,14 +55,8 @@
           </tbody>
         </table>
       </div>
-      <div class="bs-component">
-        <div class="bs-component">
-          <ul class="pager">
-            <li class="previous {{ "disabled" if not pagination.has_prev}}"><a href="{{url_for('restaurant',page=pagination.prev_num) }}">&larr; Previous</a></li>
-            <li>{{ pagination.page }}/{{ pagination.pages }}</li>
-            <li class="next  {{ "disabled" if not pagination.has_next}}"><a href="{{url_for('restaurant',page=pagination.next_num) }}">Next &rarr;</a></li>
-          </ul>
-        </div>
+      <div class="text-center">
+        {{ pagination.links }}
       </div>
     </div>
   </div>

@@ -2,6 +2,7 @@ from itertools import groupby
 import itertools
 import datetime
 from flask import render_template, request, abort, redirect, url_for, flash
+from flask_paginate import Pagination
 from honomara_members_site import app, db
 from honomara_members_site.login import login_check
 from honomara_members_site.model import *
@@ -193,6 +194,7 @@ def member_confirm():
 @app.route('/training/')
 def training():
     per_page = 20
+    page_disp_msg = '{total}件中 {start}件 - {end}件'
     page = request.args.get('page') or 1
     page = max([1, int(page)])
     trainings = Training.query
@@ -216,8 +218,11 @@ def training():
             flash('{}件ヒットしました'.format(count), 'info')
         else:
             flash('ヒットしませんでした', 'danger')
-    trainings = trainings.order_by(
-        Training.date.desc()).paginate(page, per_page)
+    trainings = trainings.order_by(Training.date.desc())
+    pagination = Pagination(page=page, total=trainings.count(
+    ), per_page=per_page, css_framework='bootstrap4', display_msg=page_disp_msg)
+    return render_template('training.html', trainings=trainings.paginate(
+        page, per_page), pagination=pagination)
     return render_template('training.html', pagination=trainings)
 
 
@@ -305,6 +310,7 @@ def training_confirm():
 @app.route('/after/')
 def after():
     per_page = 20
+    page_disp_msg = '{total}件中 {start}件 - {end}件'
     page = request.args.get('page') or 1
     page = max([1, int(page)])
     afters = After.query
@@ -331,8 +337,11 @@ def after():
             flash('{}件ヒットしました'.format(count), 'info')
         else:
             flash('ヒットしませんでした', 'danger')
-    afters = afters.order_by(After.date.desc()).paginate(page, per_page)
-    return render_template('after.html', pagination=afters)
+    afters = afters.order_by(After.date.desc())
+    pagination = Pagination(page=page, total=afters.count(
+    ), per_page=per_page, css_framework='bootstrap4', display_msg=page_disp_msg)
+    return render_template('after.html', afters=afters.paginate(
+        page, per_page), pagination=pagination)
 
 
 @app.route('/after/edit', methods=['GET', 'POST'])
@@ -439,12 +448,16 @@ def after_confirm():
 
 @app.route('/result/')
 def result():
-    per_page = 40
+    per_page = 20
+    page_disp_msg = '{total}件中 {start}件 - {end}件'
     page = request.args.get('page') or 1
     page = max([1, int(page)])
     results = Race.query.join(Course).order_by(
-        Race.date.desc(), text("course.competition_id")).paginate(page, per_page)
-    return render_template('result.html', pagination=results)
+        Race.date.desc(), text("course.competition_id"))
+    pagination = Pagination(page=page, total=results.count(
+    ), per_page=per_page, css_framework='bootstrap4', display_msg=page_disp_msg)
+    return render_template('result.html', results=results.paginate(
+        page, per_page), pagination=pagination)
 
 
 @app.route('/competition/')
@@ -881,13 +894,15 @@ def search():
 def restaurant():
     afters = list(set(list(itertools.chain.from_iterable(
         db.session.query(After.restaurant_id).all()))))
-    per_page = 40
+    per_page = 50
     page = request.args.get('page') or 1
     page = max([1, int(page)])
-    restaurants = Restaurant.query.order_by(
-        Restaurant.score.desc()).paginate(page, per_page)
-    return render_template(
-        'restaurant.html', pagination=restaurants, afters=afters)
+    page_disp_msg = '{total}件中 {start}件 - {end}件'
+    restaurants = Restaurant.query.order_by(Restaurant.score.desc())
+    pagination = Pagination(page=page, total=restaurants.count(
+    ), per_page=per_page, css_framework='bootstrap4', display_msg=page_disp_msg)
+    return render_template('restaurant.html', restaurants=restaurants.paginate(
+        page, per_page), pagination=pagination, afters=afters)
 
 
 @ app.route('/restaurant/edit', methods=['GET', 'POST'])
