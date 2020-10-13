@@ -30,7 +30,7 @@
                 <tr>
                   <th>{{ competition.name }}</th>
                   <th>{{ course.distance }}km</th>
-                  <th>{{ form.date.data }}</th>
+                  <th>{{ form.date.data.strftime('%Y/%m/%d') }}</th>
                   <th>
                     {% for m in form.participants %}
                     {{ m.show_name }}

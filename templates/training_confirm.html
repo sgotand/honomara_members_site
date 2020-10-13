@@ -18,7 +18,7 @@
           <div class="bs-component">
             <dl>
               <dt>練習日</dt>
-              <dd>{{form.date.data}}</dd>
+              <dd>{{form.date.data.strftime('%Y/%m/%d(%a)')}}</dd>
               <dt>参加者({{len(form.participants.data)}}人)</dt>
               <dd>
                 {% for m in form.participants.data %}

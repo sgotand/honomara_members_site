@@ -304,7 +304,7 @@ def training_confirm():
 
 @app.route('/after/')
 def after():
-    per_page = 40
+    per_page = 20
     page = request.args.get('page') or 1
     page = max([1, int(page)])
     afters = After.query

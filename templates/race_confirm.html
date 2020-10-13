@@ -27,7 +27,7 @@
                 <tr>
                   <th>{{ course.competition.name }}</th>
                   <th>{{ course.show_name }}</th>
-                  <th>{{ form.date.data }}</th>
+                  <th>{{ form.date.data.strftime('%Y/%m/%d') }}</th>
                   <th>{{ form.comment.data }}</th>
                 </tr>
               </tbody>

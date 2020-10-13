@@ -44,7 +44,7 @@
             <div class="panel-heading">
               <div class="row" style="margin-top: 0;">
                 <h4 class="col-xs-12 col-sm-7" style="padding: 0 10px; margin: 0px;">
-                  {{ race.date }} {{ race.course.competition.name }} {{ race.course | fmt_course }}
+                  {{ race.date.strftime('%Y/%m/%d') }} {{ race.course.competition.name }} {{ race.course | fmt_course }}
 
                 </h4>
                 {% if current_user.is_authenticated %}

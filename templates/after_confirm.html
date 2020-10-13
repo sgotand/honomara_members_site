@@ -16,7 +16,7 @@
           <div class="bs-component">
             <dl>
               <dt>日付</dt>
-              <dd>{{form.date.data}}</dd>
+              <dd>{{form.date.data.strftime('%Y/%m/%d(%a)')}}</dd>
               <dt>店</dt>
               <dd>{{form.restaurant.data.name}}({{form.restaurant.data.place}})</dd>
               <dt>何次会</dt>
