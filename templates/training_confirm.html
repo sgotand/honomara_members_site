@@ -42,7 +42,7 @@
     </div>
   </div>
   <div class="row bs_component">
-    <form id="form-id" action="{{url_for('training_confirm')}}" method="post">
+    <form id="form-id" style="display: inline-block;" action="{{url_for('training_confirm')}}" method="post">
       {{ form.csrf_token }}
       {{ form.id }}
       {{ form.method }}
@@ -51,7 +51,6 @@
       <input type="hidden" name="title" value="{{ form.title.data }}">
       <input type="hidden" name="type" value="{{ form.type.data }}">
       <input type="hidden" name="comment" value="{{ form.comment.data }}">
-      <input type="hidden" name="method" value="{{ form.method.data }}">
       <input type="hidden" name="confirmed" value="True">
       {% for m in form.participants.data %}
       <input type="hidden" name="participants" value="{{ m.id }}">
@@ -65,8 +64,23 @@
       <input type="hidden" name="id" value="{{ form.id.data }}">
       <input type="submit" value="削除" class="btn btn-danger" onclick="spinner();">
       {% endif %}
-      <a href="{{url_for('training')}}" class="btn btn-default">キャンセル</a>
     </form>
+    {% if form.method.data != 'DELETE' %}
+    <form id="form-id" style="display: inline-block;" action="{{url_for('training_edit')}}" method="get">
+      {{ form.id }}
+      {{ form.method }}
+      <input type="hidden" name="date" value="{{ form.date.data }}">
+      <input type="hidden" name="weather" value="{{ form.weather.data }}">
+      <input type="hidden" name="title" value="{{ form.title.data }}">
+      <input type="hidden" name="type" value="{{ form.type.data }}">
+      <input type="hidden" name="comment" value="{{ form.comment.data }}">
+      {% for m in form.participants.data %}
+      <input type="hidden" name="participants" value="{{ m.id }}">
+      {% endfor %}
+      <input type="submit" name="submit" value="修正" class="btn btn-success">
+    </form>
+    {% endif %}
+    <a href="{{url_for('training')}}" class="btn btn-default">キャンセル</a>
   </div>
   <div id="spinner" class="text-center" style="display: none; margin: 100px;">
     <i class="fas fa-spinner fa-spin fa-5x"></i>

@@ -234,7 +234,28 @@ def training_edit():
     if form.validate_on_submit():
         return redirect(url_for('training_confirm'), code=307)
 
-    if request.args.get('method') == 'PUT':
+    if request.args.get('submit') == "修正":
+        if request.args.get('id') != "":
+            form.id.data = int(request.args.get('id'))
+        form.method.data = request.args.get('method')
+        form.date.data = datetime.datetime.strptime(
+            request.args.get('date'), '%Y-%m-%d')
+        form.weather.data = request.args.get('weather')
+        form.type.data = request.args.get('type')
+        form.title.data = request.args.get('title')
+        form.comment.data = request.args.get('comment')
+        form.participants1.data = [
+            int(i) for i in request.args.getlist('participants')]
+        form.participants2.data = [
+            int(i) for i in request.args.getlist('participants')]
+        form.participants3.data = [
+            int(i) for i in request.args.getlist('participants')]
+        form.participants4.data = [
+            int(i) for i in request.args.getlist('participants')]
+        form.participants.data = [
+            int(i) for i in request.args.getlist('participants')]
+
+    elif request.args.get('method') == 'PUT':
         id = int(request.args.get('id'))
         training = Training.query.get(id)
         form = TrainingForm(obj=training)
@@ -354,7 +375,28 @@ def after_edit():
     if form.validate_on_submit():
         return redirect(url_for('after_confirm'), code=307)
 
-    if request.args.get('method') == 'PUT':
+    if request.args.get('submit') == "修正":
+        if request.args.get('id') != "":
+            form.id.data = int(request.args.get('id'))
+        form.method.data = request.args.get('method')
+        form.date.data = datetime.datetime.strptime(
+            request.args.get('date'), '%Y-%m-%d')
+        form.after_stage.data = int(request.args.get('after_stage'))
+        form.title.data = request.args.get('title')
+        form.restaurant.data = int(request.args.get('restaurant'))
+        form.comment.data = request.args.get('comment')
+        form.participants1.data = [
+            int(i) for i in request.args.getlist('participants')]
+        form.participants2.data = [
+            int(i) for i in request.args.getlist('participants')]
+        form.participants3.data = [
+            int(i) for i in request.args.getlist('participants')]
+        form.participants4.data = [
+            int(i) for i in request.args.getlist('participants')]
+        form.participants.data = [
+            int(i) for i in request.args.getlist('participants')]
+
+    elif request.args.get('method') == 'PUT':
         id = int(request.args.get('id'))
         after = After.query.get(id)
         form = AfterForm(obj=after)

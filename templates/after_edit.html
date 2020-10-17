@@ -32,17 +32,8 @@
         <div class="form-group  required">{{ form.participants.label(class="control-label") }} {{form.participants(class="form-control")}}</div>
         <div class="form-group  required">{{ form.title.label(class="control-label") }} {{form.title(class="form-control")}}</div>
         <div class="form-group  required">{{ form.comment.label(class="control-label") }} {{form.comment(class="form-control", rows="5")}}</div>
-        <input class="btn btn-default" id="submit" name="submit" type="submit" value="確定" />
+        <input class="btn btn-default" id="submit" name="submit" type="submit" value="確認へ進む" />
       </form>
-      {% if form.id.data%}
-      <div style="display:inline-block; margin: 10px auto;">
-        <form method="post" action="{{url_for('after_confirm')}}">
-          <input type="hidden" name="method" value="DELETE">
-          <input type="hidden" name="id" value="{{form.id.data}}">
-          <input type="submit" value="削除" class="btn btn-danger">
-        </form>
-      </div>
-      {% endif %}
     </div>
   </div>
 </div>
