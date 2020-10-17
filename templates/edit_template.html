@@ -9,14 +9,24 @@
 
 {% block scripts %}
 {{ super() }}
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script>                      -->
-<!-- <script src="https://cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/v4.0.0/src/js/bootstrap-datetimepicker.js"></script> -->
-<!-- <script type="text/javascript">                                                                                            -->
-<!--   $(function () {                                                                                                          -->
-<!--     $('#date').datetimepicker({                                                                                            -->
-<!--       locale: 'ja',                                                                                                        -->
-<!--       format: 'YYYY-MM-DD'                                                                                                 -->
-<!--     });                                                                                                                    -->
-<!--   });                                                                                                                      -->
-<!-- </script>                                                                                                                  -->
+<script type="text/javascript">
+  $(document).ready(function() {
+    var data = [];
+    options = $('#restaurant').children();
+    for (i = 0; i < options.length; i++) {
+      target = options.eq(i);
+      data.push([Number(target.val()), target.text()]);
+    }
+    $('#narrow_down').change(function() {
+      keyword = $(this).val();
+      $('#restaurant option').remove();
+      for (var option of data) {
+        if (keyword === '' || option[1].indexOf(keyword) != -1) {
+          $('#restaurant').append($('<option>').html(option[1]).val(option[0]));
+        }
+      }
+    });
+  });
+
+</script> -->
 {% endblock %}
