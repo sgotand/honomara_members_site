@@ -32,11 +32,26 @@
           <a href="{{url_for('training_edit')}}" class="btn btn-primary">新規登録</a>
           {% endif %}
         </h1>
+        {% if request.args.get('submit') == '検索' %}
         <div class="text-center">
           {{ pagination.info }}
           {{ pagination.links }}
         </div>
+        {% else %}
+        <div class="bs-component">
+          <ul class="pager">
+            <li class="previous {{ "disabled" if target >= now}}"><a href="{{url_for('training', target=next.strftime('%Y-%m')) }}">&larr; 翌月</a></li>
+            <li>{{ target.year }}年{{ target.month }}月</li>
+            <li class="next {{ "disabled" if target.strftime('%Y-%m') <= "2001-11"}}"><a href="{{url_for('training', target=previous.strftime('%Y-%m')) }}" disa>前月 &rarr;</a></li>
+          </ul>
+        </div>
+        <form action="{{url_for('training')}}" class="form-inline" method="get" role="form">
+          <input class="col-6 form-control" type="month" name="target" min="2001-11" max="{{ now.strftime('%Y-%m') }}" value="{{ target.strftime('%Y-%m') }}">
+          <input class="btn btn-default" name="submit" type="submit" value="表示">
+        </form>
+        {% endif %}
       </div>
+      {% if request.args.get('submit') == '検索' %}
       <div class="row row-eq-height">
         {% for training in trainings.items %}
         <div class="col-xs-12 col-sm-6">
@@ -45,9 +60,27 @@
         {% endfor %}
       </div>
       <div class="text-center">
+        {{ pagination.info }}
         {{ pagination.links }}
       </div>
+      {% else %}
+      <div class="row row-eq-height">
+        {% for training in trainings %}
+        <div class="col-xs-12 col-sm-6">
+          {{macro.training(training, current_user)}}
+        </div>
+        {% endfor %}
+      </div>
+      <div class="bs-component">
+        <ul class="pager">
+          <li class="previous {{ "disabled" if target >= now}}"><a href="{{url_for('training', target=next.strftime('%Y-%m')) }}">&larr; 翌月</a></li>
+          <li>{{ target.year }}年{{ target.month }}月</li>
+          <li class="next {{ "disabled" if target.strftime('%Y-%m') <= "2001-11"}}"><a href="{{url_for('training', target=previous.strftime('%Y-%m')) }}" disa>前月 &rarr;</a></li>
+        </ul>
+      </div>
+      {% endif %}
     </div>
   </div>
+</div>
 </div>
 {% endblock %}

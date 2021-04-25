@@ -193,37 +193,66 @@ def member_confirm():
 
 @app.route('/training/')
 def training():
-    per_page = 20
-    page_disp_msg = '{total}件中 {start}件 - {end}件'
-    page = request.args.get('page') or 1
-    page = max([1, int(page)])
     trainings = Training.query
-    keywords = request.args.get('keyword')
-    day_from = request.args.get('from')
-    day_until = request.args.get('until')
-    if keywords is not None:
-        for keyword in keywords.split(','):
-            keyword = keyword.replace(' ', '')
-            keyword = keyword.replace('　', '')
-            trainings = trainings.filter(Training.comment.contains(keyword))
-    if day_from is not None and day_from != "":
-        day_from = datetime.datetime.strptime(day_from, '%Y-%m-%d')
-        trainings = trainings.filter(Training.date >= day_from)
-    if day_until is not None and day_until != "":
-        day_until = datetime.datetime.strptime(day_until, '%Y-%m-%d')
-        trainings = trainings.filter(Training.date <= day_until)
     if request.args.get('submit') == "検索":
+        keywords = request.args.get('keyword')
+        day_from = request.args.get('from')
+        day_until = request.args.get('until')
+        if keywords is not None:
+            for keyword in keywords.split(','):
+                keyword = keyword.replace(' ', '')
+                keyword = keyword.replace('　', '')
+                trainings = trainings.filter(
+                    Training.comment.contains(keyword))
+        if day_from is not None and day_from != "":
+            day_from = datetime.datetime.strptime(day_from, '%Y-%m-%d')
+            trainings = trainings.filter(Training.date >= day_from)
+        if day_until is not None and day_until != "":
+            day_until = datetime.datetime.strptime(day_until, '%Y-%m-%d')
+            trainings = trainings.filter(Training.date <= day_until)
         count = trainings.count()
+        per_page = 20
+        page_disp_msg = '{total}件中 {start}件 - {end}件'
+        page = request.args.get('page') or 1
+        page = max([1, int(page)])
+        pagination = Pagination(
+            page=page,
+            total=count,
+            per_page=per_page,
+            css_framework='bootstrap4',
+            display_msg=page_disp_msg)
         if count > 0:
             flash('{}件ヒットしました'.format(count), 'info')
         else:
             flash('ヒットしませんでした', 'danger')
-    trainings = trainings.order_by(Training.date.desc())
-    pagination = Pagination(page=page, total=trainings.count(
-    ), per_page=per_page, css_framework='bootstrap4', display_msg=page_disp_msg)
-    return render_template('training.html', trainings=trainings.paginate(
-        page, per_page), pagination=pagination)
-    return render_template('training.html', pagination=trainings)
+        trainings = trainings.order_by(
+            Training.date.desc()).paginate(
+            page, per_page)
+        return render_template(
+            'training.html', trainings=trainings, pagination=pagination)
+    else:
+        now = datetime.date.today().replace(day=1)
+        day_from = now
+        if request.args.get('target'):
+            day_from = datetime.datetime.date(
+                datetime.datetime.strptime(
+                    request.args.get('target'), '%Y-%m'))
+        if day_from.month == 12:
+            day_until = datetime.date(day_from.year + 1, 1, day_from.day)
+        else:
+            day_until = datetime.date(
+                day_from.year, day_from.month + 1, day_from.day)
+        if day_from.month == 1:
+            previous = datetime.date(day_from.year - 1, 12, day_from.day)
+        else:
+            previous = datetime.date(
+                day_from.year, day_from.month - 1, day_from.day)
+        trainings = trainings.filter(
+            Training.date >= day_from).filter(
+            Training.date < day_until).order_by(
+            Training.date.desc()).all()
+        return render_template(
+            'training.html', trainings=trainings, now=now, target=day_from, previous=previous, next=day_until)
 
 
 @app.route('/training/edit', methods=['GET', 'POST'])
@@ -330,39 +359,66 @@ def training_confirm():
 
 @app.route('/after/')
 def after():
-    per_page = 20
-    page_disp_msg = '{total}件中 {start}件 - {end}件'
-    page = request.args.get('page') or 1
-    page = max([1, int(page)])
     afters = After.query
-    stage = request.args.get('stage')
-    keywords = request.args.get('keyword')
-    day_from = request.args.get('from')
-    day_until = request.args.get('until')
-    if stage is not None and stage != "":
-        afters = afters.filter(After.after_stage == int(stage))
-    if keywords is not None:
-        for keyword in keywords.split(','):
-            keyword = keyword.replace(' ', '')
-            keyword = keyword.replace('　', '')
-            afters = afters.filter(After.comment.contains(keyword))
-    if day_from is not None and day_from != "":
-        day_from = datetime.datetime.strptime(day_from, '%Y-%m-%d')
-        afters = afters.filter(After.date >= day_from)
-    if day_until is not None and day_until != "":
-        day_until = datetime.datetime.strptime(day_until, '%Y-%m-%d')
-        afters = afters.filter(After.date <= day_until)
     if request.args.get('submit') == "検索":
+        stage = request.args.get('stage')
+        keywords = request.args.get('keyword')
+        day_from = request.args.get('from')
+        day_until = request.args.get('until')
+        if stage is not None and stage != "":
+            afters = afters.filter(After.after_stage == int(stage))
+        if keywords is not None:
+            for keyword in keywords.split(','):
+                keyword = keyword.replace(' ', '')
+                keyword = keyword.replace('　', '')
+                afters = afters.filter(After.comment.contains(keyword))
+        if day_from is not None and day_from != "":
+            day_from = datetime.datetime.strptime(day_from, '%Y-%m-%d')
+            afters = afters.filter(After.date >= day_from)
+        if day_until is not None and day_until != "":
+            day_until = datetime.datetime.strptime(day_until, '%Y-%m-%d')
+            afters = afters.filter(After.date <= day_until)
         count = afters.count()
+        per_page = 20
+        page_disp_msg = '{total}件中 {start}件 - {end}件'
+        page = request.args.get('page') or 1
+        page = max([1, int(page)])
+        pagination = Pagination(
+            page=page,
+            total=count,
+            per_page=per_page,
+            css_framework='bootstrap4',
+            display_msg=page_disp_msg)
         if count > 0:
             flash('{}件ヒットしました'.format(count), 'info')
         else:
             flash('ヒットしませんでした', 'danger')
-    afters = afters.order_by(After.date.desc())
-    pagination = Pagination(page=page, total=afters.count(
-    ), per_page=per_page, css_framework='bootstrap4', display_msg=page_disp_msg)
-    return render_template('after.html', afters=afters.paginate(
-        page, per_page), pagination=pagination)
+        afters = afters.order_by(After.date.desc()).paginate(page, per_page)
+        return render_template(
+            'after.html', afters=afters, pagination=pagination)
+    else:
+        now = datetime.date.today().replace(day=1)
+        day_from = now
+        if request.args.get('target'):
+            day_from = datetime.datetime.date(
+                datetime.datetime.strptime(
+                    request.args.get('target'), '%Y-%m'))
+        if day_from.month == 12:
+            day_until = datetime.date(day_from.year + 1, 1, day_from.day)
+        else:
+            day_until = datetime.date(
+                day_from.year, day_from.month + 1, day_from.day)
+        if day_from.month == 1:
+            previous = datetime.date(day_from.year - 1, 12, day_from.day)
+        else:
+            previous = datetime.date(
+                day_from.year, day_from.month - 1, day_from.day)
+        afters = afters.filter(
+            After.date >= day_from).filter(
+            After.date < day_until).order_by(
+            After.date.desc()).all()
+        return render_template(
+            'after.html', afters=afters, now=now, target=day_from, previous=previous, next=day_until)
 
 
 @app.route('/after/edit', methods=['GET', 'POST'])
