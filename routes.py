@@ -231,28 +231,38 @@ def training():
         return render_template(
             'training.html', trainings=trainings, pagination=pagination)
     else:
-        now = datetime.date.today().replace(day=1)
-        day_from = now
-        if request.args.get('target'):
-            day_from = datetime.datetime.date(
-                datetime.datetime.strptime(
-                    request.args.get('target'), '%Y-%m'))
-        if day_from.month == 12:
-            day_until = datetime.date(day_from.year + 1, 1, day_from.day)
+        target = request.args.get('target')
+        if target:
+            year = int(target.split('-')[0])
+            month = int(target.split('-')[1])
         else:
-            day_until = datetime.date(
-                day_from.year, day_from.month + 1, day_from.day)
-        if day_from.month == 1:
-            previous = datetime.date(day_from.year - 1, 12, day_from.day)
-        else:
-            previous = datetime.date(
-                day_from.year, day_from.month - 1, day_from.day)
-        trainings = trainings.filter(
-            Training.date >= day_from).filter(
-            Training.date < day_until).order_by(
-            Training.date.desc()).all()
-        return render_template(
-            'training.html', trainings=trainings, now=now, target=day_from, previous=previous, next=day_until)
+            now = datetime.date.today()
+            year = now.year
+            month = now.month
+        return redirect(
+            url_for('training_by_year_month', year=year, month=month))
+
+
+@app.route('/training/<int:year>/<int:month>')
+def training_by_year_month(year, month):
+    now = datetime.date.today().replace(day=1)
+    day_from = datetime.date(year, month, 1)
+    if day_from.month == 12:
+        day_until = datetime.date(day_from.year + 1, 1, day_from.day)
+    else:
+        day_until = datetime.date(
+            day_from.year, day_from.month + 1, day_from.day)
+    if day_from.month == 1:
+        previous = datetime.date(day_from.year - 1, 12, day_from.day)
+    else:
+        previous = datetime.date(
+            day_from.year, day_from.month - 1, day_from.day)
+    trainings = Training.query.filter(
+        Training.date >= day_from).filter(
+        Training.date < day_until).order_by(
+        Training.date.desc()).all()
+    return render_template(
+        'training.html', trainings=trainings, now=now, target=day_from, previous=previous, next=day_until)
 
 
 @app.route('/training/edit', methods=['GET', 'POST'])
@@ -397,28 +407,38 @@ def after():
         return render_template(
             'after.html', afters=afters, pagination=pagination)
     else:
-        now = datetime.date.today().replace(day=1)
-        day_from = now
-        if request.args.get('target'):
-            day_from = datetime.datetime.date(
-                datetime.datetime.strptime(
-                    request.args.get('target'), '%Y-%m'))
-        if day_from.month == 12:
-            day_until = datetime.date(day_from.year + 1, 1, day_from.day)
+        target = request.args.get('target')
+        if target:
+            year = int(target.split('-')[0])
+            month = int(target.split('-')[1])
         else:
-            day_until = datetime.date(
-                day_from.year, day_from.month + 1, day_from.day)
-        if day_from.month == 1:
-            previous = datetime.date(day_from.year - 1, 12, day_from.day)
-        else:
-            previous = datetime.date(
-                day_from.year, day_from.month - 1, day_from.day)
-        afters = afters.filter(
-            After.date >= day_from).filter(
-            After.date < day_until).order_by(
-            After.date.desc()).all()
-        return render_template(
-            'after.html', afters=afters, now=now, target=day_from, previous=previous, next=day_until)
+            now = datetime.date.today()
+            year = now.year
+            month = now.month
+        return redirect(
+            url_for('after_by_year_month', year=year, month=month))
+
+
+@app.route('/after/<int:year>/<int:month>')
+def after_by_year_month(year, month):
+    now = datetime.date.today().replace(day=1)
+    day_from = datetime.date(year, month, 1)
+    if day_from.month == 12:
+        day_until = datetime.date(day_from.year + 1, 1, day_from.day)
+    else:
+        day_until = datetime.date(
+            day_from.year, day_from.month + 1, day_from.day)
+    if day_from.month == 1:
+        previous = datetime.date(day_from.year - 1, 12, day_from.day)
+    else:
+        previous = datetime.date(
+            day_from.year, day_from.month - 1, day_from.day)
+    afters = After.query.filter(
+        After.date >= day_from).filter(
+        After.date < day_until).order_by(
+        After.date.desc()).all()
+    return render_template(
+        'after.html', afters=afters, now=now, target=day_from, previous=previous, next=day_until)
 
 
 @app.route('/after/edit', methods=['GET', 'POST'])

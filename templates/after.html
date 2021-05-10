@@ -39,9 +39,9 @@
         {% else %}
         <div class="bs-component">
           <ul class="pager">
-            <li class="previous {{ "disabled" if target >= now}}"><a href="{{url_for('after', target=next.strftime('%Y-%m')) }}">&larr; 翌月</a></li>
+            <li class="previous {{ "disabled" if target >= now}}"><a href="{{url_for('after_by_year_month', year=next.year, month=next.month)}}">&larr; 翌月</a></li>
             <li>{{ target.year }}年{{ target.month }}月</li>
-            <li class="next {{ "disabled" if target.strftime('%Y-%m') <= "2001-08"}}"><a href="{{url_for('after', target=previous.strftime('%Y-%m')) }}" disa>前月 &rarr;</a></li>
+            <li class="next {{ "disabled" if target.strftime('%Y-%m') <= "2001-08"}}"><a href="{{url_for('after_by_year_month', year=previous.year, month=previous.month)}}">前月 &rarr;</a></li>
           </ul>
         </div>
         <form action="{{url_for('after')}}" class="form-inline" method="get" role="form">
@@ -72,9 +72,9 @@
       </div>
       <div class="bs-component">
         <ul class="pager">
-          <li class="previous {{ "disabled" if target >= now}}"><a href="{{url_for('after', target=next.strftime('%Y-%m')) }}">&larr; 翌月</a></li>
+          <li class="previous {{ "disabled" if target >= now}}"><a href="{{url_for('after_by_year_month', year=next.year, month=next.month)}}">&larr; 翌月</a></li>
           <li>{{ target.year }}年{{ target.month }}月</li>
-          <li class="next {{ "disabled" if target.strftime('%Y-%m') <= "2001-08"}}"><a href="{{url_for('after', target=previous.strftime('%Y-%m')) }}" disa>前月 &rarr;</a></li>
+          <li class="next {{ "disabled" if target.strftime('%Y-%m') <= "2001-08"}}"><a href="{{url_for('after_by_year_month', year=previous.year, month=previous.month)}}">前月 &rarr;</a></li>
         </ul>
       </div>
       {% endif %}
